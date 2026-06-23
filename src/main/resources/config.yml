@@ -1,0 +1,75 @@
+language: ru
+
+database:
+  type: sqlite
+  file: vibeprivate.db
+  mysql:
+    host: localhost
+    port: 3306
+    database: vibeprivate
+    username: root
+    password: ""
+    parameters: "useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&useUnicode=true&characterEncoding=utf8"
+
+regions:
+  allowed-worlds:
+    - world
+    - world_nether
+    - world_the_end
+  min-y: -64
+  max-y: 500
+
+limits:
+  home:
+    max-per-player: 1
+    start-radius: 32
+    max-radius: 512
+  farm:
+    max-per-player: 3
+    start-radius: 16
+    max-radius: 126
+  clan:
+    max-per-clan: 1
+    start-radius: 128
+    max-radius: 768
+
+player-bonuses:
+  fast-home:
+    permission: "vibeprivate.bonus.fast-home"
+    home-teleport-delay-seconds: 3
+    home-command-cooldown-seconds: 3
+  extra-regions:
+    permission: "vibeprivate.bonus.extra-regions"
+    extra-home-regions: 1
+    extra-farm-regions: 3
+
+fuel:
+  drain-interval-hours: 1
+  max-days: 60
+  expired-delete-after-hours: 24
+  radius-cost-max-multiplier: 10.0
+  material-minutes:
+    COAL_BLOCK: 450
+    COAL: 50
+    CHARCOAL: 50
+    LOG: 50
+    STEM: 50
+
+upgrades:
+  cost-multiplier: 1.0
+  deposit-radius-points:
+    DIAMOND_BLOCK: 8
+    EMERALD_BLOCK: 2
+    NETHERITE_BLOCK: 64
+
+chunk-keeper:
+  enabled: true
+  buffer-chunks: 4
+  max-chunks-per-region: 50000
+
+visualization:
+  border-distance-blocks: 2
+  duration-seconds: 4
+  cooldown-seconds: 3
+  wall-radius-blocks: 12
+  wall-height-blocks: 5

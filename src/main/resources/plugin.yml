@@ -1,0 +1,34 @@
+name: VibePrivate
+version: 0.1.1
+main: com.vibeprivate.VibePrivatePlugin
+api-version: '1.21'
+authors:
+  - Li2Fox
+softdepend:
+  - CMI
+libraries:
+  - org.xerial:sqlite-jdbc:3.49.1.0
+  - com.mysql:mysql-connector-j:8.4.0
+commands:
+  vp:
+    description: Opens VibePrivate menu or help.
+    usage: /vp [help]
+  privat:
+    description: Opens VibePrivate menu or help.
+    usage: /privat [help]
+  privatadmin:
+    description: Opens VibePrivate admin menu.
+    usage: /privatadmin
+  home:
+    description: Teleports to your VibePrivate HOME region.
+    usage: /home
+  sethome:
+    description: Sets your VibePrivate HOME teleport point.
+    usage: /sethome
+permissions:
+  vibeprivate.bypass:
+    description: Bypass VibePrivate region protection.
+    default: op
+  vibeprivate.admin:
+    description: Access VibePrivate admin tools.
+    default: op
