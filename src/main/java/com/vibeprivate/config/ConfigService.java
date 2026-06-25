@@ -5,6 +5,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import com.vibeprivate.model.RegionType;
+import com.vibeprivate.service.UpkeepMode;
 
 import java.util.List;
 import java.util.Objects;
@@ -169,6 +170,63 @@ public final class ConfigService {
         }
 
         return 0;
+    }
+
+    public boolean isUpkeepEnabled() {
+        return config.getBoolean("upkeep.enabled", true);
+    }
+
+    public UpkeepMode getUpkeepMode() {
+        String value = config.getString("upkeep.mode", "fuel");
+        if (value != null && value.equalsIgnoreCase("money")) {
+            return UpkeepMode.MONEY;
+        }
+
+        return UpkeepMode.FUEL;
+    }
+
+    public int getUpkeepCheckIntervalMinutes() {
+        return Math.max(1, config.getInt("upkeep.check-interval-minutes", 10));
+    }
+
+    public int getUpkeepIntervalHours() {
+        return Math.max(1, config.getInt("upkeep.interval-hours", 24));
+    }
+
+    public double getUpkeepBaseCostPerChunk() {
+        return Math.max(0.0D, config.getDouble("upkeep.base-cost-per-chunk", 10.0D));
+    }
+
+    public double getUpkeepSizeGrowth() {
+        return Math.max(0.0D, config.getDouble("upkeep.size-growth", 0.12D));
+    }
+
+    public double getUpkeepSizePower() {
+        return Math.max(1.0D, config.getDouble("upkeep.size-power", 1.35D));
+    }
+
+    public int getUpkeepGraceDays() {
+        return Math.max(0, config.getInt("upkeep.grace-days", 3));
+    }
+
+    public int getUpkeepRemoveAfterDays() {
+        return Math.max(getUpkeepGraceDays() + 1, config.getInt("upkeep.remove-after-days", 7));
+    }
+
+    public int getUpkeepFreezeAfterOfflineDays() {
+        return Math.max(0, config.getInt("upkeep.freeze-after-offline-days", 21));
+    }
+
+    public double getUpkeepOfflineRateMultiplier() {
+        return Math.max(0.0D, config.getDouble("upkeep.offline-rate-multiplier", 0.35D));
+    }
+
+    public int getUpkeepNewbieFreePlaytimeMinutes() {
+        return Math.max(0, config.getInt("upkeep.newbie-free-playtime-minutes", 180));
+    }
+
+    public boolean isUpkeepLoggingEnabled() {
+        return config.getBoolean("upkeep.log-withdrawals", true);
     }
 
     public int getVisualizationBorderDistanceBlocks() {

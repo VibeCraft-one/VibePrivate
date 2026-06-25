@@ -6,6 +6,7 @@ authors:
   - Li2Fox
 softdepend:
   - CMI
+  - Vault
 libraries:
   - org.xerial:sqlite-jdbc:3.49.1.0
   - com.mysql:mysql-connector-j:8.4.0

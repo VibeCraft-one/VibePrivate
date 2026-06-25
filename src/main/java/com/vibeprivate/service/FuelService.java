@@ -29,6 +29,10 @@ public final class FuelService {
 
     public void start() {
         stop();
+        if (configService.getUpkeepMode() == UpkeepMode.MONEY) {
+            return;
+        }
+
         long periodTicks = Math.max(1L, configService.getFuelDrainIntervalHours()) * 60L * 60L * 20L;
         task = plugin.getServer().getScheduler().runTaskTimer(plugin, this::runMaintenance, 20L * 60L, periodTicks);
         runMaintenance();
@@ -126,6 +130,10 @@ public final class FuelService {
     }
 
     private void runMaintenance() {
+        if (configService.getUpkeepMode() == UpkeepMode.MONEY) {
+            return;
+        }
+
         long now = System.currentTimeMillis();
         for (Region region : regionManager.getRegions()) {
             if (region.isAdmin()) {

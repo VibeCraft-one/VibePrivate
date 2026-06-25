@@ -13,6 +13,7 @@ import com.vibeprivate.service.AdminRegionService;
 import com.vibeprivate.service.ChunkProtectionService;
 import com.vibeprivate.service.CommandCooldownService;
 import com.vibeprivate.service.ConfirmationService;
+import com.vibeprivate.service.EconomyService;
 import com.vibeprivate.service.FuelService;
 import com.vibeprivate.service.PendingTeleportService;
 import com.vibeprivate.service.RegionAccessService;
@@ -22,12 +23,14 @@ import com.vibeprivate.service.RegionHomeService;
 import com.vibeprivate.service.RegionInviteService;
 import com.vibeprivate.service.RegionTeleportService;
 import com.vibeprivate.service.RegionUpgradeService;
+import com.vibeprivate.service.UpkeepService;
 import com.vibeprivate.storage.DatabaseService;
 import com.vibeprivate.storage.ProtectedChunkRepository;
 import com.vibeprivate.storage.RegionAccessRepository;
 import com.vibeprivate.storage.RegionDepositRepository;
 import com.vibeprivate.storage.RegionHomeRepository;
 import com.vibeprivate.storage.RegionRepository;
+import com.vibeprivate.storage.UpkeepRepository;
 import com.vibeprivate.visualization.RegionBoundaryVisualizer;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -39,6 +42,7 @@ public final class VibePrivateServices {
     private final RegionAccessRepository regionAccessRepository;
     private final RegionDepositRepository regionDepositRepository;
     private final RegionHomeRepository regionHomeRepository;
+    private final UpkeepRepository upkeepRepository;
     private final ProtectedChunkRepository protectedChunkRepository;
     private final RegionAccessService regionAccessService;
     private final RegionManager regionManager;
@@ -47,6 +51,8 @@ public final class VibePrivateServices {
     private final RegionCreationService regionCreationService;
     private final RegionInviteService regionInviteService;
     private final FuelService fuelService;
+    private final EconomyService economyService;
+    private final UpkeepService upkeepService;
     private final AdminRegionService adminRegionService;
     private final AdminRegionPresetService adminRegionPresetService;
     private final RegionUpgradeService regionUpgradeService;
@@ -70,6 +76,7 @@ public final class VibePrivateServices {
         regionAccessRepository = builder.regionAccessRepository;
         regionDepositRepository = builder.regionDepositRepository;
         regionHomeRepository = builder.regionHomeRepository;
+        upkeepRepository = builder.upkeepRepository;
         protectedChunkRepository = builder.protectedChunkRepository;
         regionAccessService = builder.regionAccessService;
         regionManager = builder.regionManager;
@@ -78,6 +85,8 @@ public final class VibePrivateServices {
         regionCreationService = builder.regionCreationService;
         regionInviteService = builder.regionInviteService;
         fuelService = builder.fuelService;
+        economyService = builder.economyService;
+        upkeepService = builder.upkeepService;
         adminRegionService = builder.adminRegionService;
         adminRegionPresetService = builder.adminRegionPresetService;
         regionUpgradeService = builder.regionUpgradeService;
@@ -100,10 +109,12 @@ public final class VibePrivateServices {
 
     public void startRuntimeTasks() {
         fuelService.start();
+        upkeepService.start();
     }
 
     public void stopRuntimeTasks() {
         fuelService.stop();
+        upkeepService.stop();
         pendingTeleportService.stop();
     }
 
@@ -139,6 +150,10 @@ public final class VibePrivateServices {
         return regionHomeRepository;
     }
 
+    public UpkeepRepository upkeepRepository() {
+        return upkeepRepository;
+    }
+
     public RegionAccessService regionAccessService() {
         return regionAccessService;
     }
@@ -165,6 +180,14 @@ public final class VibePrivateServices {
 
     public FuelService fuelService() {
         return fuelService;
+    }
+
+    public EconomyService economyService() {
+        return economyService;
+    }
+
+    public UpkeepService upkeepService() {
+        return upkeepService;
     }
 
     public AdminRegionService adminRegionService() {
@@ -227,6 +250,7 @@ public final class VibePrivateServices {
         RegionAccessRepository regionAccessRepository;
         RegionDepositRepository regionDepositRepository;
         RegionHomeRepository regionHomeRepository;
+        UpkeepRepository upkeepRepository;
         ProtectedChunkRepository protectedChunkRepository;
         RegionAccessService regionAccessService;
         RegionManager regionManager;
@@ -235,6 +259,8 @@ public final class VibePrivateServices {
         RegionCreationService regionCreationService;
         RegionInviteService regionInviteService;
         FuelService fuelService;
+        EconomyService economyService;
+        UpkeepService upkeepService;
         AdminRegionService adminRegionService;
         AdminRegionPresetService adminRegionPresetService;
         RegionUpgradeService regionUpgradeService;

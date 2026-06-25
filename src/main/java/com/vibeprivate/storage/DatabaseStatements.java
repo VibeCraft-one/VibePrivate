@@ -180,4 +180,22 @@ final class DatabaseStatements {
                     pitch = excluded.pitch
                 """;
     }
+
+    String upsertUpkeepSql() {
+        return databaseService.isMySql()
+                ? """
+                INSERT INTO owner_upkeep(owner_id, debt_days, last_charged_at)
+                VALUES(?, ?, ?)
+                ON DUPLICATE KEY UPDATE
+                    debt_days = VALUES(debt_days),
+                    last_charged_at = VALUES(last_charged_at)
+                """
+                : """
+                INSERT INTO owner_upkeep(owner_id, debt_days, last_charged_at)
+                VALUES(?, ?, ?)
+                ON CONFLICT(owner_id) DO UPDATE SET
+                    debt_days = excluded.debt_days,
+                    last_charged_at = excluded.last_charged_at
+                """;
+    }
 }

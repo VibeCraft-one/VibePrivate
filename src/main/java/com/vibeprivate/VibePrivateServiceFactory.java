@@ -13,6 +13,7 @@ import com.vibeprivate.service.AdminRegionService;
 import com.vibeprivate.service.ChunkProtectionService;
 import com.vibeprivate.service.CommandCooldownService;
 import com.vibeprivate.service.ConfirmationService;
+import com.vibeprivate.service.EconomyService;
 import com.vibeprivate.service.FuelService;
 import com.vibeprivate.service.PendingTeleportService;
 import com.vibeprivate.service.RegionAccessService;
@@ -22,12 +23,14 @@ import com.vibeprivate.service.RegionHomeService;
 import com.vibeprivate.service.RegionInviteService;
 import com.vibeprivate.service.RegionTeleportService;
 import com.vibeprivate.service.RegionUpgradeService;
+import com.vibeprivate.service.UpkeepService;
 import com.vibeprivate.storage.DatabaseService;
 import com.vibeprivate.storage.ProtectedChunkRepository;
 import com.vibeprivate.storage.RegionAccessRepository;
 import com.vibeprivate.storage.RegionDepositRepository;
 import com.vibeprivate.storage.RegionHomeRepository;
 import com.vibeprivate.storage.RegionRepository;
+import com.vibeprivate.storage.UpkeepRepository;
 import com.vibeprivate.visualization.RegionBoundaryVisualizer;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -67,6 +70,7 @@ final class VibePrivateServiceFactory {
         builder.regionAccessRepository = new RegionAccessRepository(builder.databaseService);
         builder.regionDepositRepository = new RegionDepositRepository(builder.databaseService);
         builder.regionHomeRepository = new RegionHomeRepository(builder.databaseService);
+        builder.upkeepRepository = new UpkeepRepository(builder.databaseService);
         builder.protectedChunkRepository = new ProtectedChunkRepository(builder.databaseService);
     }
 
@@ -87,7 +91,12 @@ final class VibePrivateServiceFactory {
         builder.playerRegionCache = new PlayerRegionCache();
         builder.protectionService = new ProtectionService(builder.regionManager, builder.playerRegionCache,
                 builder.regionAccessService);
+        builder.economyService = new EconomyService();
+        builder.economyService.hook();
         builder.fuelService = new FuelService(plugin, builder.regionManager, builder.configService);
+        builder.upkeepService = new UpkeepService(plugin, builder.regionManager, builder.configService,
+                builder.messageService, builder.economyService, builder.upkeepRepository);
+        builder.upkeepService.load();
         builder.commandCooldownService = new CommandCooldownService();
         builder.regionTeleportService = new RegionTeleportService();
         builder.pendingTeleportService = new PendingTeleportService(plugin, builder.messageService,

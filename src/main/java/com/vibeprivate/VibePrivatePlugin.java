@@ -22,6 +22,7 @@ import com.vibeprivate.service.RegionDeletionService;
 import com.vibeprivate.service.RegionHomeService;
 import com.vibeprivate.service.RegionTeleportService;
 import com.vibeprivate.service.RegionUpgradeService;
+import com.vibeprivate.service.UpkeepService;
 import com.vibeprivate.visualization.RegionBoundaryVisualizer;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -99,6 +100,10 @@ public final class VibePrivatePlugin extends JavaPlugin {
 
     public FuelService getFuelService() {
         return services.fuelService();
+    }
+
+    public UpkeepService getUpkeepService() {
+        return services.upkeepService();
     }
 
     public AdminRegionService getAdminRegionService() {
