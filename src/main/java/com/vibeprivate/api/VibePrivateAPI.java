@@ -11,12 +11,19 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
 public final class VibePrivateAPI {
+    private static final Comparator<Region> REGION_ORDER = Comparator
+            .comparing(Region::getWorldName)
+            .thenComparing(Region::getType)
+            .thenComparing(Region::getName)
+            .thenComparing(Region::getId);
+
     private final RegionManager regionManager;
     private final RegionCreationService regionCreationService;
     private final AdminRegionService adminRegionService;
@@ -36,6 +43,36 @@ public final class VibePrivateAPI {
 
     public Optional<Region> getRegion(String regionId) {
         return regionManager.getRegion(regionId);
+    }
+
+    public List<Region> getRegions() {
+        return regionManager.getRegions().stream()
+                .sorted(REGION_ORDER)
+                .toList();
+    }
+
+    public List<Region> getEnabledRegions() {
+        return regionManager.getRegions().stream()
+                .filter(Region::isEnabled)
+                .sorted(REGION_ORDER)
+                .toList();
+    }
+
+    public List<Region> getRegionsInWorld(String worldName) {
+        Objects.requireNonNull(worldName, "worldName");
+        return regionManager.getRegions().stream()
+                .filter(region -> region.getWorldName().equals(worldName))
+                .sorted(REGION_ORDER)
+                .toList();
+    }
+
+    public List<Region> getEnabledRegionsInWorld(String worldName) {
+        Objects.requireNonNull(worldName, "worldName");
+        return regionManager.getRegions().stream()
+                .filter(Region::isEnabled)
+                .filter(region -> region.getWorldName().equals(worldName))
+                .sorted(REGION_ORDER)
+                .toList();
     }
 
     public List<Region> getRegionsByOwner(String ownerId) {
