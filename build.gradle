@@ -3,7 +3,12 @@ plugins {
 }
 
 group = "com.vibeprivate"
-version = "0.1.1"
+version = file("src/main/resources/plugin.yml")
+        .readLines()
+        .find { it ==~ /\s*version\s*:.*/ }
+        ?.split(":", 2)[1]
+        ?.trim()
+        ?.replaceAll(/^['"]|['"]$/, "") ?: "0.0.0"
 
 java {
     toolchain {
