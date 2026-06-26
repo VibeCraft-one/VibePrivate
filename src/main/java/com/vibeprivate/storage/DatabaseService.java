@@ -91,6 +91,10 @@ public final class DatabaseService {
         return statements.upsertRegionHomeSql();
     }
 
+    public String upsertUpkeepSql() {
+        return statements.upsertUpkeepSql();
+    }
+
     public void close() {
         if (connection == null) {
             return;

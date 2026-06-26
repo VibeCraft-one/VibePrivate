@@ -20,6 +20,7 @@ final class DatabaseSchema {
         execute(createRegionDepositsSql());
         execute(createRegionHomesSql());
         execute(createRegionFuelSlotsSql());
+        execute(createOwnerUpkeepSql());
         execute(createPendingConfirmationsSql());
         execute(createProtectedChunksSql());
         createIndex("idx_protected_chunks_region", "protected_chunks", "region_id");
@@ -214,6 +215,18 @@ final class DatabaseSchema {
                     FOREIGN KEY (region_id) REFERENCES regions(id) ON DELETE CASCADE
                 )
                 """.formatted(regionIdType, worldType, doubleType, doubleType, doubleType, doubleType, doubleType);
+    }
+
+    private String createOwnerUpkeepSql() {
+        String ownerType = isMySql() ? "VARCHAR(128)" : "TEXT";
+        String longType = isMySql() ? "BIGINT" : "INTEGER";
+        return """
+                CREATE TABLE IF NOT EXISTS owner_upkeep (
+                    owner_id %s PRIMARY KEY,
+                    debt_days INTEGER NOT NULL DEFAULT 0,
+                    last_charged_at %s NOT NULL DEFAULT 0
+                )
+                """.formatted(ownerType, longType);
     }
 
     private String createPendingConfirmationsSql() {

@@ -55,6 +55,23 @@ fuel:
     LOG: 50
     STEM: 50
 
+upkeep:
+  enabled: true
+  # fuel keeps the existing fuel-expiration mechanic.
+  # money withdraws Vault balance from the owner and burns it.
+  mode: fuel
+  check-interval-minutes: 10
+  interval-hours: 24
+  base-cost-per-chunk: 10.0
+  size-growth: 0.12
+  size-power: 1.35
+  grace-days: 3
+  remove-after-days: 7
+  freeze-after-offline-days: 21
+  offline-rate-multiplier: 0.35
+  newbie-free-playtime-minutes: 180
+  log-withdrawals: true
+
 upgrades:
   cost-multiplier: 1.0
   deposit-radius-points:

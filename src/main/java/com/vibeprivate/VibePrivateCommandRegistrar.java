@@ -19,7 +19,8 @@ final class VibePrivateCommandRegistrar {
     }
 
     void register() {
-        VibePrivateCommand command = new VibePrivateCommand(services.messageService(), services.regionManager());
+        VibePrivateCommand command = new VibePrivateCommand(services.messageService(), services.regionManager(),
+                services.upkeepService());
         registerCommand("vp", command);
         registerCommand("privat", command);
         registerCommand("privatadmin", new VibePrivateAdminCommand(services.messageService(), services.regionManager(),

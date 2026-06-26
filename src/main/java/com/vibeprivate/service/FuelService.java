@@ -29,6 +29,10 @@ public final class FuelService {
 
     public void start() {
         stop();
+        if (configService.getUpkeepMode() == UpkeepMode.MONEY) {
+            return;
+        }
+
         long periodTicks = Math.max(1L, configService.getFuelDrainIntervalHours()) * 60L * 60L * 20L;
         task = plugin.getServer().getScheduler().runTaskTimer(plugin, this::runMaintenance, 20L * 60L, periodTicks);
         runMaintenance();
@@ -44,6 +48,10 @@ public final class FuelService {
     public FuelAddResult addFuelFromMainHand(Player player, Region region) {
         Objects.requireNonNull(player, "player");
         Objects.requireNonNull(region, "region");
+
+        if (configService.getUpkeepMode() == UpkeepMode.MONEY) {
+            return FuelAddResult.fail(FuelAddStatus.DISABLED_BY_MONEY_UPKEEP, getRemainingMillis(region));
+        }
 
         ItemStack item = player.getInventory().getItemInMainHand();
         if (item.getType() == Material.AIR || item.getAmount() <= 0) {
@@ -126,6 +134,10 @@ public final class FuelService {
     }
 
     private void runMaintenance() {
+        if (configService.getUpkeepMode() == UpkeepMode.MONEY) {
+            return;
+        }
+
         long now = System.currentTimeMillis();
         for (Region region : regionManager.getRegions()) {
             if (region.isAdmin()) {
