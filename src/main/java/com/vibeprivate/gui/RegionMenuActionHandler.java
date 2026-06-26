@@ -52,9 +52,12 @@ final class RegionMenuActionHandler {
             return;
         }
 
-        messageService.send(player, result.getStatus() == FuelAddStatus.MAX_REACHED
-                ? "fuel.add.max"
-                : "fuel.add.invalid");
+        messageService.send(player, switch (result.getStatus()) {
+            case MAX_REACHED -> "fuel.add.max";
+            case DISABLED_BY_MONEY_UPKEEP -> "fuel.add.money-mode-disabled";
+            case INVALID_ITEM -> "fuel.add.invalid";
+            case SUCCESS -> "fuel.add.success";
+        });
     }
 
     void handleUpgrade(Player player, Region region) {

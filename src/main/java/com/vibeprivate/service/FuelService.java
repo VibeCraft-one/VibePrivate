@@ -49,6 +49,10 @@ public final class FuelService {
         Objects.requireNonNull(player, "player");
         Objects.requireNonNull(region, "region");
 
+        if (configService.getUpkeepMode() == UpkeepMode.MONEY) {
+            return FuelAddResult.fail(FuelAddStatus.DISABLED_BY_MONEY_UPKEEP, getRemainingMillis(region));
+        }
+
         ItemStack item = player.getInventory().getItemInMainHand();
         if (item.getType() == Material.AIR || item.getAmount() <= 0) {
             return FuelAddResult.fail(FuelAddStatus.INVALID_ITEM, getRemainingMillis(region));
