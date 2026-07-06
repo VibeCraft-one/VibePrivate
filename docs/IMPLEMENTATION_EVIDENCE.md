@@ -117,3 +117,82 @@ Note:
 
 - The pass verifies lifecycle service behavior only; it does not verify plugin load on a live Paper server.
 - The default Gradle `test` worker remains unreliable in this workspace, so build verification currently relies on `lifecycleSmokeTest` instead of the standard `test` task execution path.
+
+# VibePrivate API/Selection Pass 3 Evidence
+
+## Scope
+
+Added only read-only API and validation foundation for region bounds and manual selection checks.
+
+Out of scope for this pass:
+- `canRelocateRegion`
+- `relocateRegion`
+- `canMoveRegionToWorld`
+- `moveRegionToWorldSameBounds`
+- Bukkit events
+- GUI
+- `/home`
+- persistence changes
+- snapshot/export
+- SeasonArchive/BaseTransfer implementation
+
+## Changed Files
+
+- `build.gradle`
+- `docs/IMPLEMENTATION_EVIDENCE.md`
+- `src/main/java/com/vibeprivate/VibePrivateServiceFactory.java`
+- `src/main/java/com/vibeprivate/VibePrivateServices.java`
+- `src/main/java/com/vibeprivate/api/VibePrivateAPI.java`
+- `src/main/java/com/vibeprivate/model/SelectionBounds.java`
+- `src/main/java/com/vibeprivate/service/RegionManagerSelectionRegionStore.java`
+- `src/main/java/com/vibeprivate/service/RegionSelectionRegionStore.java`
+- `src/main/java/com/vibeprivate/service/RegionSelectionValidator.java`
+- `src/test/java/com/vibeprivate/service/RegionSelectionValidatorTest.java`
+
+## What Was Added
+
+- Typed API method `RegionBounds getRegionBounds(String regionId)`.
+- Typed API method `boolean isAreaInsideRegion(String regionId, SelectionBounds bounds)`.
+- Typed model `SelectionBounds` with world name and normalized min/max coordinates.
+- Separate read-only service `RegionSelectionValidator` so validation logic stays outside `RegionManager`.
+
+## Validation Rules In This Pass
+
+- selection world must match region world;
+- selection must be present;
+- selection must be fully inside region bounds.
+
+Chosen behavior for invalid selection input:
+- `null` selection returns `false`;
+- invalid `SelectionBounds` model input such as blank `worldName` throws a controlled `IllegalArgumentException`.
+
+## Acceptance Checks
+
+- API contains `getRegionBounds` and `isAreaInsideRegion`: PASSED.
+- Typed `SelectionBounds` model exists: PASSED.
+- Selection inside region returns `true`: PASSED.
+- Selection outside region returns `false`: PASSED.
+- World mismatch returns `false`: PASSED.
+- Invalid selection input has explicit documented behavior: PASSED.
+- No move/relocate/events/GUI scope was added: PASSED.
+- No reflection added by this pass: PASSED.
+- No giant class over 500 lines added in this pass: PASSED.
+
+## Build / Smoke
+
+Command:
+
+```powershell
+.\gradlew.bat clean build --no-daemon
+```
+
+Result: PASSED on 2026-07-06.
+
+Focused smoke executed inside build:
+- `RegionLifecycleServiceTest`
+- `RegionSelectionValidatorTest`
+
+## Remaining Risks
+
+- This pass validates only region-local bounds checks; it does not yet check world minY/maxY policies or overlap with чужой регион.
+- Public API foundation is ready, but move/relocate behavior is intentionally not implemented in this pass.

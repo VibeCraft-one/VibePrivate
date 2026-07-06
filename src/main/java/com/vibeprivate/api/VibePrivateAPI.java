@@ -2,13 +2,16 @@ package com.vibeprivate.api;
 
 import com.vibeprivate.manager.RegionManager;
 import com.vibeprivate.model.Region;
+import com.vibeprivate.model.RegionBounds;
 import com.vibeprivate.model.RegionStatus;
 import com.vibeprivate.model.RegionType;
+import com.vibeprivate.model.SelectionBounds;
 import com.vibeprivate.service.AdminRegionService;
 import com.vibeprivate.service.RegionAccessService;
 import com.vibeprivate.service.RegionCreationResult;
 import com.vibeprivate.service.RegionCreationService;
 import com.vibeprivate.service.RegionLifecycleService;
+import com.vibeprivate.service.RegionSelectionValidator;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -24,15 +27,18 @@ public final class VibePrivateAPI {
     private final AdminRegionService adminRegionService;
     private final RegionAccessService regionAccessService;
     private final RegionLifecycleService regionLifecycleService;
+    private final RegionSelectionValidator regionSelectionValidator;
 
     public VibePrivateAPI(RegionManager regionManager, RegionCreationService regionCreationService,
                           AdminRegionService adminRegionService, RegionAccessService regionAccessService,
-                          RegionLifecycleService regionLifecycleService) {
+                          RegionLifecycleService regionLifecycleService,
+                          RegionSelectionValidator regionSelectionValidator) {
         this.regionManager = Objects.requireNonNull(regionManager, "regionManager");
         this.regionCreationService = Objects.requireNonNull(regionCreationService, "regionCreationService");
         this.adminRegionService = Objects.requireNonNull(adminRegionService, "adminRegionService");
         this.regionAccessService = Objects.requireNonNull(regionAccessService, "regionAccessService");
         this.regionLifecycleService = Objects.requireNonNull(regionLifecycleService, "regionLifecycleService");
+        this.regionSelectionValidator = Objects.requireNonNull(regionSelectionValidator, "regionSelectionValidator");
     }
 
     public Optional<Region> getRegionAt(Location location) {
@@ -65,6 +71,14 @@ public final class VibePrivateAPI {
 
     public RegionStatus getRegionStatus(String regionId) {
         return regionLifecycleService.getRegionStatus(regionId);
+    }
+
+    public RegionBounds getRegionBounds(String regionId) {
+        return regionSelectionValidator.getRegionBounds(regionId);
+    }
+
+    public boolean isAreaInsideRegion(String regionId, SelectionBounds bounds) {
+        return regionSelectionValidator.isAreaInsideRegion(regionId, bounds);
     }
 
     public void setRegionStatus(String regionId, RegionStatus status) {

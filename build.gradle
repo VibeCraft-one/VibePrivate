@@ -30,13 +30,15 @@ tasks.test {
 tasks.register("lifecycleSmokeTest", JavaExec) {
     dependsOn tasks.testClasses
     group = "verification"
-    description = "Runs focused lifecycle JUnit smoke without Gradle test worker."
+    description = "Runs focused API/lifecycle JUnit smoke without Gradle test worker."
     javaLauncher = javaToolchains.launcherFor {
         languageVersion = JavaLanguageVersion.of(21)
     }
     classpath = sourceSets.test.runtimeClasspath
     mainClass = "org.junit.platform.console.ConsoleLauncher"
-    args "--select-class", "com.vibeprivate.service.RegionLifecycleServiceTest", "--details", "tree"
+    args "--select-class", "com.vibeprivate.service.RegionLifecycleServiceTest",
+            "--select-class", "com.vibeprivate.service.RegionSelectionValidatorTest",
+            "--details", "tree"
 }
 
 tasks.check {
