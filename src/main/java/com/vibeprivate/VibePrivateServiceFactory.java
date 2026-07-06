@@ -131,7 +131,8 @@ final class VibePrivateServiceFactory {
                 builder.playerRegionCache, builder.confirmationService);
         builder.regionHomeService = new RegionHomeService(builder.regionManager, builder.regionHomeRepository);
         builder.regionRelocationService = new RegionRelocationService(
-                new RegionManagerRelocationRegionStore(builder.regionManager, builder.configService));
+                new RegionManagerRelocationRegionStore(builder.regionManager, builder.configService,
+                        builder.regionHomeRepository));
         builder.regionSelectionValidator = new RegionSelectionValidator(
                 new RegionManagerSelectionRegionStore(builder.regionManager),
                 new BukkitRegionSelectionWorldHeightProvider());

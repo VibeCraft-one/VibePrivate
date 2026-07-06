@@ -2,6 +2,7 @@ package com.vibeprivate.service;
 
 import com.vibeprivate.model.Region;
 import com.vibeprivate.model.RegionBounds;
+import com.vibeprivate.model.RegionHome;
 import com.vibeprivate.model.RegionShape;
 
 import java.util.Objects;
@@ -33,6 +34,7 @@ public final class RegionRelocationService {
         }
 
         regionStore.replaceRegion(moved);
+        remapHomeWorldIfNeeded(region, moved);
         return moved;
     }
 
@@ -136,6 +138,20 @@ public final class RegionRelocationService {
         if (hasForeignNonAdminOverlap(candidate)) {
             throw new IllegalStateException("Region overlaps another non-admin region.");
         }
+    }
+
+    private void remapHomeWorldIfNeeded(Region original, Region moved) {
+        if (moved.getWorldName().equals(original.getWorldName())) {
+            return;
+        }
+
+        regionStore.getHome(original.getId())
+                .filter(home -> !moved.getWorldName().equals(home.worldName()))
+                .ifPresent(home -> regionStore.saveHome(remapHomeWorld(home, moved.getWorldName())));
+    }
+
+    private static RegionHome remapHomeWorld(RegionHome home, String targetWorld) {
+        return new RegionHome(home.regionId(), targetWorld, home.x(), home.y(), home.z(), home.yaw(), home.pitch());
     }
 
     private static String requireWorldName(String worldName) {

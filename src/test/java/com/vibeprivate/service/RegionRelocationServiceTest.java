@@ -1,6 +1,7 @@
 package com.vibeprivate.service;
 
 import com.vibeprivate.model.Region;
+import com.vibeprivate.model.RegionHome;
 import com.vibeprivate.model.RegionType;
 import com.vibeprivate.model.VisualizationMode;
 import org.junit.jupiter.api.Test;
@@ -46,7 +47,44 @@ public class RegionRelocationServiceTest {
         assertEquals(region.getVisualizationMode(), moved.getVisualizationMode());
         assertEquals(region.getCreatedAt(), moved.getCreatedAt());
         assertEquals(1, store.replaceCalls);
+        assertEquals(0, store.saveHomeCalls);
         assertNotSame(region, moved);
+    }
+
+    @Test
+    void moveRegionToWorldSameBoundsRemapsExistingHomeWorldAndPreservesCoordinates() {
+        Region region = testRegion("r-home-remap", "world", 0, 0, 8);
+        RegionHome home = new RegionHome(region.getId(), "world", 10.5, 72.0, -6.25, 90.0f, 15.0f);
+        InMemoryRegionRelocationStore store = new InMemoryRegionRelocationStore(Set.of("world", "world_nether"), region);
+        store.putHome(home);
+        RegionRelocationService service = new RegionRelocationService(store);
+
+        Region moved = service.moveRegionToWorldSameBounds(region.getId(), "world_nether");
+        RegionHome remappedHome = store.requireHome(region.getId());
+
+        assertEquals("world_nether", moved.getWorldName());
+        assertEquals("world_nether", remappedHome.worldName());
+        assertEquals(home.x(), remappedHome.x());
+        assertEquals(home.y(), remappedHome.y());
+        assertEquals(home.z(), remappedHome.z());
+        assertEquals(home.yaw(), remappedHome.yaw());
+        assertEquals(home.pitch(), remappedHome.pitch());
+        assertEquals(1, store.replaceCalls);
+        assertEquals(1, store.saveHomeCalls);
+    }
+
+    @Test
+    void moveWithoutHomeSucceedsAndDoesNotCreateHome() {
+        Region region = testRegion("r-no-home", "world", 0, 0, 8);
+        InMemoryRegionRelocationStore store = new InMemoryRegionRelocationStore(Set.of("world", "world_nether"), region);
+        RegionRelocationService service = new RegionRelocationService(store);
+
+        Region moved = service.moveRegionToWorldSameBounds(region.getId(), "world_nether");
+
+        assertEquals("world_nether", moved.getWorldName());
+        assertTrue(store.getHome(region.getId()).isEmpty());
+        assertEquals(1, store.replaceCalls);
+        assertEquals(0, store.saveHomeCalls);
     }
 
     @Test
@@ -145,12 +183,32 @@ public class RegionRelocationServiceTest {
     void canMethodsDoNotMutateState() {
         Region region = testRegion("r-can", "world", 0, 0, 8);
         InMemoryRegionRelocationStore store = new InMemoryRegionRelocationStore(Set.of("world", "world_nether"), region);
+        RegionHome home = new RegionHome(region.getId(), "world", 2.5, 70.0, 3.5, 45.0f, 10.0f);
+        store.putHome(home);
         RegionRelocationService service = new RegionRelocationService(store);
 
         assertTrue(service.canMoveRegionToWorld(region.getId(), "world_nether"));
         assertTrue(service.canRelocateRegion(region.getId(), "world_nether", 48, 48));
         assertEquals(0, store.replaceCalls);
+        assertEquals(0, store.saveHomeCalls);
         assertSame(region, store.requireRegion(region.getId()));
+        assertEquals(home, store.requireHome(region.getId()));
+    }
+
+    @Test
+    void noOpSameWorldMoveDoesNotResaveHome() {
+        Region region = testRegion("r-same-world", "world", 0, 0, 8);
+        RegionHome home = new RegionHome(region.getId(), "world", 12.0, 75.0, -3.0, 0.0f, 0.0f);
+        InMemoryRegionRelocationStore store = new InMemoryRegionRelocationStore(Set.of("world", "world_nether"), region);
+        store.putHome(home);
+        RegionRelocationService service = new RegionRelocationService(store);
+
+        Region moved = service.moveRegionToWorldSameBounds(region.getId(), "world");
+
+        assertSame(region, moved);
+        assertEquals(0, store.replaceCalls);
+        assertEquals(0, store.saveHomeCalls);
+        assertEquals(home, store.requireHome(region.getId()));
     }
 
     private static Region testRegion(String id, String worldName, int centerX, int centerZ, int radius) {
@@ -169,8 +227,10 @@ public class RegionRelocationServiceTest {
 
     private static final class InMemoryRegionRelocationStore implements RegionRelocationRegionStore {
         private final Map<String, Region> regions = new HashMap<>();
+        private final Map<String, RegionHome> homes = new HashMap<>();
         private final Set<String> allowedWorlds;
         private int replaceCalls;
+        private int saveHomeCalls;
 
         private InMemoryRegionRelocationStore(Set<String> allowedWorlds, Region... initialRegions) {
             this.allowedWorlds = allowedWorlds;
@@ -202,6 +262,17 @@ public class RegionRelocationServiceTest {
             regions.put(region.getId(), region);
         }
 
+        @Override
+        public Optional<RegionHome> getHome(String regionId) {
+            return Optional.ofNullable(homes.get(regionId));
+        }
+
+        @Override
+        public void saveHome(RegionHome home) {
+            saveHomeCalls++;
+            homes.put(home.regionId(), home);
+        }
+
         private Region requireRegion(String regionId) {
             Region region = regions.get(regionId);
             if (region == null) {
@@ -209,6 +280,19 @@ public class RegionRelocationServiceTest {
             }
 
             return region;
+        }
+
+        private RegionHome requireHome(String regionId) {
+            RegionHome home = homes.get(regionId);
+            if (home == null) {
+                throw new IllegalArgumentException("Missing home in test store: " + regionId);
+            }
+
+            return home;
+        }
+
+        private void putHome(RegionHome home) {
+            homes.put(home.regionId(), home);
         }
     }
 }

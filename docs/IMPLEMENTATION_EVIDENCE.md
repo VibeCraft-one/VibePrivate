@@ -397,3 +397,67 @@ Result: PASSED on 2026-07-07.
 
 - Paper plugin data folder name changes from `plugins/VibePrivate` to `plugins/VibeRegionGuard`.
 - Existing server data may require manual folder migration and backup before replacing the old branded jar.
+
+# VibePrivate API/Relocation Pass 6 Home World Remap Evidence
+
+## Scope
+
+Added only same-bounds home world remap support in the relocation layer.
+
+Out of scope for this pass:
+- GUI/commands/messages/events
+- snapshot/BaseTransfer/SeasonArchive
+- SQL migrations
+- package/class branding changes
+- manual `relocateRegion(...)` home offset/remap logic
+
+## Changed Files
+
+- `docs/ARCHITECTURE_MAP.md`
+- `docs/IMPLEMENTATION_EVIDENCE.md`
+- `src/main/java/com/vibeprivate/VibePrivateServiceFactory.java`
+- `src/main/java/com/vibeprivate/service/RegionManagerRelocationRegionStore.java`
+- `src/main/java/com/vibeprivate/service/RegionRelocationRegionStore.java`
+- `src/main/java/com/vibeprivate/service/RegionRelocationService.java`
+- `src/test/java/com/vibeprivate/service/RegionRelocationServiceTest.java`
+
+## What Changed
+
+- `RegionRelocationRegionStore` now exposes narrow home read/save methods for relocation.
+- `RegionManagerRelocationRegionStore` now bridges relocation logic to the existing `RegionHomeRepository`.
+- `VibePrivateServiceFactory` now passes `regionHomeRepository` into the relocation store adapter.
+- `moveRegionToWorldSameBounds(...)` now remaps existing `RegionHome.worldName` to the target world after a successful region replacement.
+- Home remap preserves existing `x/y/z/yaw/pitch`.
+- No home record means no new home is created.
+- `canMoveRegionToWorld(...)` remains read-only and does not mutate home data.
+
+## Acceptance Checks
+
+- Same-bounds move updates home world and keeps coordinates unchanged: PASSED.
+- Move without home succeeds and does not create a home: PASSED.
+- `can*` methods remain read-only for home data: PASSED.
+- Same-world no-op move does not resave home: PASSED.
+- No GUI/commands/events/BaseTransfer/SeasonArchive scope added: PASSED.
+- No `RegionManager` business logic expansion added by this pass: PASSED.
+
+## Build / Smoke
+
+Command:
+
+```powershell
+.\gradlew.bat clean build --no-daemon
+```
+
+Result: PASSED on 2026-07-07.
+
+## Focused Tests Added
+
+- same-bounds move remaps existing home world and preserves `x/y/z/yaw/pitch`
+- move without home succeeds and does not create a home
+- `can*` methods do not mutate home data
+- same-world move remains a no-op and does not resave home
+
+## Remaining Risks
+
+- `relocateRegion(...)` still does not remap or offset region home coordinates; safe home translation for manual relocation is deferred instead of guessed.
+- Same-bounds world move remaps stored home world only after successful region replacement through `RegionManager.replaceRegion(...)`.
