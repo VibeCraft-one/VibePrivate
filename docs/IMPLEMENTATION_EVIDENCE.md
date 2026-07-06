@@ -196,3 +196,73 @@ Focused smoke executed inside build:
 
 - This pass validates only region-local bounds checks; it does not yet check world minY/maxY policies or overlap with чужой регион.
 - Public API foundation is ready, but move/relocate behavior is intentionally not implemented in this pass.
+
+# VibePrivate API/Selection Pass 4 Evidence
+
+## Scope
+
+Added only the remaining selection validation rules needed before any move/relocate work.
+
+Out of scope for this pass:
+- move/relocate implementation
+- Bukkit events
+- GUI
+- `/home`
+- persistence changes
+- snapshot/archive logic
+- BaseTransfer/SeasonArchive work
+
+## Changed Files
+
+- `docs/IMPLEMENTATION_EVIDENCE.md`
+- `src/main/java/com/vibeprivate/VibePrivateServiceFactory.java`
+- `src/main/java/com/vibeprivate/service/BukkitRegionSelectionWorldHeightProvider.java`
+- `src/main/java/com/vibeprivate/service/RegionManagerSelectionRegionStore.java`
+- `src/main/java/com/vibeprivate/service/RegionSelectionRegionStore.java`
+- `src/main/java/com/vibeprivate/service/RegionSelectionValidator.java`
+- `src/main/java/com/vibeprivate/service/RegionSelectionWorldHeight.java`
+- `src/main/java/com/vibeprivate/service/RegionSelectionWorldHeightProvider.java`
+- `src/test/java/com/vibeprivate/service/RegionSelectionValidatorTest.java`
+
+## Validation Rules Added
+
+- selection must stay within world `minY/maxY` policy;
+- selection must not intersect another non-admin region;
+- overlap with the same region id does not count as foreign overlap.
+
+Implementation note:
+- overlap detection reuses existing `RegionBounds.intersects(...)`;
+- region overlap lookup stays read-only through the expanded `RegionSelectionRegionStore` seam;
+- world height policy is read-only through a dedicated height provider seam.
+
+## Acceptance Checks
+
+- world minY/maxY policy is enforced: PASSED.
+- overlap with another non-admin region is rejected: PASSED.
+- pass 3 contract for valid inside/world mismatch/outside own bounds is preserved: PASSED.
+- no move/relocate/events/GUI/BaseTransfer/SeasonArchive scope added: PASSED.
+- no reflection added by this pass: PASSED.
+
+## Build / Smoke
+
+Commands:
+
+```powershell
+.\gradlew.bat clean build --no-daemon
+```
+
+Result: PASSED on 2026-07-06.
+
+Focused tests covering this pass:
+- valid inside selection returns `true`
+- world mismatch returns `false`
+- outside own bounds returns `false`
+- below world min height returns `false`
+- above world max height returns `false`
+- overlap with another non-admin region returns `false`
+- overlap only with own region remains valid
+
+## Remaining Risks
+
+- This pass does not implement move/relocate execution, only validation foundation.
+- World height validation depends on runtime world availability through the new height provider seam.

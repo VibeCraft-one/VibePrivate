@@ -10,6 +10,7 @@ import com.vibeprivate.message.MessageService;
 import com.vibeprivate.protection.ProtectionService;
 import com.vibeprivate.service.AdminRegionPresetService;
 import com.vibeprivate.service.AdminRegionService;
+import com.vibeprivate.service.BukkitRegionSelectionWorldHeightProvider;
 import com.vibeprivate.service.ChunkProtectionService;
 import com.vibeprivate.service.CommandCooldownService;
 import com.vibeprivate.service.ConfirmationService;
@@ -128,7 +129,8 @@ final class VibePrivateServiceFactory {
                 builder.playerRegionCache, builder.confirmationService);
         builder.regionHomeService = new RegionHomeService(builder.regionManager, builder.regionHomeRepository);
         builder.regionSelectionValidator = new RegionSelectionValidator(
-                new RegionManagerSelectionRegionStore(builder.regionManager));
+                new RegionManagerSelectionRegionStore(builder.regionManager),
+                new BukkitRegionSelectionWorldHeightProvider());
         builder.guiIconRegistry = GuiIconRegistry.defaults();
         builder.api = new VibePrivateAPI(builder.regionManager, builder.regionCreationService,
                 builder.adminRegionService, builder.regionAccessService, builder.regionLifecycleService,

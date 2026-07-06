@@ -3,6 +3,7 @@ package com.vibeprivate.service;
 import com.vibeprivate.manager.RegionManager;
 import com.vibeprivate.model.Region;
 
+import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -16,5 +17,13 @@ public final class RegionManagerSelectionRegionStore implements RegionSelectionR
     @Override
     public Optional<Region> getRegion(String regionId) {
         return regionManager.getRegion(regionId);
+    }
+
+    @Override
+    public Collection<Region> getRegionsInWorld(String worldName) {
+        Objects.requireNonNull(worldName, "worldName");
+        return regionManager.getRegions().stream()
+                .filter(region -> region.getWorldName().equals(worldName))
+                .toList();
     }
 }
