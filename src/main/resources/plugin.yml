@@ -1,4 +1,4 @@
-name: VibePrivate
+name: VibeRegionGuard
 version: 0.1.1
 main: com.vibeprivate.VibePrivatePlugin
 api-version: '1.21'
@@ -12,24 +12,24 @@ libraries:
   - com.mysql:mysql-connector-j:8.4.0
 commands:
   vp:
-    description: Opens VibePrivate menu or help.
+    description: Opens VibeRegionGuard menu or help.
     usage: /vp [help]
   privat:
-    description: Opens VibePrivate menu or help.
+    description: Opens VibeRegionGuard menu or help.
     usage: /privat [help]
   privatadmin:
-    description: Opens VibePrivate admin menu.
+    description: Opens VibeRegionGuard admin menu.
     usage: /privatadmin
   home:
-    description: Teleports to your VibePrivate HOME region.
+    description: Teleports to your VibeRegionGuard HOME region.
     usage: /home
   sethome:
-    description: Sets your VibePrivate HOME teleport point.
+    description: Sets your VibeRegionGuard HOME teleport point.
     usage: /sethome
 permissions:
   vibeprivate.bypass:
-    description: Bypass VibePrivate region protection.
+    description: Bypass VibeRegionGuard region protection.
     default: op
   vibeprivate.admin:
-    description: Access VibePrivate admin tools.
+    description: Access VibeRegionGuard admin tools.
     default: op

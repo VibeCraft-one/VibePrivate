@@ -351,3 +351,49 @@ Focused smoke executed inside build:
 
 - `relocateRegion` intentionally supports only radius regions in this pass; cuboid/manual relocation geometry is deferred rather than implemented unsafely.
 - Action methods still rely on `RegionManager.replaceRegion(...)` as the final mutation gate, so runtime chunk-occupancy constraints remain enforced there in addition to the pass 5 overlap checks.
+
+# VibeRegionGuard Brand Rename Evidence
+
+## Scope
+
+Changed only the external/plugin-visible brand from `VibePrivate` to `VibeRegionGuard`.
+
+Kept intentionally unchanged for compatibility:
+- Java packages under `com.vibeprivate.*`
+- `VibePrivateAPI`
+- `VibePrivatePlugin`
+- command keys and permission keys
+
+## Changed Files
+
+- `README.md`
+- `settings.gradle`
+- `docs/IMPLEMENTATION_EVIDENCE.md`
+- `src/main/java/com/vibeprivate/command/CommandMapOverrideService.java`
+- `src/main/java/com/vibeprivate/service/ChunkProtectionService.java`
+- `src/main/resources/messages/en.yml`
+- `src/main/resources/messages/ru.yml`
+- `src/main/resources/plugin.yml`
+
+## What Changed
+
+- `plugin.yml` plugin name now resolves to `VibeRegionGuard`.
+- Gradle root project name now resolves to `VibeRegionGuard`.
+- User-visible help/prefix/GUI/admin strings now use `VibeRegionGuard`.
+- Safe log brand strings now use `VibeRegionGuard`.
+- Internal Java API/package names remain unchanged on purpose.
+
+## Build / Smoke
+
+Command:
+
+```powershell
+.\gradlew.bat clean build --no-daemon
+```
+
+Result: PASSED on 2026-07-07.
+
+## Remaining Risks
+
+- Paper plugin data folder name changes from `plugins/VibePrivate` to `plugins/VibeRegionGuard`.
+- Existing server data may require manual folder migration and backup before replacing the old branded jar.

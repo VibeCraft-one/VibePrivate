@@ -72,6 +72,6 @@ public final class ChunkProtectionService {
             regionsProtected++;
         }
 
-        plugin.getLogger().info("[ChunkKeeper] Synced protected chunks for " + regionsProtected + " VibePrivate regions.");
+        plugin.getLogger().info("[ChunkKeeper] Synced protected chunks for " + regionsProtected + " VibeRegionGuard regions.");
     }
 }

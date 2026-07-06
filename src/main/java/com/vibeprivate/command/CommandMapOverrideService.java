@@ -41,7 +41,7 @@ public final class CommandMapOverrideService {
             removeKnownCommand(commandMap, label);
             command.unregister(commandMap);
             commandMap.register(label, plugin.getName().toLowerCase(Locale.ROOT), command);
-            plugin.getLogger().info("Claimed /" + label + " command for VibePrivate.");
+            plugin.getLogger().info("Claimed /" + label + " command for VibeRegionGuard.");
         }
     }
 
