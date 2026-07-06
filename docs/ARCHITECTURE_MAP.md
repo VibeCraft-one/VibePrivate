@@ -43,6 +43,7 @@
 - `service/RegionManagerRelocationRegionStore.java` - read-only/write-narrow adapter around `RegionManager`, allowed worlds config and region home persistence.
 - Keep relocation rules in this layer, then let `RegionManager.replaceRegion(...)` remain the only mutation point for region replacement.
 - Same-bounds world move may remap `RegionHome.worldName` through the relocation store seam after region replacement.
+- If home remap fails after region replacement, relocation attempts a local rollback to the original region; this is rollback safety, not a full DB transaction.
 
 ## GUI Layer
 

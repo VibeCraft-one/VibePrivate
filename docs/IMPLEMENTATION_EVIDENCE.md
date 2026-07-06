@@ -461,3 +461,61 @@ Result: PASSED on 2026-07-07.
 
 - `relocateRegion(...)` still does not remap or offset region home coordinates; safe home translation for manual relocation is deferred instead of guessed.
 - Same-bounds world move remaps stored home world only after successful region replacement through `RegionManager.replaceRegion(...)`.
+
+# VibePrivate API/Relocation Pass 7 Home Remap Rollback Safety Evidence
+
+## Scope
+
+Added only local rollback safety for same-bounds home remap during region world move.
+
+Out of scope for this pass:
+- GUI/commands/messages/events
+- snapshot/BaseTransfer/SeasonArchive
+- SQL migrations or shared transaction helpers
+- package/class branding changes
+- manual `relocateRegion(...)` home offset/remap logic
+
+## Changed Files
+
+- `docs/ARCHITECTURE_MAP.md`
+- `docs/IMPLEMENTATION_EVIDENCE.md`
+- `src/main/java/com/vibeprivate/service/RegionRelocationService.java`
+- `src/test/java/com/vibeprivate/service/RegionRelocationServiceTest.java`
+
+## What Changed
+
+- `moveRegionToWorldSameBounds(...)` still replaces the region first and then remaps home world only if needed.
+- If `saveHome(...)` fails after a successful region replacement, relocation now attempts `regionStore.replaceRegion(original)` as a local rollback.
+- If rollback also fails, rollback failure is attached as a suppressed exception to the primary home remap failure.
+- Public API signatures remain unchanged.
+- This pass does not add a shared DB transaction layer; it only reduces inconsistency risk in this specific relocation path.
+
+## Acceptance Checks
+
+- Failed home remap after region replace attempts rollback to original region: PASSED.
+- Failed rollback is visible via suppressed exception: PASSED.
+- Successful same-bounds move path still replaces once and saves home once: PASSED.
+- No GUI/commands/events/BaseTransfer/SeasonArchive scope added: PASSED.
+- No `RegionManager` business logic expansion added by this pass: PASSED.
+
+## Build / Smoke
+
+Command:
+
+```powershell
+.\gradlew.bat clean build --no-daemon
+```
+
+Result: PASSED on 2026-07-07.
+
+## Focused Tests Added
+
+- failing home save rolls region back to original world
+- rollback failure is suppressed on primary home save failure
+- successful path still replaces once and saves home once
+
+## Remaining Risks
+
+- This is local rollback safety, not a full database transaction across region and home writes.
+- If rollback fails, runtime still receives the primary remap exception with suppressed rollback failure, but persisted state may already be partially changed.
+- `relocateRegion(...)` still does not remap or offset region home coordinates; safe home translation for manual relocation remains deferred.

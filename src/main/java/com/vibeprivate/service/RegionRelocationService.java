@@ -34,7 +34,11 @@ public final class RegionRelocationService {
         }
 
         regionStore.replaceRegion(moved);
-        remapHomeWorldIfNeeded(region, moved);
+        try {
+            remapHomeWorldIfNeeded(region, moved);
+        } catch (RuntimeException exception) {
+            rollbackMovedRegion(region, exception);
+        }
         return moved;
     }
 
@@ -148,6 +152,16 @@ public final class RegionRelocationService {
         regionStore.getHome(original.getId())
                 .filter(home -> !moved.getWorldName().equals(home.worldName()))
                 .ifPresent(home -> regionStore.saveHome(remapHomeWorld(home, moved.getWorldName())));
+    }
+
+    private void rollbackMovedRegion(Region original, RuntimeException primaryFailure) {
+        try {
+            regionStore.replaceRegion(original);
+        } catch (RuntimeException rollbackFailure) {
+            primaryFailure.addSuppressed(rollbackFailure);
+        }
+
+        throw primaryFailure;
     }
 
     private static RegionHome remapHomeWorld(RegionHome home, String targetWorld) {

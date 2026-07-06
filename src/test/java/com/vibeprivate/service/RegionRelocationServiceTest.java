@@ -74,6 +74,47 @@ public class RegionRelocationServiceTest {
     }
 
     @Test
+    void failingHomeSaveRollsRegionBackToOriginalWorld() {
+        Region region = testRegion("r-home-rollback", "world", 0, 0, 8);
+        RegionHome home = new RegionHome(region.getId(), "world", 10.5, 72.0, -6.25, 90.0f, 15.0f);
+        InMemoryRegionRelocationStore store = new InMemoryRegionRelocationStore(Set.of("world", "world_nether"), region);
+        store.putHome(home);
+        store.failOnSaveHome = true;
+        RegionRelocationService service = new RegionRelocationService(store);
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+                () -> service.moveRegionToWorldSameBounds(region.getId(), "world_nether"));
+
+        assertEquals("Simulated home save failure.", exception.getMessage());
+        assertEquals("world", store.requireRegion(region.getId()).getWorldName());
+        assertEquals(home, store.requireHome(region.getId()));
+        assertEquals(2, store.replaceCalls);
+        assertEquals(1, store.saveHomeCalls);
+    }
+
+    @Test
+    void rollbackFailureIsSuppressedOnPrimaryHomeSaveFailure() {
+        Region region = testRegion("r-home-rollback-fail", "world", 0, 0, 8);
+        RegionHome home = new RegionHome(region.getId(), "world", 10.5, 72.0, -6.25, 90.0f, 15.0f);
+        InMemoryRegionRelocationStore store = new InMemoryRegionRelocationStore(Set.of("world", "world_nether"), region);
+        store.putHome(home);
+        store.failOnSaveHome = true;
+        store.failOnRollbackReplace = true;
+        RegionRelocationService service = new RegionRelocationService(store);
+
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+                () -> service.moveRegionToWorldSameBounds(region.getId(), "world_nether"));
+
+        assertEquals("Simulated home save failure.", exception.getMessage());
+        assertEquals(1, exception.getSuppressed().length);
+        assertEquals("Simulated rollback replace failure.", exception.getSuppressed()[0].getMessage());
+        assertEquals("world_nether", store.requireRegion(region.getId()).getWorldName());
+        assertEquals(home, store.requireHome(region.getId()));
+        assertEquals(2, store.replaceCalls);
+        assertEquals(1, store.saveHomeCalls);
+    }
+
+    @Test
     void moveWithoutHomeSucceedsAndDoesNotCreateHome() {
         Region region = testRegion("r-no-home", "world", 0, 0, 8);
         InMemoryRegionRelocationStore store = new InMemoryRegionRelocationStore(Set.of("world", "world_nether"), region);
@@ -231,6 +272,8 @@ public class RegionRelocationServiceTest {
         private final Set<String> allowedWorlds;
         private int replaceCalls;
         private int saveHomeCalls;
+        private boolean failOnSaveHome;
+        private boolean failOnRollbackReplace;
 
         private InMemoryRegionRelocationStore(Set<String> allowedWorlds, Region... initialRegions) {
             this.allowedWorlds = allowedWorlds;
@@ -259,6 +302,9 @@ public class RegionRelocationServiceTest {
         @Override
         public void replaceRegion(Region region) {
             replaceCalls++;
+            if (failOnRollbackReplace && replaceCalls > 1) {
+                throw new IllegalStateException("Simulated rollback replace failure.");
+            }
             regions.put(region.getId(), region);
         }
 
@@ -270,6 +316,9 @@ public class RegionRelocationServiceTest {
         @Override
         public void saveHome(RegionHome home) {
             saveHomeCalls++;
+            if (failOnSaveHome) {
+                throw new IllegalStateException("Simulated home save failure.");
+            }
             homes.put(home.regionId(), home);
         }
 
