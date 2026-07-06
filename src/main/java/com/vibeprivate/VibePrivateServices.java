@@ -22,6 +22,7 @@ import com.vibeprivate.service.RegionDeletionService;
 import com.vibeprivate.service.RegionHomeService;
 import com.vibeprivate.service.RegionInviteService;
 import com.vibeprivate.service.RegionLifecycleService;
+import com.vibeprivate.service.RegionRelocationService;
 import com.vibeprivate.service.RegionSelectionValidator;
 import com.vibeprivate.service.RegionTeleportService;
 import com.vibeprivate.service.RegionUpgradeService;
@@ -55,6 +56,7 @@ public final class VibePrivateServices {
     private final RegionCreationService regionCreationService;
     private final RegionInviteService regionInviteService;
     private final RegionLifecycleService regionLifecycleService;
+    private final RegionRelocationService regionRelocationService;
     private final RegionSelectionValidator regionSelectionValidator;
     private final FuelService fuelService;
     private final EconomyService economyService;
@@ -92,6 +94,7 @@ public final class VibePrivateServices {
         regionCreationService = builder.regionCreationService;
         regionInviteService = builder.regionInviteService;
         regionLifecycleService = builder.regionLifecycleService;
+        regionRelocationService = builder.regionRelocationService;
         regionSelectionValidator = builder.regionSelectionValidator;
         fuelService = builder.fuelService;
         economyService = builder.economyService;
@@ -195,6 +198,10 @@ public final class VibePrivateServices {
         return regionLifecycleService;
     }
 
+    public RegionRelocationService regionRelocationService() {
+        return regionRelocationService;
+    }
+
     public RegionSelectionValidator regionSelectionValidator() {
         return regionSelectionValidator;
     }
@@ -281,6 +288,7 @@ public final class VibePrivateServices {
         RegionCreationService regionCreationService;
         RegionInviteService regionInviteService;
         RegionLifecycleService regionLifecycleService;
+        RegionRelocationService regionRelocationService;
         RegionSelectionValidator regionSelectionValidator;
         FuelService fuelService;
         EconomyService economyService;

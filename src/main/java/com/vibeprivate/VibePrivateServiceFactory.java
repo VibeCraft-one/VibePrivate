@@ -23,8 +23,10 @@ import com.vibeprivate.service.RegionDeletionService;
 import com.vibeprivate.service.RegionHomeService;
 import com.vibeprivate.service.RegionInviteService;
 import com.vibeprivate.service.RegionLifecycleService;
+import com.vibeprivate.service.RegionManagerRelocationRegionStore;
 import com.vibeprivate.service.RegionManagerLifecycleRegionStore;
 import com.vibeprivate.service.RegionManagerSelectionRegionStore;
+import com.vibeprivate.service.RegionRelocationService;
 import com.vibeprivate.service.RegionSelectionValidator;
 import com.vibeprivate.service.RegionTeleportService;
 import com.vibeprivate.service.RegionUpgradeService;
@@ -128,12 +130,15 @@ final class VibePrivateServiceFactory {
         builder.regionDeletionService = new RegionDeletionService(builder.regionManager, builder.regionUpgradeService,
                 builder.playerRegionCache, builder.confirmationService);
         builder.regionHomeService = new RegionHomeService(builder.regionManager, builder.regionHomeRepository);
+        builder.regionRelocationService = new RegionRelocationService(
+                new RegionManagerRelocationRegionStore(builder.regionManager, builder.configService));
         builder.regionSelectionValidator = new RegionSelectionValidator(
                 new RegionManagerSelectionRegionStore(builder.regionManager),
                 new BukkitRegionSelectionWorldHeightProvider());
         builder.guiIconRegistry = GuiIconRegistry.defaults();
         builder.api = new VibePrivateAPI(builder.regionManager, builder.regionCreationService,
                 builder.adminRegionService, builder.regionAccessService, builder.regionLifecycleService,
+                builder.regionRelocationService,
                 builder.regionSelectionValidator);
     }
 }

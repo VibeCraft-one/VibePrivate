@@ -28,7 +28,7 @@
 ## API Layer
 
 - `api/VibePrivateAPI.java` is the safe integration surface.
-- Current external-safe reads include region lookup, lifecycle status, world region listing, bounds lookup, and selection-inside-region validation.
+- Current external-safe reads include region lookup, lifecycle status, world region listing, bounds lookup, selection-inside-region validation, and relocation/world-move foundation methods.
 
 ## Selection / Bounds Foundation
 
@@ -36,6 +36,12 @@
 - `model/SelectionBounds.java` - normalized external selection input.
 - `service/RegionSelectionValidator.java` - read-only validation for `SelectionBounds` against a region.
 - `service/RegionManagerSelectionRegionStore.java` - narrow adapter so selection logic stays outside `RegionManager`.
+
+## Relocation Foundation
+
+- `service/RegionRelocationService.java` - typed foundation for same-bounds world move and radius relocation checks.
+- `service/RegionManagerRelocationRegionStore.java` - read-only/write-narrow adapter around `RegionManager` and allowed worlds config.
+- Keep relocation rules in this layer, then let `RegionManager.replaceRegion(...)` remain the only mutation point for region replacement.
 
 ## GUI Layer
 
@@ -52,7 +58,7 @@
 ## Safe Place For Future Move / Relocate Work
 
 - Keep public entry points in `api/VibePrivateAPI.java`.
-- Put move/relocate rules in new dedicated `service` classes, not in `RegionManager`.
+- Put move/relocate rules in dedicated `service` classes like `RegionRelocationService`, not in `RegionManager`.
 - Let `RegionManager` stay focused on region state, indexes and lookups.
 - Reuse small adapters like lifecycle/selection stores if a new service needs read/write access to regions.
 

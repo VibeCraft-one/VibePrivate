@@ -38,6 +38,7 @@ tasks.register("lifecycleSmokeTest", JavaExec) {
     mainClass = "org.junit.platform.console.ConsoleLauncher"
     args "--select-class", "com.vibeprivate.service.RegionLifecycleServiceTest",
             "--select-class", "com.vibeprivate.service.RegionSelectionValidatorTest",
+            "--select-class", "com.vibeprivate.service.RegionRelocationServiceTest",
             "--details", "tree"
 }
 

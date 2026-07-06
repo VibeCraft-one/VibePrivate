@@ -11,6 +11,7 @@ import com.vibeprivate.service.RegionAccessService;
 import com.vibeprivate.service.RegionCreationResult;
 import com.vibeprivate.service.RegionCreationService;
 import com.vibeprivate.service.RegionLifecycleService;
+import com.vibeprivate.service.RegionRelocationService;
 import com.vibeprivate.service.RegionSelectionValidator;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -27,17 +28,19 @@ public final class VibePrivateAPI {
     private final AdminRegionService adminRegionService;
     private final RegionAccessService regionAccessService;
     private final RegionLifecycleService regionLifecycleService;
+    private final RegionRelocationService regionRelocationService;
     private final RegionSelectionValidator regionSelectionValidator;
 
     public VibePrivateAPI(RegionManager regionManager, RegionCreationService regionCreationService,
                           AdminRegionService adminRegionService, RegionAccessService regionAccessService,
-                          RegionLifecycleService regionLifecycleService,
+                          RegionLifecycleService regionLifecycleService, RegionRelocationService regionRelocationService,
                           RegionSelectionValidator regionSelectionValidator) {
         this.regionManager = Objects.requireNonNull(regionManager, "regionManager");
         this.regionCreationService = Objects.requireNonNull(regionCreationService, "regionCreationService");
         this.adminRegionService = Objects.requireNonNull(adminRegionService, "adminRegionService");
         this.regionAccessService = Objects.requireNonNull(regionAccessService, "regionAccessService");
         this.regionLifecycleService = Objects.requireNonNull(regionLifecycleService, "regionLifecycleService");
+        this.regionRelocationService = Objects.requireNonNull(regionRelocationService, "regionRelocationService");
         this.regionSelectionValidator = Objects.requireNonNull(regionSelectionValidator, "regionSelectionValidator");
     }
 
@@ -79,6 +82,22 @@ public final class VibePrivateAPI {
 
     public boolean isAreaInsideRegion(String regionId, SelectionBounds bounds) {
         return regionSelectionValidator.isAreaInsideRegion(regionId, bounds);
+    }
+
+    public boolean canMoveRegionToWorld(String regionId, String targetWorld) {
+        return regionRelocationService.canMoveRegionToWorld(regionId, targetWorld);
+    }
+
+    public Region moveRegionToWorldSameBounds(String regionId, String targetWorld) {
+        return regionRelocationService.moveRegionToWorldSameBounds(regionId, targetWorld);
+    }
+
+    public boolean canRelocateRegion(String regionId, String targetWorld, int targetCenterX, int targetCenterZ) {
+        return regionRelocationService.canRelocateRegion(regionId, targetWorld, targetCenterX, targetCenterZ);
+    }
+
+    public Region relocateRegion(String regionId, String targetWorld, int targetCenterX, int targetCenterZ) {
+        return regionRelocationService.relocateRegion(regionId, targetWorld, targetCenterX, targetCenterZ);
     }
 
     public void setRegionStatus(String regionId, RegionStatus status) {

@@ -266,3 +266,88 @@ Focused tests covering this pass:
 
 - This pass does not implement move/relocate execution, only validation foundation.
 - World height validation depends on runtime world availability through the new height provider seam.
+
+# VibePrivate API/Relocation Foundation Pass 5 Evidence
+
+## Scope
+
+Added only typed API/service foundation for same-bounds world move and radius relocation inside `VibePrivate`.
+
+Out of scope for this pass:
+- Bukkit events
+- GUI/commands/messages
+- snapshot/export/archive logic
+- BaseTransfer/SeasonArchive implementation
+- SQL migrations
+- cuboid/manual relocation geometry support
+
+## Changed Files
+
+- `build.gradle`
+- `docs/ARCHITECTURE_MAP.md`
+- `docs/IMPLEMENTATION_EVIDENCE.md`
+- `src/main/java/com/vibeprivate/VibePrivateServiceFactory.java`
+- `src/main/java/com/vibeprivate/VibePrivateServices.java`
+- `src/main/java/com/vibeprivate/api/VibePrivateAPI.java`
+- `src/main/java/com/vibeprivate/service/RegionManagerRelocationRegionStore.java`
+- `src/main/java/com/vibeprivate/service/RegionRelocationRegionStore.java`
+- `src/main/java/com/vibeprivate/service/RegionRelocationService.java`
+- `src/test/java/com/vibeprivate/service/RegionRelocationServiceTest.java`
+
+## What Was Added
+
+- Typed API method `boolean canMoveRegionToWorld(String regionId, String targetWorld)`.
+- Typed API method `Region moveRegionToWorldSameBounds(String regionId, String targetWorld)`.
+- Typed API method `boolean canRelocateRegion(String regionId, String targetWorld, int targetCenterX, int targetCenterZ)`.
+- Typed API method `Region relocateRegion(String regionId, String targetWorld, int targetCenterX, int targetCenterZ)`.
+- Dedicated `RegionRelocationService` outside `RegionManager`.
+- Read-only/write-narrow relocation store seam so service reads regions and applies replacement through a narrow adapter.
+
+## Behavior In This Pass
+
+- `moveRegionToWorldSameBounds` rebuilds a region with the same geometry/state and only changes `worldName`.
+- `relocateRegion` currently supports only radius regions and rebuilds them with a new `worldName` and new center while preserving radius, `minY/maxY`, owner, type and persisted state fields.
+- `can*` methods do not mutate state.
+- Unknown region, disallowed world, overlap and unsupported relocation shape/admin path return `false` from `can*` and throw a controlled exception from action methods.
+
+## Acceptance Checks
+
+- Public API contains the 4 relocation methods from the TZ: PASSED.
+- Same-bounds world move preserves coordinates and changes only world: PASSED.
+- Radius relocation preserves size/state and changes center/world: PASSED.
+- `can*` methods do not mutate state: PASSED.
+- Overlap/disallowed/unknown/admin cases are covered by focused tests: PASSED.
+- No events/GUI/BaseTransfer/SeasonArchive scope added: PASSED.
+- No reflection added by this pass: PASSED.
+- `RegionManager` was not expanded with relocation business logic: PASSED.
+
+## Build / Smoke
+
+Command:
+
+```powershell
+.\gradlew.bat clean build --no-daemon
+```
+
+Result: PASSED on 2026-07-07.
+
+Focused smoke executed inside build:
+- `RegionLifecycleServiceTest`
+- `RegionSelectionValidatorTest`
+- `RegionRelocationServiceTest`
+
+## Focused Tests Added
+
+- same-bounds move preserves radius geometry and state
+- unknown region -> `canMove false`, action throws
+- disallowed world -> `canMove false`, action throws
+- foreign overlap blocks same-bounds world move
+- radius relocation preserves size/state
+- admin region cannot use relocation API
+- foreign overlap blocks relocation
+- `can*` methods do not mutate store state
+
+## Remaining Risks
+
+- `relocateRegion` intentionally supports only radius regions in this pass; cuboid/manual relocation geometry is deferred rather than implemented unsafely.
+- Action methods still rely on `RegionManager.replaceRegion(...)` as the final mutation gate, so runtime chunk-occupancy constraints remain enforced there in addition to the pass 5 overlap checks.
