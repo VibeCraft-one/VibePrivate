@@ -21,6 +21,8 @@ import com.vibeprivate.service.RegionCreationService;
 import com.vibeprivate.service.RegionDeletionService;
 import com.vibeprivate.service.RegionHomeService;
 import com.vibeprivate.service.RegionInviteService;
+import com.vibeprivate.service.RegionLifecycleService;
+import com.vibeprivate.service.RegionManagerLifecycleRegionStore;
 import com.vibeprivate.service.RegionTeleportService;
 import com.vibeprivate.service.RegionUpgradeService;
 import com.vibeprivate.service.UpkeepService;
@@ -29,6 +31,7 @@ import com.vibeprivate.storage.ProtectedChunkRepository;
 import com.vibeprivate.storage.RegionAccessRepository;
 import com.vibeprivate.storage.RegionDepositRepository;
 import com.vibeprivate.storage.RegionHomeRepository;
+import com.vibeprivate.storage.RegionLifecycleRepository;
 import com.vibeprivate.storage.RegionRepository;
 import com.vibeprivate.storage.UpkeepRepository;
 import com.vibeprivate.visualization.RegionBoundaryVisualizer;
@@ -70,6 +73,7 @@ final class VibePrivateServiceFactory {
         builder.regionAccessRepository = new RegionAccessRepository(builder.databaseService);
         builder.regionDepositRepository = new RegionDepositRepository(builder.databaseService);
         builder.regionHomeRepository = new RegionHomeRepository(builder.databaseService);
+        builder.regionLifecycleRepository = new RegionLifecycleRepository(builder.databaseService);
         builder.upkeepRepository = new UpkeepRepository(builder.databaseService);
         builder.protectedChunkRepository = new ProtectedChunkRepository(builder.databaseService);
     }
@@ -80,6 +84,9 @@ final class VibePrivateServiceFactory {
 
         builder.regionManager = new RegionManager(builder.regionRepository, builder.configService);
         builder.regionManager.load();
+        builder.regionLifecycleService = new RegionLifecycleService(builder.regionLifecycleRepository,
+                new RegionManagerLifecycleRegionStore(builder.regionManager));
+        builder.regionLifecycleService.load();
 
         builder.chunkProtectionService = new ChunkProtectionService(plugin, builder.configService,
                 builder.protectedChunkRepository);
@@ -95,7 +102,7 @@ final class VibePrivateServiceFactory {
         builder.economyService.hook();
         builder.fuelService = new FuelService(plugin, builder.regionManager, builder.configService);
         builder.upkeepService = new UpkeepService(plugin, builder.regionManager, builder.configService,
-                builder.messageService, builder.economyService, builder.upkeepRepository);
+                builder.messageService, builder.economyService, builder.upkeepRepository, builder.regionLifecycleService);
         builder.upkeepService.load();
         builder.commandCooldownService = new CommandCooldownService();
         builder.regionTeleportService = new RegionTeleportService();
@@ -120,6 +127,6 @@ final class VibePrivateServiceFactory {
         builder.regionHomeService = new RegionHomeService(builder.regionManager, builder.regionHomeRepository);
         builder.guiIconRegistry = GuiIconRegistry.defaults();
         builder.api = new VibePrivateAPI(builder.regionManager, builder.regionCreationService,
-                builder.adminRegionService, builder.regionAccessService);
+                builder.adminRegionService, builder.regionAccessService, builder.regionLifecycleService);
     }
 }

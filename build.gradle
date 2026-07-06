@@ -13,8 +13,32 @@ java {
 
 dependencies {
     compileOnly "io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT"
+    testImplementation platform("org.junit:junit-bom:5.10.2")
+    testImplementation "org.junit.jupiter:junit-jupiter"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+    testRuntimeOnly "org.junit.platform:junit-platform-console-standalone:1.10.2"
 }
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = "UTF-8"
+}
+
+tasks.test {
+    enabled = false
+}
+
+tasks.register("lifecycleSmokeTest", JavaExec) {
+    dependsOn tasks.testClasses
+    group = "verification"
+    description = "Runs focused lifecycle JUnit smoke without Gradle test worker."
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = "org.junit.platform.console.ConsoleLauncher"
+    args "--select-class", "com.vibeprivate.service.RegionLifecycleServiceTest", "--details", "tree"
+}
+
+tasks.check {
+    dependsOn tasks.named("lifecycleSmokeTest")
 }

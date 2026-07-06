@@ -21,6 +21,7 @@ import com.vibeprivate.service.RegionCreationService;
 import com.vibeprivate.service.RegionDeletionService;
 import com.vibeprivate.service.RegionHomeService;
 import com.vibeprivate.service.RegionInviteService;
+import com.vibeprivate.service.RegionLifecycleService;
 import com.vibeprivate.service.RegionTeleportService;
 import com.vibeprivate.service.RegionUpgradeService;
 import com.vibeprivate.service.UpkeepService;
@@ -29,6 +30,7 @@ import com.vibeprivate.storage.ProtectedChunkRepository;
 import com.vibeprivate.storage.RegionAccessRepository;
 import com.vibeprivate.storage.RegionDepositRepository;
 import com.vibeprivate.storage.RegionHomeRepository;
+import com.vibeprivate.storage.RegionLifecycleRepository;
 import com.vibeprivate.storage.RegionRepository;
 import com.vibeprivate.storage.UpkeepRepository;
 import com.vibeprivate.visualization.RegionBoundaryVisualizer;
@@ -42,6 +44,7 @@ public final class VibePrivateServices {
     private final RegionAccessRepository regionAccessRepository;
     private final RegionDepositRepository regionDepositRepository;
     private final RegionHomeRepository regionHomeRepository;
+    private final RegionLifecycleRepository regionLifecycleRepository;
     private final UpkeepRepository upkeepRepository;
     private final ProtectedChunkRepository protectedChunkRepository;
     private final RegionAccessService regionAccessService;
@@ -50,6 +53,7 @@ public final class VibePrivateServices {
     private final ProtectionService protectionService;
     private final RegionCreationService regionCreationService;
     private final RegionInviteService regionInviteService;
+    private final RegionLifecycleService regionLifecycleService;
     private final FuelService fuelService;
     private final EconomyService economyService;
     private final UpkeepService upkeepService;
@@ -76,6 +80,7 @@ public final class VibePrivateServices {
         regionAccessRepository = builder.regionAccessRepository;
         regionDepositRepository = builder.regionDepositRepository;
         regionHomeRepository = builder.regionHomeRepository;
+        regionLifecycleRepository = builder.regionLifecycleRepository;
         upkeepRepository = builder.upkeepRepository;
         protectedChunkRepository = builder.protectedChunkRepository;
         regionAccessService = builder.regionAccessService;
@@ -84,6 +89,7 @@ public final class VibePrivateServices {
         protectionService = builder.protectionService;
         regionCreationService = builder.regionCreationService;
         regionInviteService = builder.regionInviteService;
+        regionLifecycleService = builder.regionLifecycleService;
         fuelService = builder.fuelService;
         economyService = builder.economyService;
         upkeepService = builder.upkeepService;
@@ -154,6 +160,10 @@ public final class VibePrivateServices {
         return upkeepRepository;
     }
 
+    public RegionLifecycleRepository regionLifecycleRepository() {
+        return regionLifecycleRepository;
+    }
+
     public RegionAccessService regionAccessService() {
         return regionAccessService;
     }
@@ -176,6 +186,10 @@ public final class VibePrivateServices {
 
     public RegionInviteService regionInviteService() {
         return regionInviteService;
+    }
+
+    public RegionLifecycleService regionLifecycleService() {
+        return regionLifecycleService;
     }
 
     public FuelService fuelService() {
@@ -250,6 +264,7 @@ public final class VibePrivateServices {
         RegionAccessRepository regionAccessRepository;
         RegionDepositRepository regionDepositRepository;
         RegionHomeRepository regionHomeRepository;
+        RegionLifecycleRepository regionLifecycleRepository;
         UpkeepRepository upkeepRepository;
         ProtectedChunkRepository protectedChunkRepository;
         RegionAccessService regionAccessService;
@@ -258,6 +273,7 @@ public final class VibePrivateServices {
         ProtectionService protectionService;
         RegionCreationService regionCreationService;
         RegionInviteService regionInviteService;
+        RegionLifecycleService regionLifecycleService;
         FuelService fuelService;
         EconomyService economyService;
         UpkeepService upkeepService;

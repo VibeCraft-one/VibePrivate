@@ -21,8 +21,10 @@ final class DatabaseSchema {
         execute(createRegionHomesSql());
         execute(createRegionFuelSlotsSql());
         execute(createOwnerUpkeepSql());
+        execute(createRegionLifecycleSql());
         execute(createPendingConfirmationsSql());
         execute(createProtectedChunksSql());
+        createIndex("idx_region_lifecycle_status", "region_lifecycle", "status");
         createIndex("idx_protected_chunks_region", "protected_chunks", "region_id");
         createIndex("idx_protected_chunks_owner", "protected_chunks", "owner_id");
     }
@@ -245,6 +247,23 @@ final class DatabaseSchema {
                     expires_at %s NOT NULL
                 )
                 """.formatted(idType, actorType, actionType, targetType, longType);
+    }
+
+    private String createRegionLifecycleSql() {
+        String regionIdType = isMySql() ? "VARCHAR(64)" : "TEXT";
+        String statusType = isMySql() ? "VARCHAR(32)" : "TEXT";
+        String longType = isMySql() ? "BIGINT" : "INTEGER";
+        return """
+                CREATE TABLE IF NOT EXISTS region_lifecycle (
+                    region_id %s PRIMARY KEY,
+                    status %s NOT NULL,
+                    status_reason TEXT,
+                    status_changed_at %s NOT NULL,
+                    upkeep_paused_until %s,
+                    upkeep_pause_reason TEXT,
+                    FOREIGN KEY (region_id) REFERENCES regions(id) ON DELETE CASCADE
+                )
+                """.formatted(regionIdType, statusType, longType, longType);
     }
 
     private String createProtectedChunksSql() {

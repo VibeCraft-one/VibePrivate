@@ -2,11 +2,13 @@ package com.vibeprivate.api;
 
 import com.vibeprivate.manager.RegionManager;
 import com.vibeprivate.model.Region;
+import com.vibeprivate.model.RegionStatus;
 import com.vibeprivate.model.RegionType;
 import com.vibeprivate.service.AdminRegionService;
 import com.vibeprivate.service.RegionAccessService;
 import com.vibeprivate.service.RegionCreationResult;
 import com.vibeprivate.service.RegionCreationService;
+import com.vibeprivate.service.RegionLifecycleService;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -21,13 +23,16 @@ public final class VibePrivateAPI {
     private final RegionCreationService regionCreationService;
     private final AdminRegionService adminRegionService;
     private final RegionAccessService regionAccessService;
+    private final RegionLifecycleService regionLifecycleService;
 
     public VibePrivateAPI(RegionManager regionManager, RegionCreationService regionCreationService,
-                          AdminRegionService adminRegionService, RegionAccessService regionAccessService) {
+                          AdminRegionService adminRegionService, RegionAccessService regionAccessService,
+                          RegionLifecycleService regionLifecycleService) {
         this.regionManager = Objects.requireNonNull(regionManager, "regionManager");
         this.regionCreationService = Objects.requireNonNull(regionCreationService, "regionCreationService");
         this.adminRegionService = Objects.requireNonNull(adminRegionService, "adminRegionService");
         this.regionAccessService = Objects.requireNonNull(regionAccessService, "regionAccessService");
+        this.regionLifecycleService = Objects.requireNonNull(regionLifecycleService, "regionLifecycleService");
     }
 
     public Optional<Region> getRegionAt(Location location) {
@@ -38,8 +43,40 @@ public final class VibePrivateAPI {
         return regionManager.getRegion(regionId);
     }
 
+    public Collection<Region> getAllRegions() {
+        return regionManager.getRegions();
+    }
+
+    public Collection<Region> getRegionsInWorld(String worldName) {
+        return getRegionsInWorld(worldName, false);
+    }
+
+    public Collection<Region> getRegionsInWorld(String worldName, boolean includeInactive) {
+        return regionLifecycleService.getRegionsInWorld(worldName, includeInactive);
+    }
+
     public List<Region> getRegionsByOwner(String ownerId) {
         return regionManager.getRegionsByOwner(ownerId);
+    }
+
+    public List<Region> getRegionsByOwnerAndType(String ownerId, RegionType type) {
+        return regionManager.getRegionsByOwnerAndType(ownerId, type);
+    }
+
+    public RegionStatus getRegionStatus(String regionId) {
+        return regionLifecycleService.getRegionStatus(regionId);
+    }
+
+    public void setRegionStatus(String regionId, RegionStatus status) {
+        regionLifecycleService.setRegionStatus(regionId, status);
+    }
+
+    public void pauseUpkeep(String regionId, String reason) {
+        regionLifecycleService.pauseUpkeep(regionId, reason);
+    }
+
+    public void resumeUpkeep(String regionId, String reason) {
+        regionLifecycleService.resumeUpkeep(regionId, reason);
     }
 
     public RegionCreationResult createPrivateRegion(Player player) {

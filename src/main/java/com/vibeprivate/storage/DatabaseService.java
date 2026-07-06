@@ -95,6 +95,10 @@ public final class DatabaseService {
         return statements.upsertUpkeepSql();
     }
 
+    public String upsertRegionLifecycleSql() {
+        return statements.upsertRegionLifecycleSql();
+    }
+
     public void close() {
         if (connection == null) {
             return;
