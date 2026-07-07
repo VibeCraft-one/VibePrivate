@@ -33,7 +33,6 @@ public final class RegionDetailMenu implements InventoryHolder {
     public static final int BACK_SLOT = 53;
 
     private final MessageService messageService;
-    private final RegionAccessService accessService;
     private final FuelService fuelService;
     private final RegionUpgradeService upgradeService;
     private final Region region;
@@ -47,7 +46,7 @@ public final class RegionDetailMenu implements InventoryHolder {
     public RegionDetailMenu(MessageService messageService, RegionAccessService accessService,
                             FuelService fuelService, RegionUpgradeService upgradeService, Region region) {
         this.messageService = Objects.requireNonNull(messageService, "messageService");
-        this.accessService = Objects.requireNonNull(accessService, "accessService");
+        Objects.requireNonNull(accessService, "accessService");
         this.fuelService = Objects.requireNonNull(fuelService, "fuelService");
         this.upgradeService = Objects.requireNonNull(upgradeService, "upgradeService");
         this.region = Objects.requireNonNull(region, "region");
@@ -76,7 +75,19 @@ public final class RegionDetailMenu implements InventoryHolder {
     }
 
     private void render() {
+        renderInfo();
+        renderFlags();
+        renderAdminPresets();
+        renderPrimaryActions();
+        renderResourceActions();
+        renderNavigation();
+    }
+
+    private void renderInfo() {
         inventory.setItem(4, infoItem());
+    }
+
+    private void renderFlags() {
         int slotIndex = 0;
         for (RegionFlag flag : visibleFlags()) {
             if (slotIndex >= GuiSlots.REGION_FLAG_SLOTS.length) {
@@ -86,11 +97,21 @@ public final class RegionDetailMenu implements InventoryHolder {
             flagsBySlot.put(slot, flag);
             inventory.setItem(slot, flagItemFactory.regionFlagItem(region, flag));
         }
+    }
 
+    private void renderAdminPresets() {
         if (region.isAdmin()) {
-            renderPresets();
+            AdminRegionPreset[] presets = AdminRegionPreset.values();
+            for (int index = 0; index < presets.length && index < GuiSlots.ADMIN_PRESET_SLOTS.length; index++) {
+                AdminRegionPreset preset = presets[index];
+                int slot = GuiSlots.ADMIN_PRESET_SLOTS[index];
+                presetsBySlot.put(slot, preset);
+                inventory.setItem(slot, presetItemFactory.item(preset));
+            }
         }
+    }
 
+    private void renderPrimaryActions() {
         inventory.setItem(HOME_SLOT, teleportItem());
         if (region.isAdmin()) {
             inventory.setItem(MEMBERS_SLOT, namedItem(Material.PLAYER_HEAD, "gui.region-detail.guests.name",
@@ -99,16 +120,24 @@ public final class RegionDetailMenu implements InventoryHolder {
             inventory.setItem(MEMBERS_SLOT, namedItem(Material.PLAYER_HEAD, "gui.region-detail.members.name",
                     List.of("gui.region-detail.members.lore.1", "gui.region-detail.members.lore.2")));
         }
-        if (!region.isAdmin()) {
-            inventory.setItem(FUEL_SLOT, fuelItem());
-            inventory.setItem(UPGRADE_SLOT, upgradeItem());
-            if (region.getType() == RegionType.HOME) {
-                inventory.setItem(SET_HOME_SLOT, namedItem(GuiIcon.SPAWN_POINT, "gui.region-detail.set-home.name",
-                        List.of("gui.region-detail.set-home.lore.1", "gui.region-detail.set-home.lore.2")));
-            }
-            inventory.setItem(WITHDRAW_SLOT, namedItem(Material.EMERALD_BLOCK, "gui.region-detail.withdraw.name",
-                    List.of("gui.region-detail.withdraw.lore.1", "gui.region-detail.withdraw.lore.2")));
+    }
+
+    private void renderResourceActions() {
+        if (region.isAdmin()) {
+            return;
         }
+
+        inventory.setItem(FUEL_SLOT, fuelItem());
+        inventory.setItem(UPGRADE_SLOT, upgradeItem());
+        if (region.getType() == RegionType.HOME) {
+            inventory.setItem(SET_HOME_SLOT, namedItem(GuiIcon.SPAWN_POINT, "gui.region-detail.set-home.name",
+                    List.of("gui.region-detail.set-home.lore.1", "gui.region-detail.set-home.lore.2")));
+        }
+        inventory.setItem(WITHDRAW_SLOT, namedItem(Material.EMERALD_BLOCK, "gui.region-detail.withdraw.name",
+                List.of("gui.region-detail.withdraw.lore.1", "gui.region-detail.withdraw.lore.2")));
+    }
+
+    private void renderNavigation() {
         inventory.setItem(DELETE_SLOT, namedItem(Material.BARRIER, "gui.region-detail.delete.name",
                 List.of("gui.region-detail.delete.lore.1", "gui.region-detail.delete.lore.2")));
         inventory.setItem(BACK_SLOT, namedItem(Material.ARROW, "gui.back.name", List.of("gui.back.lore")));
@@ -184,16 +213,6 @@ public final class RegionDetailMenu implements InventoryHolder {
 
     private ItemStack namedItem(GuiIcon icon, String nameKey, List<String> loreKeys) {
         return itemFactory.item(icon, nameKey, loreKeys);
-    }
-
-    private void renderPresets() {
-        AdminRegionPreset[] presets = AdminRegionPreset.values();
-        for (int index = 0; index < presets.length && index < GuiSlots.ADMIN_PRESET_SLOTS.length; index++) {
-            AdminRegionPreset preset = presets[index];
-            int slot = GuiSlots.ADMIN_PRESET_SLOTS[index];
-            presetsBySlot.put(slot, preset);
-            inventory.setItem(slot, presetItemFactory.item(preset));
-        }
     }
 
     private String displayOwner() {

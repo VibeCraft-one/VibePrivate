@@ -4,8 +4,36 @@
 
 - `src/main/java/com/vibeprivate/VibePrivatePlugin.java` - plugin bootstrap.
 - `src/main/java/com/vibeprivate/VibePrivateServiceFactory.java` - wires services and repositories.
-- `src/main/java/com/vibeprivate/VibePrivateServices.java` - runtime container and service access point.
-- `src/main/java/com/vibeprivate/api/VibePrivateAPI.java` - public typed API for other plugins.
+- `src/main/java/com/vibeprivate/VibePrivateServices.java` - package-private runtime container for plugin wiring.
+- `src/main/java/com/vibeprivate/api/VibePrivateAPI.java` - legacy public typed API for other plugins.
+- `src/main/java/com/vibeprivate/api/VibeRegionGuardApi.java` - thin branded facade for external integrations.
+
+## Maintainer Start Order
+
+For a new development or review pass, read only this small set first:
+
+1. `README.md`
+2. `docs/ARCHITECTURE_MAP.md`
+3. `git status --short --branch`
+4. current diff or the one feature file being changed
+5. the matching focused test
+
+Do not start by rereading the full evidence history. Use `docs/IMPLEMENTATION_EVIDENCE.md` only for the latest relevant pass and build result.
+
+## Public Integration Boundary
+
+- Preferred external entrypoint: `VibePrivatePlugin#getVibeRegionGuardApi()`.
+- Compatibility entrypoint: `VibePrivatePlugin#getApi()`.
+- Direct repository and `DatabaseService` getters are legacy-only and should not be used by new integrations.
+- Other plugins must not read SQL tables directly and must not use reflection to call internals.
+- `VibePrivateServices` is not a public API. It is an internal wiring container used by plugin bootstrap, command registration and listener registration.
+
+## Transfer Ownership
+
+- `VibeRegionGuard` owns region truth: storage, members, flags, lifecycle status, home data, validation, move/relocate primitives and typed events.
+- A separate transfer/admin plugin should own transfer orchestration: selecting source/target worlds, batching player bases, admin commands/GUI, progress reports, retries and season-specific rules.
+- The transfer plugin must call `VibeRegionGuardApi` / `VibePrivateAPI`; it must not read SQL tables, duplicate region rules or use reflection.
+- A tiny internal admin smoke command can be added later if needed, but the full season/base transfer workflow should stay outside this plugin.
 
 ## Main Packages
 
@@ -27,7 +55,8 @@
 
 ## API Layer
 
-- `api/VibePrivateAPI.java` is the safe integration surface.
+- `api/VibePrivateAPI.java` remains the legacy safe integration surface.
+- `api/VibeRegionGuardApi.java` is the branded thin facade and delegates to `VibePrivateAPI` only.
 - `api/event/*` contains typed Bukkit events for lifecycle and transfer flows.
 - Current external-safe reads include region lookup, lifecycle status, world region listing, bounds lookup, generic target-bounds validation, selection-inside-region validation, conservative CLAN management compatibility reads, and relocation/world-move foundation methods.
 - HOME/FARM/CLAN stay unified as `RegionType` variants inside one public API, not separate subsystems.

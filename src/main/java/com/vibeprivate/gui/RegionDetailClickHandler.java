@@ -55,48 +55,60 @@ final class RegionDetailClickHandler {
         }
 
         int slot = event.getRawSlot();
+        if (handleFixedSlot(player, region, slot)) {
+            return;
+        }
+
+        handleDynamicSlot(player, region, menu, slot);
+    }
+
+    private boolean handleFixedSlot(Player player, Region region, int slot) {
         if (slot == RegionDetailMenu.BACK_SLOT) {
             openBack(player, region);
-            return;
+            return true;
         }
 
         if (slot == RegionDetailMenu.HOME_SLOT) {
             teleportHandler.handleTeleport(player, region);
             player.closeInventory();
-            return;
+            return true;
         }
 
         if (slot == RegionDetailMenu.MEMBERS_SLOT) {
             openMembers(player, region);
-            return;
+            return true;
         }
 
         if (slot == RegionDetailMenu.FUEL_SLOT) {
             handleFuel(player, region);
-            return;
+            return true;
         }
 
         if (slot == RegionDetailMenu.UPGRADE_SLOT) {
             handleUpgrade(player, region);
-            return;
+            return true;
         }
 
         if (slot == RegionDetailMenu.SET_HOME_SLOT) {
             teleportHandler.handleSetHome(player, region);
             navigator.openRegionDetail(player, region);
-            return;
+            return true;
         }
 
         if (slot == RegionDetailMenu.WITHDRAW_SLOT) {
             handleWithdraw(player, region);
-            return;
+            return true;
         }
 
         if (slot == RegionDetailMenu.DELETE_SLOT) {
             handleDelete(player, region);
-            return;
+            return true;
         }
 
+        return false;
+    }
+
+    private void handleDynamicSlot(Player player, Region region, RegionDetailMenu menu, int slot) {
         AdminRegionPreset preset = menu.getPreset(slot);
         if (preset != null && region.isAdmin()) {
             handlePreset(player, region, preset);

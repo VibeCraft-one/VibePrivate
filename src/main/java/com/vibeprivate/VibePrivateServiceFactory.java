@@ -1,6 +1,7 @@
 package com.vibeprivate;
 
 import com.vibeprivate.api.VibePrivateAPI;
+import com.vibeprivate.api.VibeRegionGuardApi;
 import com.vibeprivate.cache.PlayerRegionCache;
 import com.vibeprivate.command.CommandMapOverrideService;
 import com.vibeprivate.config.ConfigService;
@@ -105,15 +106,27 @@ final class VibePrivateServiceFactory {
     }
 
     private static void createRuntimeServices(JavaPlugin plugin, VibePrivateServices.Builder builder) {
+        createProtectionRuntime(builder);
+        createEconomyAndSchedulers(plugin, builder);
+        createCommandAndTeleportRuntime(plugin, builder);
+    }
+
+    private static void createProtectionRuntime(VibePrivateServices.Builder builder) {
         builder.playerRegionCache = new PlayerRegionCache();
         builder.protectionService = new ProtectionService(builder.regionManager, builder.playerRegionCache,
                 builder.regionAccessService);
+    }
+
+    private static void createEconomyAndSchedulers(JavaPlugin plugin, VibePrivateServices.Builder builder) {
         builder.economyService = new EconomyService();
         builder.economyService.hook();
         builder.fuelService = new FuelService(plugin, builder.regionManager, builder.configService);
         builder.upkeepService = new UpkeepService(plugin, builder.regionManager, builder.configService,
                 builder.messageService, builder.economyService, builder.upkeepRepository, builder.regionLifecycleService);
         builder.upkeepService.load();
+    }
+
+    private static void createCommandAndTeleportRuntime(JavaPlugin plugin, VibePrivateServices.Builder builder) {
         builder.commandCooldownService = new CommandCooldownService();
         builder.regionTeleportService = new RegionTeleportService();
         builder.pendingTeleportService = new PendingTeleportService(plugin, builder.messageService,
@@ -123,6 +136,12 @@ final class VibePrivateServiceFactory {
     }
 
     private static void createFeatureServices(VibePrivateServices.Builder builder) {
+        createRegionFeatureServices(builder);
+        createTransferFoundationServices(builder);
+        createPublicApis(builder, createClanRegionManagementService(builder));
+    }
+
+    private static void createRegionFeatureServices(VibePrivateServices.Builder builder) {
         builder.regionCreationService = new RegionCreationService(builder.regionManager, builder.configService,
                 builder.regionAccessService);
         builder.regionInviteService = new RegionInviteService(builder.regionManager, builder.regionAccessService);
@@ -135,6 +154,9 @@ final class VibePrivateServiceFactory {
         builder.regionDeletionService = new RegionDeletionService(builder.regionManager, builder.regionUpgradeService,
                 builder.playerRegionCache, builder.confirmationService);
         builder.regionHomeService = new RegionHomeService(builder.regionManager, builder.regionHomeRepository);
+    }
+
+    private static void createTransferFoundationServices(VibePrivateServices.Builder builder) {
         builder.regionRelocationService = new RegionRelocationService(
                 new RegionManagerRelocationRegionStore(builder.regionManager, builder.configService,
                         builder.regionHomeRepository),
@@ -142,12 +164,19 @@ final class VibePrivateServiceFactory {
         builder.regionSelectionValidator = new RegionSelectionValidator(
                 new RegionManagerSelectionRegionStore(builder.regionManager),
                 new BukkitRegionSelectionWorldHeightProvider());
-        ClanRegionManagementService clanRegionManagementService = new ClanRegionManagementService(
-                new RegionManagerClanRegionManagementRegionStore(builder.regionManager));
+    }
+
+    private static ClanRegionManagementService createClanRegionManagementService(VibePrivateServices.Builder builder) {
+        return new ClanRegionManagementService(new RegionManagerClanRegionManagementRegionStore(builder.regionManager));
+    }
+
+    private static void createPublicApis(VibePrivateServices.Builder builder,
+                                         ClanRegionManagementService clanRegionManagementService) {
         builder.guiIconRegistry = GuiIconRegistry.defaults();
         builder.api = new VibePrivateAPI(builder.regionManager, builder.regionCreationService,
                 builder.adminRegionService, clanRegionManagementService, builder.regionAccessService,
                 builder.regionLifecycleService, builder.regionRelocationService,
                 builder.regionSelectionValidator);
+        builder.vibeRegionGuardApi = new VibeRegionGuardApi(builder.api);
     }
 }

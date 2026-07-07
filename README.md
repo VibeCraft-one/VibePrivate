@@ -4,7 +4,7 @@
 
 - Зачем создан: приватные регионы для игроков VibeCraft без тяжелой внешней системы.
 - Что делает: регионы, участники, флаги, GUI, `/vp`, `/privat`, `/privatadmin`, `/home`, `/sethome`, SQLite/MySQL.
-- Совместимость: внутренние Java package/API пока сохранены как `com.vibeprivate` и `VibePrivateAPI`.
+- Совместимость: внутренние Java package/API сохранены как `com.vibeprivate` и `VibePrivateAPI`, плюс добавлен внешний тонкий фасад `VibeRegionGuardApi`.
 - Риски: ошибки защиты могут дать гриферство или заблокировать игроков; миграции БД и CMI-команды надо тестировать отдельно.
 - Проблемы/баги: проект в активной перестройке; старый прототип `com.viberegion` еще упомянут в архитектуре; нужен полный серверный smoke.
 - Статус: MVP+ примерно 65/100.
@@ -14,6 +14,13 @@
 ```bash
 ./gradlew build
 ```
+
+## С чего начинать разработку
+
+1. Открыть `docs/ARCHITECTURE_MAP.md`.
+2. Проверить `git status --short --branch`.
+3. Работать одним слоем за проход: API, lifecycle, storage, GUI, commands или protection.
+4. Для внешних интеграций использовать `getVibeRegionGuardApi()` или `getApi()`, не repositories/SQL/reflection.
 
 ## Мини-проверка
 

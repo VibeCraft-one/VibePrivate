@@ -19,6 +19,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.InventoryHolder;
 
 import java.util.Objects;
 
@@ -76,72 +77,74 @@ public final class PrivateMenuListener implements Listener {
 
     @EventHandler(priority = EventPriority.NORMAL)
     public void onInventoryClick(InventoryClickEvent event) {
-        if (event.getInventory().getHolder() instanceof AdminMainMenu menu) {
+        InventoryHolder holder = event.getInventory().getHolder();
+
+        if (holder instanceof AdminMainMenu menu) {
             adminMenuHandler.handleMain(event, menu);
             return;
         }
 
-        if (event.getInventory().getHolder() instanceof AdminRegionListMenu menu) {
+        if (holder instanceof AdminRegionListMenu menu) {
             adminMenuHandler.handleRegionList(event, menu);
             return;
         }
 
-        if (event.getInventory().getHolder() instanceof AdminPlayerListMenu menu) {
+        if (holder instanceof AdminPlayerListMenu menu) {
             adminMenuHandler.handlePlayerList(event, menu);
             return;
         }
 
-        if (event.getInventory().getHolder() instanceof AdminPlayerRegionListMenu menu) {
+        if (holder instanceof AdminPlayerRegionListMenu menu) {
             adminMenuHandler.handlePlayerRegionList(event, menu);
             return;
         }
 
-        if (event.getInventory().getHolder() instanceof PrivateMainMenu menu) {
+        if (holder instanceof PrivateMainMenu menu) {
             mainMenuHandler.handle(event, menu);
             return;
         }
 
-        if (event.getInventory().getHolder() instanceof RegionListMenu menu) {
+        if (holder instanceof RegionListMenu menu) {
             regionListMenuHandler.handle(event, menu);
             return;
         }
 
-        if (event.getInventory().getHolder() instanceof MemberRegionListMenu menu) {
+        if (holder instanceof MemberRegionListMenu menu) {
             inviteMenuHandler.handleMemberRegionListMenu(event, menu);
             return;
         }
 
-        if (event.getInventory().getHolder() instanceof RegionInvitesMenu menu) {
+        if (holder instanceof RegionInvitesMenu menu) {
             inviteMenuHandler.handleInvitesMenu(event, menu);
             return;
         }
 
-        if (event.getInventory().getHolder() instanceof RegionDetailMenu menu) {
+        if (holder instanceof RegionDetailMenu menu) {
             detailClickHandler.handle(event, menu);
             return;
         }
 
-        if (event.getInventory().getHolder() instanceof RegionFuelMenu menu) {
+        if (holder instanceof RegionFuelMenu menu) {
             resourceMenuHandler.handleFuel(event, menu);
             return;
         }
 
-        if (event.getInventory().getHolder() instanceof RegionDepositMenu menu) {
+        if (holder instanceof RegionDepositMenu menu) {
             resourceMenuHandler.handleDeposit(event, menu);
             return;
         }
 
-        if (event.getInventory().getHolder() instanceof RegionMembersMenu menu) {
+        if (holder instanceof RegionMembersMenu menu) {
             membersMenuHandler.handleMembers(event, menu);
             return;
         }
 
-        if (event.getInventory().getHolder() instanceof RegionMemberFlagsMenu menu) {
+        if (holder instanceof RegionMemberFlagsMenu menu) {
             membersMenuHandler.handleMemberFlags(event, menu);
             return;
         }
 
-        if (event.getInventory().getHolder() instanceof HelpMenu menu) {
+        if (holder instanceof HelpMenu menu) {
             helpMenuHandler.handle(event, menu);
         }
     }

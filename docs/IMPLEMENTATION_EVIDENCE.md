@@ -744,3 +744,78 @@ Smoke summary:
 - This pass adds typed event publication only; listeners that consume these events still need future integration work where required.
 - CLAN identity remains compatibility-only and still needs a separate region-backed checkpoint.
 - Fuel/deposit/core safety events remain intentionally out of scope until later checkpoints.
+
+# VibeRegionGuard Architecture Cleanup Evidence
+
+## Scope
+
+Cleaned the current API, wiring and GUI-detail architecture so future work can continue through public APIs and focused layers without extending accidental service-locator or GUI-router complexity.
+
+Out of scope:
+- transfer plugin implementation
+- GUI redesign
+- storage transaction redesign
+- fuel/deposit/core behavior changes
+- CLAN identity model
+
+## Changed Files
+
+- `README.md`
+- `build.gradle`
+- `docs/ARCHITECTURE_MAP.md`
+- `docs/IMPLEMENTATION_EVIDENCE.md`
+- `src/main/java/com/vibeprivate/VibePrivatePlugin.java`
+- `src/main/java/com/vibeprivate/VibePrivateServiceFactory.java`
+- `src/main/java/com/vibeprivate/VibePrivateServices.java`
+- `src/main/java/com/vibeprivate/api/VibeRegionGuardApi.java`
+- `src/main/java/com/vibeprivate/gui/PrivateMenuListener.java`
+- `src/main/java/com/vibeprivate/gui/RegionDetailClickHandler.java`
+- `src/main/java/com/vibeprivate/gui/RegionDetailMenu.java`
+- `src/test/java/com/vibeprivate/api/VibeRegionGuardApiTest.java`
+
+## What Changed
+
+- Added branded `VibeRegionGuardApi` facade over the existing `VibePrivateAPI`.
+- Marked direct `DatabaseService` and repository getters on `VibePrivatePlugin` as legacy/deprecated for removal.
+- Made `VibePrivateServices` package-private and removed retained construction-only fields/getters.
+- Split `VibePrivateServiceFactory` wiring into focused phases without adding a new helper layer.
+- Clarified transfer ownership: this plugin owns region truth and safe API primitives; a separate transfer/admin plugin owns cross-world transfer orchestration.
+- Simplified GUI detail routing/rendering without changing slots or player text:
+  - `PrivateMenuListener` reads inventory holder once.
+  - `RegionDetailMenu` render path is split by section.
+  - `RegionDetailClickHandler` separates fixed slots from dynamic flag/preset slots.
+
+## Acceptance Checks
+
+- Existing `VibePrivateAPI#getApi()` remains intact: PASSED.
+- `VibeRegionGuardApi` is wired from the same legacy API instance: PASSED.
+- New integrations are directed away from SQL/repositories/reflection: PASSED.
+- Transfer orchestration remains outside `VibeRegionGuard`: PASSED.
+- GUI slot constants, message keys and click priority stay unchanged: PASSED.
+- No new business-logic helper/service/router class added by cleanup: PASSED.
+
+## Build / Smoke
+
+Command:
+
+```powershell
+.\gradlew.bat clean build --no-daemon
+```
+
+Result: PASSED on 2026-07-07.
+
+Smoke summary:
+- `43 tests found`
+- `43 tests started`
+- `43 tests successful`
+- `0 tests failed`
+
+Notes:
+- Gradle printed native-access/runtime warnings; they did not fail the build.
+- Compile printed existing deprecation notes; they did not fail the build.
+
+## Remaining Risks
+
+- GUI behavior still needs manual server smoke because current automated tests do not render Bukkit inventories.
+- `VibePrivatePlugin` still exposes legacy direct service/repository getters for compatibility.
+- `RegionManager` owner/world/type listing still deserves a later index/query cleanup before claiming 100+ online readiness.
