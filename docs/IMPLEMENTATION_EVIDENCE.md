@@ -818,7 +818,7 @@ Notes:
 
 - GUI behavior still needs manual server smoke because current automated tests do not render Bukkit inventories.
 - `VibePrivatePlugin` still exposes legacy direct service/repository getters for compatibility.
-- `UpkeepService` still scans all regions for owner upkeep aggregation.
+- `FuelService` still iterates all regions during fuel maintenance.
 
 # Region Lookup Index Cleanup Evidence
 
@@ -972,4 +972,49 @@ Smoke summary:
 
 - Admin GUI still needs manual server smoke because automated tests do not render Bukkit inventories.
 - Admin GUI list pages still show only the first 45 entries until pagination is added.
-- `UpkeepService` still scans all regions for owner upkeep aggregation.
+- `FuelService` still iterates all regions during fuel maintenance.
+
+# Upkeep Owner Lookup Cleanup Evidence
+
+## Scope
+
+Moved owner upkeep aggregation onto indexed player-owner/player-region reads.
+
+Out of scope:
+- upkeep formula changes
+- economy/payment behavior changes
+- fuel maintenance rewrite
+- GUI pagination
+
+## Changed Files
+
+- `docs/ARCHITECTURE_MAP.md`
+- `docs/IMPLEMENTATION_EVIDENCE.md`
+- `src/main/java/com/vibeprivate/service/UpkeepService.java`
+
+## What Changed
+
+- `UpkeepService#playerRegions` now uses `RegionManager#getPlayerRegionsByOwner`.
+- `UpkeepService#owners` now uses `RegionManager#getPlayerOwnerIds`.
+- Lifecycle pause filtering, payment, debt, disable and removal behavior remain unchanged.
+
+## Build / Smoke
+
+Command:
+
+```powershell
+.\gradlew.bat clean build --no-daemon
+```
+
+Result: PASSED on 2026-07-07.
+
+Smoke summary:
+- `47 tests found`
+- `47 tests started`
+- `47 tests successful`
+- `0 tests failed`
+
+## Remaining Risks
+
+- `FuelService` still iterates all regions during fuel maintenance.
+- Admin GUI list pages still show only the first 45 entries until pagination is added.

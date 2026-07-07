@@ -49,6 +49,7 @@ Do not start by rereading the full evidence history. Use `docs/IMPLEMENTATION_EV
 ## Lifecycle Layer
 
 - `service/RegionLifecycleService.java` - region status and upkeep pause rules.
+- `service/UpkeepService.java` - owner upkeep accounting; owner/player-region aggregation uses indexed `RegionManager` reads.
 - `storage/RegionLifecycleRepository.java` - lifecycle persistence.
 - `model/RegionStatus.java` and `model/RegionLifecycleState.java` - typed lifecycle state.
 - `service/RegionManagerLifecycleRegionStore.java` - narrow adapter from lifecycle service to indexed `RegionManager` world lookups.
