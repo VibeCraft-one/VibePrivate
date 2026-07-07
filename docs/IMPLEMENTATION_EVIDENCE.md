@@ -519,3 +519,70 @@ Result: PASSED on 2026-07-07.
 - This is local rollback safety, not a full database transaction across region and home writes.
 - If rollback fails, runtime still receives the primary remap exception with suppressed rollback failure, but persisted state may already be partially changed.
 - `relocateRegion(...)` still does not remap or offset region home coordinates; safe home translation for manual relocation remains deferred.
+
+# VibePrivate API/CLAN Management Read Pass 8 Evidence
+
+## Scope
+
+Added only the two conservative CLAN management read methods required by the TZ on the unified `VibePrivateAPI`.
+
+Out of scope for this pass:
+- GUI/commands/messages/events
+- snapshot/export/BaseTransfer/SeasonArchive
+- broad CLAN/FARM/PRIVATE subsystem split
+- clan member management permissions
+- full region-backed clan identity, roles, tag and TAB support
+
+## Changed Files
+
+- `build.gradle`
+- `docs/ARCHITECTURE_MAP.md`
+- `docs/IMPLEMENTATION_EVIDENCE.md`
+- `src/main/java/com/vibeprivate/VibePrivateServiceFactory.java`
+- `src/main/java/com/vibeprivate/api/VibePrivateAPI.java`
+- `src/main/java/com/vibeprivate/service/ClanRegionManagementRegionStore.java`
+- `src/main/java/com/vibeprivate/service/ClanRegionManagementService.java`
+- `src/main/java/com/vibeprivate/service/RegionManagerClanRegionManagementRegionStore.java`
+- `src/test/java/com/vibeprivate/service/ClanRegionManagementServiceTest.java`
+
+## What Changed
+
+- `VibePrivateAPI` now exposes `isClanRegionLeader(String regionId, UUID playerId)`.
+- `VibePrivateAPI` now exposes `canManageClanRegion(String regionId, UUID playerId)`.
+- Both methods stay inside the unified region API and use only conservative CLAN-region checks.
+- Current leader rule is intentionally narrow: returns `true` only when the region exists, has `RegionType.CLAN`, and `ownerId` exactly equals `playerId.toString()`.
+- `canManageClanRegion(...)` currently delegates to the same leader rule and does not grant management to ordinary clan members.
+- A tiny helper service keeps `VibePrivateAPI` thin; it is not a separate clan subsystem.
+- These semantics are compatibility-only for the current data model, not the final CLAN architecture.
+
+## Acceptance Checks
+
+- Missing region returns `false`: PASSED.
+- Non-CLAN region returns `false`: PASSED.
+- `isClanRegionLeader(...)` returns `true` only for exact CLAN owner UUID match: PASSED.
+- `canManageClanRegion(...)` currently matches `isClanRegionLeader(...)` only: PASSED.
+- Null inputs follow existing project style and fail fast: PASSED.
+- No GUI/events/BaseTransfer/SeasonArchive scope added: PASSED.
+
+## Build / Smoke
+
+Command:
+
+```powershell
+.\gradlew.bat clean build --no-daemon
+```
+
+Result: PASSED on 2026-07-07.
+
+## Focused Tests Added
+
+- CLAN owner UUID match returns leader/manage `true`
+- external clan id owner string does not grant leader/manage access
+- missing region and non-CLAN region return `false`
+- null inputs fail fast
+
+## Remaining Risks
+
+- Current leader check only works for CLAN regions whose `ownerId` already stores a player UUID string.
+- Existing `createClanRegion(...)` still stores trimmed clan identifier in `ownerId`, so leader/manage checks remain compatibility-only until the next CLAN pass adds proper region-backed clan identity, leader, roles and tag data inside VibeRegionGuard.
+- This pass intentionally does not grant management rights to ordinary clan members.

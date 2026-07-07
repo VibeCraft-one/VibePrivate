@@ -11,6 +11,7 @@ import com.vibeprivate.protection.ProtectionService;
 import com.vibeprivate.service.AdminRegionPresetService;
 import com.vibeprivate.service.AdminRegionService;
 import com.vibeprivate.service.BukkitRegionSelectionWorldHeightProvider;
+import com.vibeprivate.service.ClanRegionManagementService;
 import com.vibeprivate.service.ChunkProtectionService;
 import com.vibeprivate.service.CommandCooldownService;
 import com.vibeprivate.service.ConfirmationService;
@@ -23,6 +24,7 @@ import com.vibeprivate.service.RegionDeletionService;
 import com.vibeprivate.service.RegionHomeService;
 import com.vibeprivate.service.RegionInviteService;
 import com.vibeprivate.service.RegionLifecycleService;
+import com.vibeprivate.service.RegionManagerClanRegionManagementRegionStore;
 import com.vibeprivate.service.RegionManagerRelocationRegionStore;
 import com.vibeprivate.service.RegionManagerLifecycleRegionStore;
 import com.vibeprivate.service.RegionManagerSelectionRegionStore;
@@ -136,10 +138,12 @@ final class VibePrivateServiceFactory {
         builder.regionSelectionValidator = new RegionSelectionValidator(
                 new RegionManagerSelectionRegionStore(builder.regionManager),
                 new BukkitRegionSelectionWorldHeightProvider());
+        ClanRegionManagementService clanRegionManagementService = new ClanRegionManagementService(
+                new RegionManagerClanRegionManagementRegionStore(builder.regionManager));
         builder.guiIconRegistry = GuiIconRegistry.defaults();
         builder.api = new VibePrivateAPI(builder.regionManager, builder.regionCreationService,
-                builder.adminRegionService, builder.regionAccessService, builder.regionLifecycleService,
-                builder.regionRelocationService,
+                builder.adminRegionService, clanRegionManagementService, builder.regionAccessService,
+                builder.regionLifecycleService, builder.regionRelocationService,
                 builder.regionSelectionValidator);
     }
 }

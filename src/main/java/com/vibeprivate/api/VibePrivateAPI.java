@@ -7,6 +7,7 @@ import com.vibeprivate.model.RegionStatus;
 import com.vibeprivate.model.RegionType;
 import com.vibeprivate.model.SelectionBounds;
 import com.vibeprivate.service.AdminRegionService;
+import com.vibeprivate.service.ClanRegionManagementService;
 import com.vibeprivate.service.RegionAccessService;
 import com.vibeprivate.service.RegionCreationResult;
 import com.vibeprivate.service.RegionCreationService;
@@ -26,18 +27,21 @@ public final class VibePrivateAPI {
     private final RegionManager regionManager;
     private final RegionCreationService regionCreationService;
     private final AdminRegionService adminRegionService;
+    private final ClanRegionManagementService clanRegionManagementService;
     private final RegionAccessService regionAccessService;
     private final RegionLifecycleService regionLifecycleService;
     private final RegionRelocationService regionRelocationService;
     private final RegionSelectionValidator regionSelectionValidator;
 
     public VibePrivateAPI(RegionManager regionManager, RegionCreationService regionCreationService,
-                          AdminRegionService adminRegionService, RegionAccessService regionAccessService,
-                          RegionLifecycleService regionLifecycleService, RegionRelocationService regionRelocationService,
-                          RegionSelectionValidator regionSelectionValidator) {
+                          AdminRegionService adminRegionService, ClanRegionManagementService clanRegionManagementService,
+                          RegionAccessService regionAccessService, RegionLifecycleService regionLifecycleService,
+                          RegionRelocationService regionRelocationService, RegionSelectionValidator regionSelectionValidator) {
         this.regionManager = Objects.requireNonNull(regionManager, "regionManager");
         this.regionCreationService = Objects.requireNonNull(regionCreationService, "regionCreationService");
         this.adminRegionService = Objects.requireNonNull(adminRegionService, "adminRegionService");
+        this.clanRegionManagementService = Objects.requireNonNull(clanRegionManagementService,
+                "clanRegionManagementService");
         this.regionAccessService = Objects.requireNonNull(regionAccessService, "regionAccessService");
         this.regionLifecycleService = Objects.requireNonNull(regionLifecycleService, "regionLifecycleService");
         this.regionRelocationService = Objects.requireNonNull(regionRelocationService, "regionRelocationService");
@@ -127,7 +131,7 @@ public final class VibePrivateAPI {
     /**
      * Returns the clan region owned by the provided clan id, if it exists.
      *
-     * @param clanId stable clan identifier from an external clan plugin
+     * @param clanId current clan identifier stored in the region owner field
      * @return clan region owned by the clan
      */
     public Optional<Region> getClanRegion(String clanId) {
@@ -143,7 +147,7 @@ public final class VibePrivateAPI {
     /**
      * Synchronizes the VibePrivate member list for a clan region.
      *
-     * @param clanId stable clan identifier from an external clan plugin
+     * @param clanId current clan identifier stored in the region owner field
      * @param members complete desired member set
      * @return true when the clan region exists and the sync was applied
      */
@@ -161,12 +165,20 @@ public final class VibePrivateAPI {
     /**
      * Removes the clan region owned by the provided clan id, if it exists.
      *
-     * @param clanId stable clan identifier from an external clan plugin
+     * @param clanId current clan identifier stored in the region owner field
      * @return removed region
      */
     public Optional<Region> removeClanRegion(String clanId) {
         Optional<Region> region = getClanRegion(clanId);
         return region.flatMap(value -> regionManager.removeRegion(value.getId()));
+    }
+
+    public boolean isClanRegionLeader(String regionId, UUID playerId) {
+        return clanRegionManagementService.isClanRegionLeader(regionId, playerId);
+    }
+
+    public boolean canManageClanRegion(String regionId, UUID playerId) {
+        return clanRegionManagementService.canManageClanRegion(regionId, playerId);
     }
 
     public AdminRegionService adminRegions() {
