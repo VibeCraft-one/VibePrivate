@@ -42,7 +42,7 @@ Do not start by rereading the full evidence history. Use `docs/IMPLEMENTATION_EV
 - `manager` - core region registry/index access, centered on `RegionManager`.
 - `service` - business logic layers around regions, lifecycle, selection, homes, invites, upkeep.
 - `storage` - SQL repositories, schema and DB statements.
-- `protection` / `index` - runtime lookup and chunk protection/index support.
+- `protection` / `index` - runtime lookup, owner/world indexes and chunk protection support.
 - `gui` / `command` / `listener` - player/admin interaction layer.
 - `config` / `message` - config loading and localized messages.
 
@@ -67,12 +67,12 @@ Do not start by rereading the full evidence history. Use `docs/IMPLEMENTATION_EV
 - `model/RegionBounds.java` - normalized region bounds.
 - `model/SelectionBounds.java` - normalized external selection input.
 - `service/RegionSelectionValidator.java` - read-only validation for generic target `SelectionBounds` and selection-inside-region checks.
-- `service/RegionManagerSelectionRegionStore.java` - narrow adapter so selection logic stays outside `RegionManager`.
+- `service/RegionManagerSelectionRegionStore.java` - narrow adapter so selection logic stays outside `RegionManager`; world lookups use `RegionManager#getRegionsInWorld`.
 
 ## Relocation Foundation
 
 - `service/RegionRelocationService.java` - typed foundation for same-bounds world move and radius relocation checks.
-- `service/RegionManagerRelocationRegionStore.java` - read-only/write-narrow adapter around `RegionManager`, allowed worlds config and region home persistence.
+- `service/RegionManagerRelocationRegionStore.java` - read-only/write-narrow adapter around `RegionManager`, allowed worlds config and region home persistence; world lookups use `RegionManager#getRegionsInWorld`.
 - `service/RegionEventDispatcher.java` and `service/BukkitRegionEventDispatcher.java` isolate Bukkit event publication away from the facade and stores.
 - Keep relocation rules in this layer, then let `RegionManager.replaceRegion(...)` remain the only mutation point for region replacement.
 - Same-bounds world move may remap `RegionHome.worldName` through the relocation store seam after region replacement.

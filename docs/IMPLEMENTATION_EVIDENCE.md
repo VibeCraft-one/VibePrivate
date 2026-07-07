@@ -818,4 +818,56 @@ Notes:
 
 - GUI behavior still needs manual server smoke because current automated tests do not render Bukkit inventories.
 - `VibePrivatePlugin` still exposes legacy direct service/repository getters for compatibility.
-- `RegionManager` owner/world/type listing still deserves a later index/query cleanup before claiming 100+ online readiness.
+- Admin list screens still do full-list grouping/filtering and need pagination before claiming large-server readiness.
+
+# Region Lookup Index Cleanup Evidence
+
+## Scope
+
+Reduced full-region scans in the core region lookup path used by future transfer/validation work.
+
+Out of scope:
+- database query redesign
+- GUI pagination
+- async/batch transfer implementation
+- chunk protection rewrite
+
+## Changed Files
+
+- `build.gradle`
+- `docs/ARCHITECTURE_MAP.md`
+- `docs/IMPLEMENTATION_EVIDENCE.md`
+- `src/main/java/com/vibeprivate/index/RegionLookupIndex.java`
+- `src/main/java/com/vibeprivate/manager/RegionManager.java`
+- `src/main/java/com/vibeprivate/service/RegionManagerRelocationRegionStore.java`
+- `src/main/java/com/vibeprivate/service/RegionManagerSelectionRegionStore.java`
+- `src/test/java/com/vibeprivate/index/RegionLookupIndexTest.java`
+
+## What Changed
+
+- Added `RegionLookupIndex` for in-memory owner and world lookups.
+- `RegionManager` now maintains lookup indexes on load/add/remove/replace.
+- `RegionManager#getRegionsByOwner`, `getRegionsByOwnerAndType` and `getRegionsInWorld` use the lookup index.
+- Selection and relocation stores now use `RegionManager#getRegionsInWorld` instead of filtering all regions.
+- `replaceRegion` rollback scope is limited to validation/save, avoiding extra index restoration work after runtime state has already been replaced.
+
+## Build / Smoke
+
+Command:
+
+```powershell
+.\gradlew.bat clean build --no-daemon
+```
+
+Result: PASSED on 2026-07-07.
+
+Smoke summary:
+- `45 tests found`
+- `45 tests started`
+- `45 tests successful`
+- `0 tests failed`
+
+## Remaining Risks
+
+- Admin GUI list screens still group/filter full region lists.
+- `RegionLifecycleService#getRegionsInWorld` still filters lifecycle state after fetching all regions from its store.

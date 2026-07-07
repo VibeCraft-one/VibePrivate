@@ -30,9 +30,7 @@ public final class RegionManagerRelocationRegionStore implements RegionRelocatio
     @Override
     public Collection<Region> getRegionsInWorld(String worldName) {
         Objects.requireNonNull(worldName, "worldName");
-        return regionManager.getRegions().stream()
-                .filter(region -> region.getWorldName().equals(worldName))
-                .toList();
+        return regionManager.getRegionsInWorld(worldName);
     }
 
     @Override

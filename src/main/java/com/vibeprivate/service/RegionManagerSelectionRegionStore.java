@@ -22,8 +22,6 @@ public final class RegionManagerSelectionRegionStore implements RegionSelectionR
     @Override
     public Collection<Region> getRegionsInWorld(String worldName) {
         Objects.requireNonNull(worldName, "worldName");
-        return regionManager.getRegions().stream()
-                .filter(region -> region.getWorldName().equals(worldName))
-                .toList();
+        return regionManager.getRegionsInWorld(worldName);
     }
 }
