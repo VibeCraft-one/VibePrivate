@@ -18,7 +18,7 @@ For a new development or review pass, read only this small set first:
 4. current diff or the one feature file being changed
 5. the matching focused test
 
-Do not start by rereading the full evidence history. Use `docs/IMPLEMENTATION_EVIDENCE.md` only for the latest relevant pass and build result.
+Do not start by rereading old pass history. Use `docs/IMPLEMENTATION_EVIDENCE.md` only as a compact validation summary.
 
 ## Public Integration Boundary
 

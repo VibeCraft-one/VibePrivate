@@ -6,8 +6,8 @@
 - Что делает: регионы, участники, флаги, GUI, `/vp`, `/privat`, `/privatadmin`, `/home`, `/sethome`, SQLite/MySQL.
 - Совместимость: внутренние Java package/API сохранены как `com.vibeprivate` и `VibePrivateAPI`, плюс добавлен внешний тонкий фасад `VibeRegionGuardApi`.
 - Риски: ошибки защиты могут дать гриферство или заблокировать игроков; миграции БД и CMI-команды надо тестировать отдельно.
-- Проблемы/баги: проект в активной перестройке; нужен полный серверный smoke.
-- Статус: MVP+ примерно 65/100.
+- Проблемы/баги: нужен полный серверный smoke на Paper/Purpur, автоматические тесты не проверяют реальные Bukkit GUI.
+- Статус: API/lifecycle/transfer foundation собран и покрыт тестами; до release candidate еще нужны серверный smoke, GUI pagination и CLAN identity checkpoint.
 
 ## Сборка
 
