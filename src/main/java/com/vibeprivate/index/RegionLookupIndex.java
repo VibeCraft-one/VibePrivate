@@ -79,6 +79,10 @@ public final class RegionLookupIndex {
         return playerRegions.size();
     }
 
+    public List<Region> getPlayerRegions() {
+        return values(playerRegions);
+    }
+
     public List<String> getPlayerOwnerIds() {
         return List.copyOf(playerRegionsByOwner.keySet());
     }

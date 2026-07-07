@@ -135,11 +135,7 @@ public final class FuelService {
         }
 
         long now = System.currentTimeMillis();
-        for (Region region : regionManager.getRegions()) {
-            if (region.isAdmin()) {
-                continue;
-            }
-
+        for (Region region : regionManager.getPlayerRegions()) {
             if (region.isEnabled() && region.getFuelExpiresAt() <= now) {
                 region.setEnabled(false);
                 region.setFuelEmptySince(now);

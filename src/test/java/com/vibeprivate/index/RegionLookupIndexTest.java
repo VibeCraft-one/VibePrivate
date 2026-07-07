@@ -26,6 +26,7 @@ class RegionLookupIndexTest {
         assertEquals(List.of(admin), index.getAdminRegions());
         assertEquals(1, index.getAdminRegionCount());
         assertEquals(3, index.getPlayerRegionCount());
+        assertEquals(List.of(home, farm, other), index.getPlayerRegions());
         assertEquals(List.of("owner", "other-owner"), index.getPlayerOwnerIds());
         assertEquals(List.of(home, farm), index.getPlayerRegionsByOwner("owner"));
         assertTrue(index.getByOwner("missing").isEmpty());

@@ -818,7 +818,7 @@ Notes:
 
 - GUI behavior still needs manual server smoke because current automated tests do not render Bukkit inventories.
 - `VibePrivatePlugin` still exposes legacy direct service/repository getters for compatibility.
-- `FuelService` still iterates all regions during fuel maintenance.
+- Fuel maintenance still uses a linear pass over player regions; add an expiry queue only if scale evidence requires it.
 
 # Region Lookup Index Cleanup Evidence
 
@@ -972,7 +972,7 @@ Smoke summary:
 
 - Admin GUI still needs manual server smoke because automated tests do not render Bukkit inventories.
 - Admin GUI list pages still show only the first 45 entries until pagination is added.
-- `FuelService` still iterates all regions during fuel maintenance.
+- Fuel maintenance still uses a linear pass over player regions; add an expiry queue only if scale evidence requires it.
 
 # Upkeep Owner Lookup Cleanup Evidence
 
@@ -1016,5 +1016,54 @@ Smoke summary:
 
 ## Remaining Risks
 
-- `FuelService` still iterates all regions during fuel maintenance.
+- Fuel maintenance still uses a linear pass over player regions; add an expiry queue only if scale evidence requires it.
+- Admin GUI list pages still show only the first 45 entries until pagination is added.
+
+# Fuel Player Lookup Cleanup Evidence
+
+## Scope
+
+Moved fuel maintenance off broad all-region reads and onto indexed player-region reads.
+
+Out of scope:
+- fuel expiry priority queue
+- fuel formula changes
+- GUI fuel page redesign
+- storage/query redesign
+
+## Changed Files
+
+- `docs/ARCHITECTURE_MAP.md`
+- `docs/IMPLEMENTATION_EVIDENCE.md`
+- `src/main/java/com/vibeprivate/index/RegionLookupIndex.java`
+- `src/main/java/com/vibeprivate/manager/RegionManager.java`
+- `src/main/java/com/vibeprivate/service/FuelService.java`
+- `src/test/java/com/vibeprivate/index/RegionLookupIndexTest.java`
+
+## What Changed
+
+- `RegionLookupIndex` exposes indexed `getPlayerRegions()`.
+- `RegionManager` exposes `getPlayerRegions()`.
+- `FuelService` maintenance now iterates player regions only and no longer filters admin regions inside the loop.
+- `RegionLookupIndexTest` verifies player-region lookup contents.
+
+## Build / Smoke
+
+Command:
+
+```powershell
+.\gradlew.bat clean build --no-daemon
+```
+
+Result: PASSED on 2026-07-08.
+
+Smoke summary:
+- `47 tests found`
+- `47 tests started`
+- `47 tests successful`
+- `0 tests failed`
+
+## Remaining Risks
+
+- Fuel maintenance still uses a linear pass over player regions; add an expiry queue only if scale evidence requires it.
 - Admin GUI list pages still show only the first 45 entries until pagination is added.

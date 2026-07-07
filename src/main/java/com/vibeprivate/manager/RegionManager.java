@@ -209,6 +209,10 @@ public final class RegionManager {
         return lookupIndex.getPlayerRegionCount();
     }
 
+    public List<Region> getPlayerRegions() {
+        return lookupIndex.getPlayerRegions();
+    }
+
     public List<String> getPlayerOwnerIds() {
         return lookupIndex.getPlayerOwnerIds();
     }
