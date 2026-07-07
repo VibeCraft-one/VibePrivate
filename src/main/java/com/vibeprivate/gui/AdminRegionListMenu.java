@@ -12,7 +12,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,10 +53,7 @@ public final class AdminRegionListMenu implements InventoryHolder {
     }
 
     private void render() {
-        List<Region> regions = regionManager.getRegions().stream()
-                .filter(Region::isAdmin)
-                .sorted(Comparator.comparing(Region::getName))
-                .toList();
+        List<Region> regions = regionManager.getAdminRegions();
 
         int slot = 0;
         for (Region region : regions) {

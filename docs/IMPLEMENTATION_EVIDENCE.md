@@ -818,7 +818,7 @@ Notes:
 
 - GUI behavior still needs manual server smoke because current automated tests do not render Bukkit inventories.
 - `VibePrivatePlugin` still exposes legacy direct service/repository getters for compatibility.
-- Admin list screens still do full-list grouping/filtering and need pagination before claiming large-server readiness.
+- `UpkeepService` still scans all regions for owner upkeep aggregation.
 
 # Region Lookup Index Cleanup Evidence
 
@@ -869,7 +869,7 @@ Smoke summary:
 
 ## Remaining Risks
 
-- Admin GUI list screens still group/filter full region lists.
+- Admin GUI list screens still need pagination before claiming large-server readiness.
 
 # Lifecycle World Lookup Cleanup Evidence
 
@@ -917,4 +917,59 @@ Smoke summary:
 
 ## Remaining Risks
 
-- Admin GUI list screens still group/filter full region lists.
+- Admin GUI list screens still need pagination before claiming large-server readiness.
+
+# Admin Region Lookup Cleanup Evidence
+
+## Scope
+
+Moved admin/player region GUI reads and NO_CLAIM checks onto indexed `RegionManager` methods.
+
+Out of scope:
+- GUI pagination
+- GUI layout redesign
+- Bukkit inventory rendering tests
+- upkeep aggregation rewrite
+
+## Changed Files
+
+- `docs/ARCHITECTURE_MAP.md`
+- `docs/IMPLEMENTATION_EVIDENCE.md`
+- `src/main/java/com/vibeprivate/gui/AdminMainMenu.java`
+- `src/main/java/com/vibeprivate/gui/AdminPlayerListMenu.java`
+- `src/main/java/com/vibeprivate/gui/AdminPlayerRegionListMenu.java`
+- `src/main/java/com/vibeprivate/gui/AdminRegionListMenu.java`
+- `src/main/java/com/vibeprivate/index/RegionLookupIndex.java`
+- `src/main/java/com/vibeprivate/manager/RegionManager.java`
+- `src/main/java/com/vibeprivate/service/RegionCreationService.java`
+- `src/test/java/com/vibeprivate/index/RegionLookupIndexTest.java`
+
+## What Changed
+
+- `RegionLookupIndex` now tracks admin regions, player region count, player owner ids and player regions by owner.
+- `RegionManager` exposes sorted indexed reads for admin and player-region GUI use.
+- Admin main/list/player menus no longer group/filter `RegionManager#getRegions()` directly.
+- `RegionCreationService` NO_CLAIM overlap checks now start from indexed admin regions.
+- `RegionLookupIndexTest` covers admin/player index add/rebuild/remove behavior.
+
+## Build / Smoke
+
+Command:
+
+```powershell
+.\gradlew.bat clean build --no-daemon
+```
+
+Result: PASSED on 2026-07-07.
+
+Smoke summary:
+- `47 tests found`
+- `47 tests started`
+- `47 tests successful`
+- `0 tests failed`
+
+## Remaining Risks
+
+- Admin GUI still needs manual server smoke because automated tests do not render Bukkit inventories.
+- Admin GUI list pages still show only the first 45 entries until pagination is added.
+- `UpkeepService` still scans all regions for owner upkeep aggregation.

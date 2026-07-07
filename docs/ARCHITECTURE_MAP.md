@@ -42,7 +42,7 @@ Do not start by rereading the full evidence history. Use `docs/IMPLEMENTATION_EV
 - `manager` - core region registry/index access, centered on `RegionManager`.
 - `service` - business logic layers around regions, lifecycle, selection, homes, invites, upkeep.
 - `storage` - SQL repositories, schema and DB statements.
-- `protection` / `index` - runtime lookup, owner/world indexes and chunk protection support.
+- `protection` / `index` - runtime lookup, owner/world/admin/player indexes and chunk protection support.
 - `gui` / `command` / `listener` - player/admin interaction layer.
 - `config` / `message` - config loading and localized messages.
 
@@ -94,6 +94,7 @@ Do not start by rereading the full evidence history. Use `docs/IMPLEMENTATION_EV
 
 - `gui/*` contains menus and handlers only.
 - GUI should call services/API, not talk directly to SQL or future transfer logic.
+- Admin region/player lists use indexed `RegionManager` reads instead of grouping the full region list in GUI code.
 
 ## Storage / Repositories
 

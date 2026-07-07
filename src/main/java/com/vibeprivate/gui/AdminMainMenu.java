@@ -2,7 +2,6 @@ package com.vibeprivate.gui;
 
 import com.vibeprivate.manager.RegionManager;
 import com.vibeprivate.message.MessageService;
-import com.vibeprivate.model.Region;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -66,21 +65,15 @@ public final class AdminMainMenu implements InventoryHolder {
     }
 
     private ItemStack regionsItem() {
-        long count = regionManager.getRegions().stream()
-                .filter(Region::isAdmin)
-                .count();
         return itemFactory.item(Material.MAP, "gui.admin.main.regions.name",
-                Map.of("count", Long.toString(count)),
+                Map.of("count", Integer.toString(regionManager.getAdminRegionCount())),
                 List.of("gui.admin.main.regions.lore.1", "gui.admin.main.regions.lore.2"),
                 Map.of());
     }
 
     private ItemStack playerRegionsItem() {
-        long count = regionManager.getRegions().stream()
-                .filter(region -> !region.isAdmin())
-                .count();
         return itemFactory.item(Material.PLAYER_HEAD, "gui.admin.main.player-regions.name",
-                Map.of("count", Long.toString(count)),
+                Map.of("count", Integer.toString(regionManager.getPlayerRegionCount())),
                 List.of("gui.admin.main.player-regions.lore.1", "gui.admin.main.player-regions.lore.2"),
                 Map.of());
     }

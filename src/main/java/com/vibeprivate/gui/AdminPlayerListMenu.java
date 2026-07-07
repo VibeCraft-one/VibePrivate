@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public final class AdminPlayerListMenu implements InventoryHolder {
     public static final int BACK_SLOT = 53;
@@ -52,11 +51,7 @@ public final class AdminPlayerListMenu implements InventoryHolder {
     }
 
     private void render() {
-        Map<String, List<Region>> regionsByOwner = regionManager.getRegions().stream()
-                .filter(region -> !region.isAdmin())
-                .collect(Collectors.groupingBy(Region::getOwnerId));
-
-        List<String> ownerIds = regionsByOwner.keySet().stream()
+        List<String> ownerIds = regionManager.getPlayerOwnerIds().stream()
                 .sorted(Comparator.comparing(this::displayOwner))
                 .toList();
 
@@ -66,7 +61,7 @@ public final class AdminPlayerListMenu implements InventoryHolder {
                 break;
             }
 
-            inventory.setItem(slot, ownerItem(ownerId, regionsByOwner.get(ownerId)));
+            inventory.setItem(slot, ownerItem(ownerId, regionManager.getPlayerRegionsByOwner(ownerId)));
             ownerIdsBySlot.put(slot, ownerId);
             slot++;
         }

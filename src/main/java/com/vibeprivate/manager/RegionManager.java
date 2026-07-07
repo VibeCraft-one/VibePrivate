@@ -195,6 +195,31 @@ public final class RegionManager {
                 .toList();
     }
 
+    public List<Region> getAdminRegions() {
+        return lookupIndex.getAdminRegions().stream()
+                .sorted(Comparator.comparing(Region::getName))
+                .toList();
+    }
+
+    public int getAdminRegionCount() {
+        return lookupIndex.getAdminRegionCount();
+    }
+
+    public int getPlayerRegionCount() {
+        return lookupIndex.getPlayerRegionCount();
+    }
+
+    public List<String> getPlayerOwnerIds() {
+        return lookupIndex.getPlayerOwnerIds();
+    }
+
+    public List<Region> getPlayerRegionsByOwner(String ownerId) {
+        Objects.requireNonNull(ownerId, "ownerId");
+        return lookupIndex.getPlayerRegionsByOwner(ownerId).stream()
+                .sorted(Comparator.comparing(Region::getType).thenComparing(Region::getName))
+                .toList();
+    }
+
     public List<Region> getRegionsInWorld(String worldName) {
         Objects.requireNonNull(worldName, "worldName");
         return lookupIndex.getInWorld(worldName);
