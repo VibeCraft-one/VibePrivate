@@ -41,8 +41,7 @@ public final class RegionLifecycleService {
 
     public Collection<Region> getRegionsInWorld(String worldName, boolean includeInactive) {
         Objects.requireNonNull(worldName, "worldName");
-        return regionStore.getRegions().stream()
-                .filter(region -> region.getWorldName().equals(worldName))
+        return regionStore.getRegionsInWorld(worldName).stream()
                 .filter(region -> includeInactive || getRegionStatus(region.getId()) == RegionStatus.ACTIVE)
                 .toList();
     }

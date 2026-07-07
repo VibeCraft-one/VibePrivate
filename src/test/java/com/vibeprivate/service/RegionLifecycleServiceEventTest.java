@@ -120,8 +120,10 @@ public class RegionLifecycleServiceEventTest {
         }
 
         @Override
-        public Collection<Region> getRegions() {
-            return regions.values();
+        public Collection<Region> getRegionsInWorld(String worldName) {
+            return regions.values().stream()
+                    .filter(region -> region.getWorldName().equals(worldName))
+                    .toList();
         }
 
         @Override

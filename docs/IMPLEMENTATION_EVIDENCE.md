@@ -870,4 +870,51 @@ Smoke summary:
 ## Remaining Risks
 
 - Admin GUI list screens still group/filter full region lists.
-- `RegionLifecycleService#getRegionsInWorld` still filters lifecycle state after fetching all regions from its store.
+
+# Lifecycle World Lookup Cleanup Evidence
+
+## Scope
+
+Kept lifecycle world queries aligned with the indexed `RegionManager#getRegionsInWorld` path.
+
+Out of scope:
+- admin GUI pagination
+- lifecycle storage redesign
+- transfer plugin implementation
+
+## Changed Files
+
+- `docs/ARCHITECTURE_MAP.md`
+- `docs/IMPLEMENTATION_EVIDENCE.md`
+- `src/main/java/com/vibeprivate/service/RegionLifecycleRegionStore.java`
+- `src/main/java/com/vibeprivate/service/RegionLifecycleService.java`
+- `src/main/java/com/vibeprivate/service/RegionManagerLifecycleRegionStore.java`
+- `src/test/java/com/vibeprivate/service/RegionLifecycleServiceEventTest.java`
+- `src/test/java/com/vibeprivate/service/RegionLifecycleServiceTest.java`
+
+## What Changed
+
+- Replaced broad lifecycle store `getRegions()` with `getRegionsInWorld(worldName)`.
+- `RegionManagerLifecycleRegionStore` now calls `RegionManager#getRegionsInWorld`.
+- `RegionLifecycleService#getRegionsInWorld` filters status only after receiving world-scoped regions.
+- Added a focused test for active-only and include-inactive world queries.
+
+## Build / Smoke
+
+Command:
+
+```powershell
+.\gradlew.bat clean build --no-daemon
+```
+
+Result: PASSED on 2026-07-07.
+
+Smoke summary:
+- `46 tests found`
+- `46 tests started`
+- `46 tests successful`
+- `0 tests failed`
+
+## Remaining Risks
+
+- Admin GUI list screens still group/filter full region lists.

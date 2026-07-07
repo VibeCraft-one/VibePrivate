@@ -8,7 +8,7 @@ import java.util.Optional;
 public interface RegionLifecycleRegionStore {
     Optional<Region> getRegion(String regionId);
 
-    Collection<Region> getRegions();
+    Collection<Region> getRegionsInWorld(String worldName);
 
     void saveRegion(Region region);
 }

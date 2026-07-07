@@ -20,8 +20,9 @@ public final class RegionManagerLifecycleRegionStore implements RegionLifecycleR
     }
 
     @Override
-    public Collection<Region> getRegions() {
-        return regionManager.getRegions();
+    public Collection<Region> getRegionsInWorld(String worldName) {
+        Objects.requireNonNull(worldName, "worldName");
+        return regionManager.getRegionsInWorld(worldName);
     }
 
     @Override

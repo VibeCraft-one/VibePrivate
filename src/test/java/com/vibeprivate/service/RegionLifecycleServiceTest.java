@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -110,8 +111,27 @@ public class RegionLifecycleServiceTest {
         assertEquals(0L, region.getFuelEmptySince());
     }
 
+    @Test
+    void getRegionsInWorldUsesWorldScopedStoreAndFiltersInactiveByDefault() {
+        Region active = testRegion("r-active-world", true, "world");
+        Region inactive = testRegion("r-inactive-world", false, "world");
+        Region otherWorld = testRegion("r-other-world", true, "other_world");
+        InMemoryRegionLifecycleRepository repository = new InMemoryRegionLifecycleRepository();
+        RegionLifecycleService service = new RegionLifecycleService(repository,
+                new InMemoryRegionStore(active, inactive, otherWorld), event -> { });
+
+        assertEquals(List.of(active), service.getRegionsInWorld("world", false));
+        Collection<Region> allWorldRegions = service.getRegionsInWorld("world", true);
+        assertEquals(2, allWorldRegions.size());
+        assertTrue(allWorldRegions.containsAll(List.of(active, inactive)));
+    }
+
     private static Region testRegion(String id, boolean enabled) {
-        return Region.radiusRegion(id, id, RegionType.HOME, "owner", "world")
+        return testRegion(id, enabled, "world");
+    }
+
+    private static Region testRegion(String id, boolean enabled, String worldName) {
+        return Region.radiusRegion(id, id, RegionType.HOME, "owner", worldName)
                 .radius(0, 0, 8, -64, 320)
                 .state(enabled, 0L, enabled ? 0L : 50L, 0L, 0, VisualizationMode.ALL, 100L)
                 .build();
@@ -137,8 +157,10 @@ public class RegionLifecycleServiceTest {
         }
 
         @Override
-        public Collection<Region> getRegions() {
-            return regions.values();
+        public Collection<Region> getRegionsInWorld(String worldName) {
+            return regions.values().stream()
+                    .filter(region -> region.getWorldName().equals(worldName))
+                    .toList();
         }
 
         @Override
