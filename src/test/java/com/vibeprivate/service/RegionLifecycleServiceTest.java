@@ -6,6 +6,7 @@ import com.vibeprivate.model.RegionStatus;
 import com.vibeprivate.model.RegionType;
 import com.vibeprivate.model.VisualizationMode;
 import com.vibeprivate.storage.RegionLifecycleRepository;
+import org.bukkit.event.Event;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
@@ -26,7 +27,8 @@ public class RegionLifecycleServiceTest {
     void fallbackEnabledRegionIsActive() {
         Region region = testRegion("r-active", true);
         InMemoryRegionLifecycleRepository repository = new InMemoryRegionLifecycleRepository();
-        RegionLifecycleService service = new RegionLifecycleService(repository, new InMemoryRegionStore(region));
+        RegionLifecycleService service = new RegionLifecycleService(repository, new InMemoryRegionStore(region),
+                event -> { });
 
         assertEquals(RegionStatus.ACTIVE, service.getRegionStatus(region.getId()));
     }
@@ -35,7 +37,8 @@ public class RegionLifecycleServiceTest {
     void fallbackDisabledRegionIsInactive() {
         Region region = testRegion("r-inactive", false);
         InMemoryRegionLifecycleRepository repository = new InMemoryRegionLifecycleRepository();
-        RegionLifecycleService service = new RegionLifecycleService(repository, new InMemoryRegionStore(region));
+        RegionLifecycleService service = new RegionLifecycleService(repository, new InMemoryRegionStore(region),
+                event -> { });
 
         assertEquals(RegionStatus.INACTIVE, service.getRegionStatus(region.getId()));
     }
@@ -44,7 +47,8 @@ public class RegionLifecycleServiceTest {
     void sealedStatusCreatesIndefiniteUpkeepPause() {
         Region region = testRegion("r-sealed", true);
         InMemoryRegionLifecycleRepository repository = new InMemoryRegionLifecycleRepository();
-        RegionLifecycleService service = new RegionLifecycleService(repository, new InMemoryRegionStore(region));
+        RegionLifecycleService service = new RegionLifecycleService(repository, new InMemoryRegionStore(region),
+                event -> { });
 
         service.setRegionStatus(region.getId(), RegionStatus.SEALED);
 
@@ -60,7 +64,8 @@ public class RegionLifecycleServiceTest {
         InMemoryRegionLifecycleRepository sealedRepository = new InMemoryRegionLifecycleRepository();
         Region sealedRegion = testRegion("r-resume-sealed", false);
         sealedRepository.states.put(sealedRegion.getId(), lifecycleState(sealedRegion.getId(), RegionStatus.SEALED));
-        RegionLifecycleService sealedService = new RegionLifecycleService(sealedRepository, new InMemoryRegionStore(sealedRegion));
+        RegionLifecycleService sealedService = new RegionLifecycleService(sealedRepository,
+                new InMemoryRegionStore(sealedRegion), event -> { });
         sealedService.load();
 
         IllegalStateException sealedError = assertThrows(IllegalStateException.class,
@@ -70,7 +75,8 @@ public class RegionLifecycleServiceTest {
         InMemoryRegionLifecycleRepository archivedRepository = new InMemoryRegionLifecycleRepository();
         Region archivedRegion = testRegion("r-resume-archived", false);
         archivedRepository.states.put(archivedRegion.getId(), lifecycleState(archivedRegion.getId(), RegionStatus.ARCHIVED));
-        RegionLifecycleService archivedService = new RegionLifecycleService(archivedRepository, new InMemoryRegionStore(archivedRegion));
+        RegionLifecycleService archivedService = new RegionLifecycleService(archivedRepository,
+                new InMemoryRegionStore(archivedRegion), event -> { });
         archivedService.load();
 
         IllegalStateException archivedError = assertThrows(IllegalStateException.class,
@@ -90,7 +96,8 @@ public class RegionLifecycleServiceTest {
                 RegionLifecycleState.INDEFINITE_PAUSE,
                 "status:SEALED"
         ));
-        RegionLifecycleService service = new RegionLifecycleService(repository, new InMemoryRegionStore(region));
+        RegionLifecycleService service = new RegionLifecycleService(repository, new InMemoryRegionStore(region),
+                event -> { });
         service.load();
 
         service.setRegionStatus(region.getId(), RegionStatus.ACTIVE);

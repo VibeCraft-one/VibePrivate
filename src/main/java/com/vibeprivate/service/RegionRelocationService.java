@@ -1,5 +1,7 @@
 package com.vibeprivate.service;
 
+import com.vibeprivate.api.event.RegionRelocateEvent;
+import com.vibeprivate.api.event.RegionWorldMoveEvent;
 import com.vibeprivate.model.Region;
 import com.vibeprivate.model.RegionBounds;
 import com.vibeprivate.model.RegionHome;
@@ -9,9 +11,11 @@ import java.util.Objects;
 
 public final class RegionRelocationService {
     private final RegionRelocationRegionStore regionStore;
+    private final RegionEventDispatcher eventDispatcher;
 
-    public RegionRelocationService(RegionRelocationRegionStore regionStore) {
+    public RegionRelocationService(RegionRelocationRegionStore regionStore, RegionEventDispatcher eventDispatcher) {
         this.regionStore = Objects.requireNonNull(regionStore, "regionStore");
+        this.eventDispatcher = Objects.requireNonNull(eventDispatcher, "eventDispatcher");
     }
 
     public boolean canMoveRegionToWorld(String regionId, String targetWorld) {
@@ -39,6 +43,8 @@ public final class RegionRelocationService {
         } catch (RuntimeException exception) {
             rollbackMovedRegion(region, exception);
         }
+        eventDispatcher.dispatch(new RegionWorldMoveEvent(region.getId(), region.getType(), region.getOwnerId(),
+                region.getBounds(), moved.getBounds()));
         return moved;
     }
 
@@ -64,6 +70,8 @@ public final class RegionRelocationService {
         }
 
         regionStore.replaceRegion(relocated);
+        eventDispatcher.dispatch(new RegionRelocateEvent(region.getId(), region.getType(), region.getOwnerId(),
+                region.getBounds(), relocated.getBounds()));
         return relocated;
     }
 

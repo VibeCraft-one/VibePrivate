@@ -25,7 +25,7 @@ public class RegionRelocationServiceTest {
     void moveRegionToWorldSameBoundsPreservesRadiusGeometryAndState() {
         Region region = testRegion("r-move", "world", 0, 0, 8);
         InMemoryRegionRelocationStore store = new InMemoryRegionRelocationStore(Set.of("world", "world_nether"), region);
-        RegionRelocationService service = new RegionRelocationService(store);
+        RegionRelocationService service = new RegionRelocationService(store, event -> { });
 
         assertTrue(service.canMoveRegionToWorld(region.getId(), "world_nether"));
 
@@ -57,7 +57,7 @@ public class RegionRelocationServiceTest {
         RegionHome home = new RegionHome(region.getId(), "world", 10.5, 72.0, -6.25, 90.0f, 15.0f);
         InMemoryRegionRelocationStore store = new InMemoryRegionRelocationStore(Set.of("world", "world_nether"), region);
         store.putHome(home);
-        RegionRelocationService service = new RegionRelocationService(store);
+        RegionRelocationService service = new RegionRelocationService(store, event -> { });
 
         Region moved = service.moveRegionToWorldSameBounds(region.getId(), "world_nether");
         RegionHome remappedHome = store.requireHome(region.getId());
@@ -80,7 +80,7 @@ public class RegionRelocationServiceTest {
         InMemoryRegionRelocationStore store = new InMemoryRegionRelocationStore(Set.of("world", "world_nether"), region);
         store.putHome(home);
         store.failOnSaveHome = true;
-        RegionRelocationService service = new RegionRelocationService(store);
+        RegionRelocationService service = new RegionRelocationService(store, event -> { });
 
         IllegalStateException exception = assertThrows(IllegalStateException.class,
                 () -> service.moveRegionToWorldSameBounds(region.getId(), "world_nether"));
@@ -100,7 +100,7 @@ public class RegionRelocationServiceTest {
         store.putHome(home);
         store.failOnSaveHome = true;
         store.failOnRollbackReplace = true;
-        RegionRelocationService service = new RegionRelocationService(store);
+        RegionRelocationService service = new RegionRelocationService(store, event -> { });
 
         IllegalStateException exception = assertThrows(IllegalStateException.class,
                 () -> service.moveRegionToWorldSameBounds(region.getId(), "world_nether"));
@@ -118,7 +118,7 @@ public class RegionRelocationServiceTest {
     void moveWithoutHomeSucceedsAndDoesNotCreateHome() {
         Region region = testRegion("r-no-home", "world", 0, 0, 8);
         InMemoryRegionRelocationStore store = new InMemoryRegionRelocationStore(Set.of("world", "world_nether"), region);
-        RegionRelocationService service = new RegionRelocationService(store);
+        RegionRelocationService service = new RegionRelocationService(store, event -> { });
 
         Region moved = service.moveRegionToWorldSameBounds(region.getId(), "world_nether");
 
@@ -131,7 +131,7 @@ public class RegionRelocationServiceTest {
     @Test
     void canMoveRegionToWorldReturnsFalseForUnknownRegionAndActionThrows() {
         InMemoryRegionRelocationStore store = new InMemoryRegionRelocationStore(Set.of("world"));
-        RegionRelocationService service = new RegionRelocationService(store);
+        RegionRelocationService service = new RegionRelocationService(store, event -> { });
 
         assertFalse(service.canMoveRegionToWorld("missing", "world"));
         assertThrows(IllegalArgumentException.class,
@@ -142,7 +142,7 @@ public class RegionRelocationServiceTest {
     void canMoveRegionToWorldReturnsFalseForDisallowedWorldAndDoesNotMutateState() {
         Region region = testRegion("r-disallowed", "world", 0, 0, 8);
         InMemoryRegionRelocationStore store = new InMemoryRegionRelocationStore(Set.of("world"), region);
-        RegionRelocationService service = new RegionRelocationService(store);
+        RegionRelocationService service = new RegionRelocationService(store, event -> { });
 
         assertFalse(service.canMoveRegionToWorld(region.getId(), "world_the_end"));
         assertEquals(0, store.replaceCalls);
@@ -156,7 +156,7 @@ public class RegionRelocationServiceTest {
         Region foreignRegion = testFarmRegion("r-foreign", "world_nether", 0, 0, 8);
         InMemoryRegionRelocationStore store = new InMemoryRegionRelocationStore(Set.of("world", "world_nether"),
                 region, foreignRegion);
-        RegionRelocationService service = new RegionRelocationService(store);
+        RegionRelocationService service = new RegionRelocationService(store, event -> { });
 
         assertFalse(service.canMoveRegionToWorld(region.getId(), "world_nether"));
         assertThrows(IllegalStateException.class,
@@ -167,7 +167,7 @@ public class RegionRelocationServiceTest {
     void relocateRegionPreservesRadiusSizeAndState() {
         Region region = testRegion("r-relocate", "world", 0, 0, 8);
         InMemoryRegionRelocationStore store = new InMemoryRegionRelocationStore(Set.of("world", "world_nether"), region);
-        RegionRelocationService service = new RegionRelocationService(store);
+        RegionRelocationService service = new RegionRelocationService(store, event -> { });
 
         assertTrue(service.canRelocateRegion(region.getId(), "world_nether", 32, -48));
 
@@ -198,7 +198,7 @@ public class RegionRelocationServiceTest {
                 .state(true, 40L, 0L, 5L, 2, VisualizationMode.ALL, 200L)
                 .build();
         InMemoryRegionRelocationStore store = new InMemoryRegionRelocationStore(Set.of("world", "world_nether"), adminRegion);
-        RegionRelocationService service = new RegionRelocationService(store);
+        RegionRelocationService service = new RegionRelocationService(store, event -> { });
 
         assertFalse(service.canRelocateRegion(adminRegion.getId(), "world_nether", 10, 10));
         assertEquals(0, store.replaceCalls);
@@ -212,7 +212,7 @@ public class RegionRelocationServiceTest {
         Region foreignRegion = testFarmRegion("r-foreign-relocate", "world_nether", 25, -48, 8);
         InMemoryRegionRelocationStore store = new InMemoryRegionRelocationStore(Set.of("world", "world_nether"),
                 region, foreignRegion);
-        RegionRelocationService service = new RegionRelocationService(store);
+        RegionRelocationService service = new RegionRelocationService(store, event -> { });
 
         assertFalse(service.canRelocateRegion(region.getId(), "world_nether", 32, -48));
         assertEquals(0, store.replaceCalls);
@@ -226,7 +226,7 @@ public class RegionRelocationServiceTest {
         InMemoryRegionRelocationStore store = new InMemoryRegionRelocationStore(Set.of("world", "world_nether"), region);
         RegionHome home = new RegionHome(region.getId(), "world", 2.5, 70.0, 3.5, 45.0f, 10.0f);
         store.putHome(home);
-        RegionRelocationService service = new RegionRelocationService(store);
+        RegionRelocationService service = new RegionRelocationService(store, event -> { });
 
         assertTrue(service.canMoveRegionToWorld(region.getId(), "world_nether"));
         assertTrue(service.canRelocateRegion(region.getId(), "world_nether", 48, 48));
@@ -242,7 +242,7 @@ public class RegionRelocationServiceTest {
         RegionHome home = new RegionHome(region.getId(), "world", 12.0, 75.0, -3.0, 0.0f, 0.0f);
         InMemoryRegionRelocationStore store = new InMemoryRegionRelocationStore(Set.of("world", "world_nether"), region);
         store.putHome(home);
-        RegionRelocationService service = new RegionRelocationService(store);
+        RegionRelocationService service = new RegionRelocationService(store, event -> { });
 
         Region moved = service.moveRegionToWorldSameBounds(region.getId(), "world");
 

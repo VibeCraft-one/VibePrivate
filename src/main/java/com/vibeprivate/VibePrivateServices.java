@@ -19,6 +19,7 @@ import com.vibeprivate.service.PendingTeleportService;
 import com.vibeprivate.service.RegionAccessService;
 import com.vibeprivate.service.RegionCreationService;
 import com.vibeprivate.service.RegionDeletionService;
+import com.vibeprivate.service.RegionEventDispatcher;
 import com.vibeprivate.service.RegionHomeService;
 import com.vibeprivate.service.RegionInviteService;
 import com.vibeprivate.service.RegionLifecycleService;
@@ -298,6 +299,7 @@ public final class VibePrivateServices {
         RegionUpgradeService regionUpgradeService;
         ConfirmationService confirmationService;
         RegionDeletionService regionDeletionService;
+        RegionEventDispatcher regionEventDispatcher;
         RegionHomeService regionHomeService;
         CommandCooldownService commandCooldownService;
         RegionTeleportService regionTeleportService;

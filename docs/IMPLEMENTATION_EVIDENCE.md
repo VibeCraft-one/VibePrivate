@@ -649,3 +649,98 @@ Result: PASSED on 2026-07-07.
 - This pass closes only the generic target-bounds read API gap from the transfer surface.
 - Typed lifecycle/move/archive events are still missing and remain the next separate checkpoint.
 - CLAN identity read data is still not exposed beyond temporary leader/manage compatibility methods; full region-backed CLAN identity stays for the later CLAN checkpoint.
+
+# VibePrivate API/Transfer Surface Pass 10 Evidence
+
+## Scope
+
+Added only typed lifecycle/move/archive Bukkit events required by the transfer/admin API direction.
+
+Out of scope for this pass:
+- CLAN identity model, roles, tag or TAB state
+- GUI/commands/messages/core work
+- BaseTransfer/SeasonArchive implementation
+- fuel/deposit/core safety logic
+- relocation algorithm changes beyond event publication
+
+## Changed Files
+
+- `build.gradle`
+- `docs/ARCHITECTURE_MAP.md`
+- `docs/IMPLEMENTATION_EVIDENCE.md`
+- `src/main/java/com/vibeprivate/VibePrivateServiceFactory.java`
+- `src/main/java/com/vibeprivate/VibePrivateServices.java`
+- `src/main/java/com/vibeprivate/api/event/AbstractRegionEvent.java`
+- `src/main/java/com/vibeprivate/api/event/RegionArchiveEvent.java`
+- `src/main/java/com/vibeprivate/api/event/RegionRelocateEvent.java`
+- `src/main/java/com/vibeprivate/api/event/RegionRestoreEvent.java`
+- `src/main/java/com/vibeprivate/api/event/RegionSealEvent.java`
+- `src/main/java/com/vibeprivate/api/event/RegionStatusChangeEvent.java`
+- `src/main/java/com/vibeprivate/api/event/RegionWorldMoveEvent.java`
+- `src/main/java/com/vibeprivate/service/BukkitRegionEventDispatcher.java`
+- `src/main/java/com/vibeprivate/service/RegionEventDispatcher.java`
+- `src/main/java/com/vibeprivate/service/RegionLifecycleService.java`
+- `src/main/java/com/vibeprivate/service/RegionRelocationService.java`
+- `src/test/java/com/vibeprivate/service/RegionLifecycleServiceEventTest.java`
+- `src/test/java/com/vibeprivate/service/RegionLifecycleServiceTest.java`
+- `src/test/java/com/vibeprivate/service/RegionRelocationServiceEventTest.java`
+- `src/test/java/com/vibeprivate/service/RegionRelocationServiceTest.java`
+
+## What Changed
+
+- Added typed Bukkit events under `com.vibeprivate.api.event` for required public flows:
+  - `RegionStatusChangeEvent`
+  - `RegionSealEvent`
+  - `RegionArchiveEvent`
+  - `RegionRestoreEvent`
+  - `RegionWorldMoveEvent`
+  - `RegionRelocateEvent`
+- Added `RegionEventDispatcher` seam plus `BukkitRegionEventDispatcher` so Bukkit event publication stays outside `VibePrivateAPI`, stores and `RegionManager`.
+- `RegionLifecycleService` now dispatches typed lifecycle events only after persisted status changes.
+- `RegionRelocationService` now dispatches typed move/relocate events only after successful region mutation and successful HOME world remap when needed.
+- `build.gradle` smoke now includes focused event tests, and test runtime explicitly includes Paper API so event classes are executable in smoke.
+
+## Acceptance Checks
+
+- Required typed lifecycle/move/archive events now exist as public Bukkit event classes: PASSED.
+- `VibePrivateAPI` remains a facade and does not absorb event business logic: PASSED.
+- `RegionManager` still does not own lifecycle/transfer event logic: PASSED.
+- Sealing publishes generic status event plus typed seal event: PASSED.
+- Archiving publishes generic status event plus typed archive event: PASSED.
+- Restoring from archived publishes generic status event plus typed restore event: PASSED.
+- Same-bounds world move publishes `RegionWorldMoveEvent` only after successful mutation/remap: PASSED.
+- Radius relocate publishes `RegionRelocateEvent` only after successful mutation: PASSED.
+- No GUI/core/commands/BaseTransfer/SeasonArchive scope added: PASSED.
+
+## Build / Smoke
+
+Command:
+
+```powershell
+.\gradlew.bat clean build --no-daemon
+```
+
+Result: PASSED on 2026-07-07.
+
+Smoke summary:
+
+- `42 tests found`
+- `42 tests started`
+- `42 tests successful`
+- `0 tests failed`
+
+## Focused Tests Added
+
+- sealing dispatches `RegionStatusChangeEvent` and `RegionSealEvent`
+- archiving dispatches `RegionStatusChangeEvent` and `RegionArchiveEvent`
+- restoring from archived dispatches `RegionStatusChangeEvent` and `RegionRestoreEvent`
+- unchanged status dispatches no lifecycle events
+- world move dispatches `RegionWorldMoveEvent` only after successful remap
+- relocate dispatches `RegionRelocateEvent`
+- can-checks and no-op move dispatch no transfer events
+
+## Remaining Risks
+
+- This pass adds typed event publication only; listeners that consume these events still need future integration work where required.
+- CLAN identity remains compatibility-only and still needs a separate region-backed checkpoint.
+- Fuel/deposit/core safety events remain intentionally out of scope until later checkpoints.

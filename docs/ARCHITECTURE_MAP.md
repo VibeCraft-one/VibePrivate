@@ -28,6 +28,7 @@
 ## API Layer
 
 - `api/VibePrivateAPI.java` is the safe integration surface.
+- `api/event/*` contains typed Bukkit events for lifecycle and transfer flows.
 - Current external-safe reads include region lookup, lifecycle status, world region listing, bounds lookup, generic target-bounds validation, selection-inside-region validation, conservative CLAN management compatibility reads, and relocation/world-move foundation methods.
 - HOME/FARM/CLAN stay unified as `RegionType` variants inside one public API, not separate subsystems.
 - Current CLAN management reads use temporary compatibility semantics; future CLAN work should add region-backed clan identity/roles inside VibeRegionGuard, not an external clan provider.
@@ -43,9 +44,22 @@
 
 - `service/RegionRelocationService.java` - typed foundation for same-bounds world move and radius relocation checks.
 - `service/RegionManagerRelocationRegionStore.java` - read-only/write-narrow adapter around `RegionManager`, allowed worlds config and region home persistence.
+- `service/RegionEventDispatcher.java` and `service/BukkitRegionEventDispatcher.java` isolate Bukkit event publication away from the facade and stores.
 - Keep relocation rules in this layer, then let `RegionManager.replaceRegion(...)` remain the only mutation point for region replacement.
 - Same-bounds world move may remap `RegionHome.worldName` through the relocation store seam after region replacement.
 - If home remap fails after region replacement, relocation attempts a local rollback to the original region; this is rollback safety, not a full DB transaction.
+
+## Lifecycle / Transfer Events
+
+- `RegionLifecycleService` now emits typed status events after persisted status changes:
+  - `RegionStatusChangeEvent`
+  - `RegionSealEvent`
+  - `RegionArchiveEvent`
+  - `RegionRestoreEvent`
+- `RegionRelocationService` now emits:
+  - `RegionWorldMoveEvent`
+  - `RegionRelocateEvent`
+- Event publication stays in dedicated services; `VibePrivateAPI` remains a facade and `RegionManager` remains free of transfer/event business logic.
 
 ## GUI Layer
 

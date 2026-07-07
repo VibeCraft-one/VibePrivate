@@ -11,6 +11,7 @@ import com.vibeprivate.protection.ProtectionService;
 import com.vibeprivate.service.AdminRegionPresetService;
 import com.vibeprivate.service.AdminRegionService;
 import com.vibeprivate.service.BukkitRegionSelectionWorldHeightProvider;
+import com.vibeprivate.service.BukkitRegionEventDispatcher;
 import com.vibeprivate.service.ClanRegionManagementService;
 import com.vibeprivate.service.ChunkProtectionService;
 import com.vibeprivate.service.CommandCooldownService;
@@ -88,11 +89,13 @@ final class VibePrivateServiceFactory {
     private static void loadRegions(JavaPlugin plugin, VibePrivateServices.Builder builder) {
         builder.regionAccessService = new RegionAccessService(builder.regionAccessRepository);
         builder.regionAccessService.load();
+        builder.regionEventDispatcher = new BukkitRegionEventDispatcher(plugin.getServer().getPluginManager());
 
         builder.regionManager = new RegionManager(builder.regionRepository, builder.configService);
         builder.regionManager.load();
         builder.regionLifecycleService = new RegionLifecycleService(builder.regionLifecycleRepository,
-                new RegionManagerLifecycleRegionStore(builder.regionManager));
+                new RegionManagerLifecycleRegionStore(builder.regionManager),
+                builder.regionEventDispatcher);
         builder.regionLifecycleService.load();
 
         builder.chunkProtectionService = new ChunkProtectionService(plugin, builder.configService,
@@ -134,7 +137,8 @@ final class VibePrivateServiceFactory {
         builder.regionHomeService = new RegionHomeService(builder.regionManager, builder.regionHomeRepository);
         builder.regionRelocationService = new RegionRelocationService(
                 new RegionManagerRelocationRegionStore(builder.regionManager, builder.configService,
-                        builder.regionHomeRepository));
+                        builder.regionHomeRepository),
+                builder.regionEventDispatcher);
         builder.regionSelectionValidator = new RegionSelectionValidator(
                 new RegionManagerSelectionRegionStore(builder.regionManager),
                 new BukkitRegionSelectionWorldHeightProvider());

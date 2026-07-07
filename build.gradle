@@ -13,6 +13,7 @@ java {
 
 dependencies {
     compileOnly "io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT"
+    testImplementation "io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT"
     testImplementation platform("org.junit:junit-bom:5.10.2")
     testImplementation "org.junit.jupiter:junit-jupiter"
     testRuntimeOnly "org.junit.platform:junit-platform-launcher"
@@ -37,9 +38,11 @@ tasks.register("lifecycleSmokeTest", JavaExec) {
     classpath = sourceSets.test.runtimeClasspath
     mainClass = "org.junit.platform.console.ConsoleLauncher"
     args "--select-class", "com.vibeprivate.service.RegionLifecycleServiceTest",
+            "--select-class", "com.vibeprivate.service.RegionLifecycleServiceEventTest",
             "--select-class", "com.vibeprivate.service.ClanRegionManagementServiceTest",
             "--select-class", "com.vibeprivate.service.RegionSelectionValidatorTest",
             "--select-class", "com.vibeprivate.service.RegionRelocationServiceTest",
+            "--select-class", "com.vibeprivate.service.RegionRelocationServiceEventTest",
             "--details", "tree"
 }
 

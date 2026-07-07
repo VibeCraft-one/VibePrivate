@@ -1,5 +1,9 @@
 package com.vibeprivate.service;
 
+import com.vibeprivate.api.event.RegionArchiveEvent;
+import com.vibeprivate.api.event.RegionRestoreEvent;
+import com.vibeprivate.api.event.RegionSealEvent;
+import com.vibeprivate.api.event.RegionStatusChangeEvent;
 import com.vibeprivate.model.Region;
 import com.vibeprivate.model.RegionLifecycleState;
 import com.vibeprivate.model.RegionStatus;
@@ -16,11 +20,14 @@ public final class RegionLifecycleService {
 
     private final RegionLifecycleRepository lifecycleRepository;
     private final RegionLifecycleRegionStore regionStore;
+    private final RegionEventDispatcher eventDispatcher;
     private final Map<String, RegionLifecycleState> lifecycleStates = new HashMap<>();
 
-    public RegionLifecycleService(RegionLifecycleRepository lifecycleRepository, RegionLifecycleRegionStore regionStore) {
+    public RegionLifecycleService(RegionLifecycleRepository lifecycleRepository, RegionLifecycleRegionStore regionStore,
+                                  RegionEventDispatcher eventDispatcher) {
         this.lifecycleRepository = Objects.requireNonNull(lifecycleRepository, "lifecycleRepository");
         this.regionStore = Objects.requireNonNull(regionStore, "regionStore");
+        this.eventDispatcher = Objects.requireNonNull(eventDispatcher, "eventDispatcher");
     }
 
     public void load() {
@@ -57,6 +64,7 @@ public final class RegionLifecycleService {
                 pauseReasonForStatus(status, current)
         );
         saveLifecycle(updated);
+        publishStatusEvents(region, current.getStatus(), updated);
     }
 
     public void pauseUpkeep(String regionId, String reason) {
@@ -167,6 +175,29 @@ public final class RegionLifecycleService {
     private void saveLifecycle(RegionLifecycleState state) {
         lifecycleStates.put(state.getRegionId(), state);
         lifecycleRepository.save(state);
+    }
+
+    private void publishStatusEvents(Region region, RegionStatus previousStatus, RegionLifecycleState updated) {
+        RegionStatus newStatus = updated.getStatus();
+        if (previousStatus == newStatus) {
+            return;
+        }
+
+        long changedAt = updated.getStatusChangedAt();
+        eventDispatcher.dispatch(new RegionStatusChangeEvent(region.getId(), region.getType(), region.getOwnerId(),
+                previousStatus, newStatus, changedAt));
+        if (newStatus == RegionStatus.SEALED) {
+            eventDispatcher.dispatch(new RegionSealEvent(region.getId(), region.getType(), region.getOwnerId(),
+                    previousStatus, newStatus, changedAt));
+        }
+        if (newStatus == RegionStatus.ARCHIVED) {
+            eventDispatcher.dispatch(new RegionArchiveEvent(region.getId(), region.getType(), region.getOwnerId(),
+                    previousStatus, newStatus, changedAt));
+        }
+        if (previousStatus == RegionStatus.ARCHIVED && newStatus != RegionStatus.ARCHIVED) {
+            eventDispatcher.dispatch(new RegionRestoreEvent(region.getId(), region.getType(), region.getOwnerId(),
+                    previousStatus, newStatus, changedAt));
+        }
     }
 
     private String requireReason(String reason) {
