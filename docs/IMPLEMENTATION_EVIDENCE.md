@@ -586,3 +586,66 @@ Result: PASSED on 2026-07-07.
 - Current leader check only works for CLAN regions whose `ownerId` already stores a player UUID string.
 - Existing `createClanRegion(...)` still stores trimmed clan identifier in `ownerId`, so leader/manage checks remain compatibility-only until the next CLAN pass adds proper region-backed clan identity, leader, roles and tag data inside VibeRegionGuard.
 - This pass intentionally does not grant management rights to ordinary clan members.
+
+# VibePrivate API/Transfer Surface Pass 9 Evidence
+
+## Scope
+
+Added only the remaining generic target-bounds validation read method on the unified public API.
+
+Out of scope for this pass:
+- typed lifecycle/move/archive events
+- CLAN identity model, roles, tag or TAB state
+- GUI/commands/messages/core work
+- BaseTransfer/SeasonArchive implementation
+- relocation algorithm changes
+
+## Changed Files
+
+- `docs/ARCHITECTURE_MAP.md`
+- `docs/IMPLEMENTATION_EVIDENCE.md`
+- `src/main/java/com/vibeprivate/api/VibePrivateAPI.java`
+- `src/main/java/com/vibeprivate/service/RegionSelectionValidator.java`
+- `src/test/java/com/vibeprivate/service/RegionSelectionValidatorTest.java`
+
+## What Changed
+
+- `VibePrivateAPI` now exposes `isTargetBoundsValid(SelectionBounds bounds)`.
+- `RegionSelectionValidator` now provides a generic target-bounds validation path separate from `isAreaInsideRegion(...)`.
+- Target-bounds validation reuses the existing read-only selection seam and checks only:
+  - non-null/non-empty `SelectionBounds`
+  - world height policy through `RegionSelectionWorldHeightProvider`
+  - no overlap with another non-admin region in the target world
+- Existing region-local selection behavior remains separate in `isAreaInsideRegion(...)`.
+- This pass does not add relocation, event or CLAN identity logic.
+
+## Acceptance Checks
+
+- Public API now contains an explicit generic target-bounds validation method: PASSED.
+- Free-space target bounds inside world height return `true`: PASSED.
+- Target bounds overlapping another non-admin region return `false`: PASSED.
+- Target bounds outside world height return `false`: PASSED.
+- Existing `isAreaInsideRegion(...)` path remains available and unchanged in scope: PASSED.
+- No events/GUI/core/BaseTransfer/SeasonArchive scope added: PASSED.
+
+## Build / Smoke
+
+Command:
+
+```powershell
+.\gradlew.bat clean build --no-daemon
+```
+
+Result: PASSED on 2026-07-07.
+
+## Focused Tests Added
+
+- valid target bounds in free space return `true`
+- target bounds overlapping another non-admin region return `false`
+- target bounds outside world height return `false`
+
+## Remaining Risks
+
+- This pass closes only the generic target-bounds read API gap from the transfer surface.
+- Typed lifecycle/move/archive events are still missing and remain the next separate checkpoint.
+- CLAN identity read data is still not exposed beyond temporary leader/manage compatibility methods; full region-backed CLAN identity stays for the later CLAN checkpoint.

@@ -61,6 +61,41 @@ public class RegionSelectionValidatorTest {
     }
 
     @Test
+    void returnsTrueWhenTargetBoundsAreValidInFreeSpace() {
+        Region existingRegion = testRegion("r-existing", "world");
+        RegionSelectionValidator validator = validator(new RegionSelectionWorldHeight(64, 100), existingRegion);
+
+        boolean result = validator.isTargetBoundsValid(new SelectionBounds("world", 20, 24, 70, 80, 20, 24));
+
+        assertTrue(result);
+    }
+
+    @Test
+    void returnsFalseWhenTargetBoundsOverlapAnotherNonAdminRegion() {
+        Region existingRegion = testRegion("r-existing", "world");
+        Region otherRegion = Region.radiusRegion("r-other-target", "other", RegionType.FARM, "other-owner", "world")
+                .radius(22, 22, 4, 64, 100)
+                .state(true, 0L, 0L, 0L, 0, VisualizationMode.ALL, 100L)
+                .build();
+        RegionSelectionValidator validator = validator(new RegionSelectionWorldHeight(64, 100),
+                existingRegion, otherRegion);
+
+        boolean result = validator.isTargetBoundsValid(new SelectionBounds("world", 20, 24, 70, 80, 20, 24));
+
+        assertFalse(result);
+    }
+
+    @Test
+    void returnsFalseWhenTargetBoundsAreOutsideWorldHeight() {
+        Region region = testRegion("r-target-height", "world");
+        RegionSelectionValidator validator = validator(new RegionSelectionWorldHeight(64, 100), region);
+
+        boolean result = validator.isTargetBoundsValid(new SelectionBounds("world", 20, 24, 63, 80, 20, 24));
+
+        assertFalse(result);
+    }
+
+    @Test
     void returnsNormalizedRegionBounds() {
         Region region = testRegion("r-bounds", "world");
         RegionSelectionValidator validator = validator(new RegionSelectionWorldHeight(64, 100), region);

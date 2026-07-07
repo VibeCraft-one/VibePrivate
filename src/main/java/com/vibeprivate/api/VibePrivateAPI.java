@@ -84,6 +84,10 @@ public final class VibePrivateAPI {
         return regionSelectionValidator.getRegionBounds(regionId);
     }
 
+    public boolean isTargetBoundsValid(SelectionBounds bounds) {
+        return regionSelectionValidator.isTargetBoundsValid(bounds);
+    }
+
     public boolean isAreaInsideRegion(String regionId, SelectionBounds bounds) {
         return regionSelectionValidator.isAreaInsideRegion(regionId, bounds);
     }

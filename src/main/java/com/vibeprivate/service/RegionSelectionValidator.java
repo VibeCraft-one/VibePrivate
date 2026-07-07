@@ -20,6 +20,18 @@ public final class RegionSelectionValidator {
         return requireRegion(regionId).getBounds();
     }
 
+    public boolean isTargetBoundsValid(SelectionBounds bounds) {
+        if (bounds == null || bounds.isEmpty()) {
+            return false;
+        }
+
+        if (!isWithinWorldHeight(bounds)) {
+            return false;
+        }
+
+        return !overlapsForeignRegion(null, bounds);
+    }
+
     public boolean isAreaInsideRegion(String regionId, SelectionBounds bounds) {
         if (bounds == null || bounds.isEmpty()) {
             return false;
@@ -63,7 +75,7 @@ public final class RegionSelectionValidator {
 
         return regionStore.getRegionsInWorld(bounds.getWorldName()).stream()
                 .filter(region -> !region.isAdmin())
-                .filter(region -> !region.getId().equals(regionId))
+                .filter(region -> regionId == null || !region.getId().equals(regionId))
                 .anyMatch(region -> region.getBounds().intersects(selectionBounds));
     }
 

@@ -28,7 +28,7 @@
 ## API Layer
 
 - `api/VibePrivateAPI.java` is the safe integration surface.
-- Current external-safe reads include region lookup, lifecycle status, world region listing, bounds lookup, selection-inside-region validation, conservative CLAN management compatibility reads, and relocation/world-move foundation methods.
+- Current external-safe reads include region lookup, lifecycle status, world region listing, bounds lookup, generic target-bounds validation, selection-inside-region validation, conservative CLAN management compatibility reads, and relocation/world-move foundation methods.
 - HOME/FARM/CLAN stay unified as `RegionType` variants inside one public API, not separate subsystems.
 - Current CLAN management reads use temporary compatibility semantics; future CLAN work should add region-backed clan identity/roles inside VibeRegionGuard, not an external clan provider.
 
@@ -36,7 +36,7 @@
 
 - `model/RegionBounds.java` - normalized region bounds.
 - `model/SelectionBounds.java` - normalized external selection input.
-- `service/RegionSelectionValidator.java` - read-only validation for `SelectionBounds` against a region.
+- `service/RegionSelectionValidator.java` - read-only validation for generic target `SelectionBounds` and selection-inside-region checks.
 - `service/RegionManagerSelectionRegionStore.java` - narrow adapter so selection logic stays outside `RegionManager`.
 
 ## Relocation Foundation
