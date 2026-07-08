@@ -12,12 +12,15 @@ import java.util.UUID;
 
 public final class ClanRegionManagementService {
     private final ClanRegionManagementRegionStore regionStore;
+    private final ClanRegionMembershipStore membershipStore;
     private final ClanRegionRoleRepository roleRepository;
     private Map<String, Map<UUID, ClanRegionRole>> rolesByRegion = new HashMap<>();
 
     public ClanRegionManagementService(ClanRegionManagementRegionStore regionStore,
+                                       ClanRegionMembershipStore membershipStore,
                                        ClanRegionRoleRepository roleRepository) {
         this.regionStore = Objects.requireNonNull(regionStore, "regionStore");
+        this.membershipStore = Objects.requireNonNull(membershipStore, "membershipStore");
         this.roleRepository = Objects.requireNonNull(roleRepository, "roleRepository");
     }
 
@@ -28,6 +31,10 @@ public final class ClanRegionManagementService {
     public boolean isClanRegionLeader(String regionId, UUID playerId) {
         Objects.requireNonNull(regionId, "regionId");
         Objects.requireNonNull(playerId, "playerId");
+        if (!membershipStore.isMember(regionId, playerId)) {
+            return false;
+        }
+
         return getElevatedRole(regionId, playerId)
                 .filter(role -> role == ClanRegionRole.LEADER)
                 .isPresent();
@@ -36,6 +43,10 @@ public final class ClanRegionManagementService {
     public boolean canManageClanRegion(String regionId, UUID playerId) {
         Objects.requireNonNull(regionId, "regionId");
         Objects.requireNonNull(playerId, "playerId");
+        if (!membershipStore.isMember(regionId, playerId)) {
+            return false;
+        }
+
         return getElevatedRole(regionId, playerId)
                 .filter(ClanRegionRole::canManageClanRegion)
                 .isPresent();
@@ -71,6 +82,10 @@ public final class ClanRegionManagementService {
 
         rolesByRegion.computeIfAbsent(regionId, ignored -> new HashMap<>()).put(playerId, role);
         roleRepository.save(regionId, playerId, role);
+    }
+
+    public void removeClanRegionRole(String regionId, UUID playerId) {
+        setClanRegionRole(regionId, playerId, ClanRegionRole.MEMBER);
     }
 
     public boolean isClanRegion(String regionId) {

@@ -20,9 +20,11 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 public final class VibePrivateAPI {
@@ -183,7 +185,15 @@ public final class VibePrivateAPI {
             return false;
         }
 
-        regionAccessService.syncMembers(region.get().getId(), members);
+        String regionId = region.get().getId();
+        Set<UUID> desiredMembers = new HashSet<>(members);
+        for (UUID currentMember : regionAccessService.getMembers(regionId)) {
+            if (!desiredMembers.contains(currentMember)) {
+                clanRegionManagementService.removeClanRegionRole(regionId, currentMember);
+            }
+        }
+
+        regionAccessService.syncMembers(regionId, members);
         return true;
     }
 
@@ -211,14 +221,16 @@ public final class VibePrivateAPI {
             return Optional.empty();
         }
 
+        if (!regionAccessService.isMember(regionId, playerId)) {
+            return Optional.empty();
+        }
+
         Optional<ClanRegionRole> elevatedRole = clanRegionManagementService.getElevatedRole(regionId, playerId);
         if (elevatedRole.isPresent()) {
             return elevatedRole;
         }
 
-        return regionAccessService.isMember(regionId, playerId)
-                ? Optional.of(ClanRegionRole.MEMBER)
-                : Optional.empty();
+        return Optional.of(ClanRegionRole.MEMBER);
     }
 
     public void setClanRegionRole(String regionId, UUID playerId, ClanRegionRole role) {
@@ -247,6 +259,9 @@ public final class VibePrivateAPI {
     }
 
     public void removeMember(String regionId, UUID playerId) {
+        if (clanRegionManagementService.isClanRegion(regionId)) {
+            clanRegionManagementService.removeClanRegionRole(regionId, playerId);
+        }
         regionAccessService.removeMember(regionId, playerId);
     }
 

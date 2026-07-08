@@ -171,6 +171,7 @@ final class VibePrivateServiceFactory {
     private static ClanRegionManagementService createClanRegionManagementService(VibePrivateServices.Builder builder) {
         ClanRegionManagementService service = new ClanRegionManagementService(
                 new RegionManagerClanRegionManagementRegionStore(builder.regionManager),
+                builder.regionAccessService,
                 builder.clanRegionRoleRepository);
         service.load();
         return service;
