@@ -56,9 +56,13 @@ This is a compact validation summary. Detailed pass history lives in git commits
 - Fuel maintenance is now narrower but still linear over player regions; add an expiry queue only if scale testing proves it is needed.
 - `CommandMapOverrideService` uses reflection for command compatibility; keep it isolated and add config opt-out later.
 
+## RC Readiness
+
+- Current acceptance mapping lives in `docs/RC_READINESS_MATRIX.md`.
+- Do not mark the plugin as tester-ready RC until the manual player smoke has real pass/fail evidence.
+
 ## Next Useful Checks
 
 1. Run `docs/MANUAL_PLAYER_SMOKE_RUNBOOK.md` on Paper/Purpur: `/vp`, `/privat`, `/privatadmin`, region create, member add, flags, fuel, restart persistence.
-2. Run live admin GUI pagination smoke with 46+ admin regions, 46+ owners and 46+ regions for one owner.
-3. Finish CLAN identity and roles as a small region-backed module.
-4. Run synthetic region-count smoke before claiming 100+ online readiness.
+2. Record actual pass/fail evidence from `logs/latest.log` into the coordination task.
+3. Re-run `.\gradlew.bat clean build --no-daemon` once before the final RC tag.
