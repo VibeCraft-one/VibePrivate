@@ -12,6 +12,7 @@ This is a compact validation summary. Detailed pass history lives in git commits
 - Latest verified result: passed on 2026-07-09 with 64 tests found, 64 started, 64 successful, 0 failed.
 - Latest verified server bootstrap: Paper 1.21.11 build 132 loaded and enabled `VibeRegionGuard` v0.1.1 on 2026-07-09 without startup errors.
 - Latest verified restart smoke: Paper 1.21.11 build 132 restarted from the same plugin data folder and re-enabled `VibeRegionGuard` v0.1.1 on 2026-07-09.
+- Latest verified Purpur bootstrap/restart: Purpur 1.21.11 build 2568 loaded, restarted and re-enabled `VibeRegionGuard` v0.1.1 on 2026-07-09.
 
 ## Implemented Foundation
 
