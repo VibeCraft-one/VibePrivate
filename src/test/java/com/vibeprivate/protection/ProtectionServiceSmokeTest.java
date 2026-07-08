@@ -110,6 +110,43 @@ public class ProtectionServiceSmokeTest {
         }
     }
 
+    @Test
+    void adminEnvironmentUsesAdminFlagRules() {
+        ProtectionFixture fixture = openFixture();
+        try {
+            Region admin = adminRegion("admin-environment", 400, 400);
+            fixture.regionManager.addRegion(admin);
+            Location location = location("world", 400, 80, 400);
+
+            assertFalse(fixture.protectionService.canEnvironmentUse(location, RegionFlag.PROJECTILES));
+            assertTrue(fixture.protectionService.canEnvironmentUse(location, RegionFlag.HUNGER));
+
+            fixture.accessService.setDefaultFlag(admin.getId(), RegionFlag.PROJECTILE_DAMAGE, true);
+
+            assertTrue(fixture.protectionService.canEnvironmentUse(location, RegionFlag.PROJECTILES));
+        } finally {
+            fixture.close();
+        }
+    }
+
+    @Test
+    void adminFallDamageDefaultIsAllowedUnlessExplicitlyDisabled() {
+        ProtectionFixture fixture = openFixture();
+        try {
+            Region admin = adminRegion("admin-fall-damage", 500, 500);
+            fixture.regionManager.addRegion(admin);
+            Location location = location("world", 500, 80, 500);
+
+            assertTrue(fixture.protectionService.canEnvironmentUse(location, RegionFlag.FALL_DAMAGE));
+
+            fixture.accessService.setDefaultFlag(admin.getId(), RegionFlag.FALL_DAMAGE, false);
+
+            assertFalse(fixture.protectionService.canEnvironmentUse(location, RegionFlag.FALL_DAMAGE));
+        } finally {
+            fixture.close();
+        }
+    }
+
     private ProtectionFixture openFixture() {
         JavaPlugin plugin = mock(JavaPlugin.class);
         FileConfiguration config = mock(FileConfiguration.class);
@@ -136,6 +173,13 @@ public class ProtectionServiceSmokeTest {
     private Region homeRegion(String id, UUID ownerId, int centerX, int centerZ) {
         return Region.radiusRegion(id, id, RegionType.HOME, ownerId.toString(), "world")
                 .radius(centerX, centerZ, 8, 60, 120)
+                .state(true, 0L, 0L, 0L, 0, VisualizationMode.ALL, 100L)
+                .build();
+    }
+
+    private Region adminRegion(String id, int centerX, int centerZ) {
+        return Region.adminRegion(id, id, "server", "world")
+                .cuboid(centerX - 5, 60, centerZ - 5, centerX + 5, 120, centerZ + 5)
                 .state(true, 0L, 0L, 0L, 0, VisualizationMode.ALL, 100L)
                 .build();
     }
