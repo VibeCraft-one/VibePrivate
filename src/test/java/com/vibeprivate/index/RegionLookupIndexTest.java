@@ -4,6 +4,7 @@ import com.vibeprivate.model.Region;
 import com.vibeprivate.model.RegionType;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -60,6 +61,31 @@ class RegionLookupIndexTest {
 
         assertTrue(index.getAdminRegions().isEmpty());
         assertEquals(0, index.getAdminRegionCount());
+    }
+
+    @Test
+    void rebuildHandlesSyntheticOnlineScaleWithoutMixingRegionClasses() {
+        List<Region> regions = new ArrayList<>();
+        for (int index = 0; index < 120; index++) {
+            regions.add(region("home-" + index, "owner-" + index, "world-" + index % 3, RegionType.HOME));
+        }
+
+        for (int index = 0; index < 10; index++) {
+            regions.add(region("clan-" + index, "clan-" + index, "world-0", RegionType.CLAN));
+            regions.add(adminRegion("admin-" + index, "server", "world-0"));
+        }
+
+        RegionLookupIndex index = new RegionLookupIndex();
+        index.rebuild(regions);
+
+        assertEquals(120, index.getPlayerRegionCount());
+        assertEquals(10, index.getAdminRegionCount());
+        assertEquals(120, index.getPlayerOwnerIds().size());
+        assertEquals(1, index.getPlayerRegionsByOwner("owner-42").size());
+        assertEquals(10, index.getByOwner("server").size());
+        assertEquals(1, index.getByOwner("clan-0").size());
+        assertEquals(60, index.getInWorld("world-0").size());
+        assertTrue(index.getPlayerRegionsByOwner("clan-0").isEmpty());
     }
 
     private Region region(String id, String ownerId, String worldName, RegionType type) {
