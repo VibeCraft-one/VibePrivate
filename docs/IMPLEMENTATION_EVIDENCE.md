@@ -9,8 +9,9 @@ This is a compact validation summary. Detailed pass history lives in git commits
 - Java compatibility namespace: `com.vibeprivate`.
 - Public integration surface: `VibePrivateAPI` plus thin `VibeRegionGuardApi` facade.
 - Latest verified build: `.\gradlew.bat clean build --no-daemon`.
-- Latest verified result: passed on 2026-07-09 with 60 tests found, 60 started, 60 successful, 0 failed.
-- Latest verified server bootstrap: Paper 1.21.11 build 132 loaded and enabled `VibeRegionGuard` v0.1.1 on 2026-07-08 without startup errors.
+- Latest verified result: passed on 2026-07-09 with 61 tests found, 61 started, 61 successful, 0 failed.
+- Latest verified server bootstrap: Paper 1.21.11 build 132 loaded and enabled `VibeRegionGuard` v0.1.1 on 2026-07-09 without startup errors.
+- Latest verified restart smoke: Paper 1.21.11 build 132 restarted from the same plugin data folder and re-enabled `VibeRegionGuard` v0.1.1 on 2026-07-09.
 
 ## Implemented Foundation
 
@@ -33,6 +34,7 @@ This is a compact validation summary. Detailed pass history lives in git commits
 - `FuelService` iterates indexed player regions instead of broad all-region reads.
 - `UpkeepService` uses indexed owner/player-region reads.
 - Fuel, upgrade deposit withdrawal and region deletion resource paths now fail closed around persistence before item grant/drop.
+- Region deletion storage cascade is covered for persisted upgrade deposits.
 
 ## Current Guardrails
 
