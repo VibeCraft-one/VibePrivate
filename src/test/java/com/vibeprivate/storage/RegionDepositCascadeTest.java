@@ -5,6 +5,7 @@ import com.vibeprivate.model.Region;
 import com.vibeprivate.model.RegionType;
 import com.vibeprivate.model.VisualizationMode;
 import org.bukkit.Material;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -26,11 +27,15 @@ public class RegionDepositCascadeTest {
     @Test
     void deletingRegionCascadesPersistedDeposits() {
         JavaPlugin plugin = mock(JavaPlugin.class);
-        ConfigService configService = mock(ConfigService.class);
+        FileConfiguration config = mock(FileConfiguration.class);
         when(plugin.getDataFolder()).thenReturn(tempDir.toFile());
         when(plugin.getLogger()).thenReturn(Logger.getLogger("RegionDepositCascadeTest"));
-        when(configService.getDatabaseType()).thenReturn("sqlite");
-        when(configService.getDatabaseFile()).thenReturn("cascade-test.db");
+        when(plugin.getConfig()).thenReturn(config);
+        when(config.getString("database.type", "sqlite")).thenReturn("sqlite");
+        when(config.getString("database.file", "vibeprivate.db")).thenReturn("cascade-test.db");
+
+        ConfigService configService = new ConfigService(plugin);
+        configService.load();
 
         DatabaseService databaseService = new DatabaseService(plugin, configService);
         try {
