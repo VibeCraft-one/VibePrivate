@@ -75,6 +75,41 @@ public class ProtectionServiceSmokeTest {
         }
     }
 
+    @Test
+    void opAndBypassPermissionCanUseProtectedHomeRegion() {
+        ProtectionFixture fixture = openFixture();
+        try {
+            UUID ownerId = UUID.randomUUID();
+            Region home = homeRegion("home-bypass", ownerId, 200, 200);
+            fixture.regionManager.addRegion(home);
+            Location location = location("world", 200, 80, 200);
+
+            assertTrue(fixture.protectionService.canUse(opPlayer(UUID.randomUUID()), location, RegionFlag.BUILD));
+            assertTrue(fixture.protectionService.canUse(bypassPlayer(UUID.randomUUID()), location, RegionFlag.BUILD));
+        } finally {
+            fixture.close();
+        }
+    }
+
+    @Test
+    void environmentUseFollowsRegionDefaultFlags() {
+        ProtectionFixture fixture = openFixture();
+        try {
+            UUID ownerId = UUID.randomUUID();
+            Region home = homeRegion("home-environment", ownerId, 300, 300);
+            fixture.regionManager.addRegion(home);
+            Location location = location("world", 300, 80, 300);
+
+            assertFalse(fixture.protectionService.canEnvironmentUse(location, RegionFlag.FIRE_SPREAD));
+
+            fixture.accessService.setDefaultFlag(home.getId(), RegionFlag.FIRE_SPREAD, true);
+
+            assertTrue(fixture.protectionService.canEnvironmentUse(location, RegionFlag.FIRE_SPREAD));
+        } finally {
+            fixture.close();
+        }
+    }
+
     private ProtectionFixture openFixture() {
         JavaPlugin plugin = mock(JavaPlugin.class);
         FileConfiguration config = mock(FileConfiguration.class);
@@ -116,6 +151,18 @@ public class ProtectionServiceSmokeTest {
         when(player.getUniqueId()).thenReturn(playerId);
         when(player.isOp()).thenReturn(false);
         when(player.hasPermission("vibeprivate.bypass")).thenReturn(false);
+        return player;
+    }
+
+    private Player opPlayer(UUID playerId) {
+        Player player = player(playerId);
+        when(player.isOp()).thenReturn(true);
+        return player;
+    }
+
+    private Player bypassPlayer(UUID playerId) {
+        Player player = player(playerId);
+        when(player.hasPermission("vibeprivate.bypass")).thenReturn(true);
         return player;
     }
 
