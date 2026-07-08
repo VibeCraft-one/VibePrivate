@@ -50,6 +50,7 @@ tasks.register("lifecycleSmokeTest", JavaExec) {
             "--select-class", "com.vibeprivate.gui.AdminGuiPageTest",
             "--select-class", "com.vibeprivate.service.ResourceAntiDupeServiceTest",
             "--select-class", "com.vibeprivate.storage.RegionDepositCascadeTest",
+            "--select-class", "com.vibeprivate.protection.ProtectionServiceSmokeTest",
             "--details", "tree"
 }
 
