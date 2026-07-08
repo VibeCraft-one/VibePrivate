@@ -87,6 +87,10 @@ public final class DatabaseService {
         return statements.upsertProtectedChunkSql();
     }
 
+    public String upsertClanRegionRoleSql() {
+        return statements.upsertClanRegionRoleSql();
+    }
+
     public String upsertRegionHomeSql() {
         return statements.upsertRegionHomeSql();
     }

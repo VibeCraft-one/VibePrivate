@@ -30,6 +30,7 @@ import com.vibeprivate.service.RegionTeleportService;
 import com.vibeprivate.service.RegionUpgradeService;
 import com.vibeprivate.service.UpkeepService;
 import com.vibeprivate.storage.DatabaseService;
+import com.vibeprivate.storage.ClanRegionRoleRepository;
 import com.vibeprivate.storage.ProtectedChunkRepository;
 import com.vibeprivate.storage.RegionAccessRepository;
 import com.vibeprivate.storage.RegionDepositRepository;
@@ -247,6 +248,7 @@ final class VibePrivateServices {
         RegionDepositRepository regionDepositRepository;
         RegionHomeRepository regionHomeRepository;
         RegionLifecycleRepository regionLifecycleRepository;
+        ClanRegionRoleRepository clanRegionRoleRepository;
         UpkeepRepository upkeepRepository;
         ProtectedChunkRepository protectedChunkRepository;
         RegionAccessService regionAccessService;

@@ -15,14 +15,16 @@ class RegionLookupIndexTest {
     void rebuildIndexesRegionsByOwnerAndWorld() {
         Region home = region("home", "owner", "world", RegionType.HOME);
         Region farm = region("farm", "owner", "farm_world", RegionType.FARM);
+        Region clan = region("clan", "clan-id", "world", RegionType.CLAN);
         Region other = region("other", "other-owner", "world", RegionType.HOME);
         Region admin = adminRegion("admin", "server", "world");
 
         RegionLookupIndex index = new RegionLookupIndex();
-        index.rebuild(List.of(home, farm, other, admin));
+        index.rebuild(List.of(home, farm, clan, other, admin));
 
         assertEquals(List.of(home, farm), index.getByOwner("owner"));
-        assertEquals(List.of(home, other, admin), index.getInWorld("world"));
+        assertEquals(List.of(clan), index.getByOwner("clan-id"));
+        assertEquals(List.of(home, clan, other, admin), index.getInWorld("world"));
         assertEquals(List.of(admin), index.getAdminRegions());
         assertEquals(1, index.getAdminRegionCount());
         assertEquals(3, index.getPlayerRegionCount());

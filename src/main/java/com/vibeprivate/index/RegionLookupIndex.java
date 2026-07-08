@@ -1,6 +1,7 @@
 package com.vibeprivate.index;
 
 import com.vibeprivate.model.Region;
+import com.vibeprivate.model.RegionType;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -39,6 +40,10 @@ public final class RegionLookupIndex {
             return;
         }
 
+        if (isClan(region)) {
+            return;
+        }
+
         playerRegions.put(region.getId(), region);
         playerRegionsByOwner.computeIfAbsent(region.getOwnerId(), ignored -> new LinkedHashMap<>())
                 .put(region.getId(), region);
@@ -50,6 +55,10 @@ public final class RegionLookupIndex {
         removeFrom(regionsByWorld, region.getWorldName(), region.getId());
         if (region.isAdmin()) {
             adminRegions.remove(region.getId());
+            return;
+        }
+
+        if (isClan(region)) {
             return;
         }
 
@@ -102,6 +111,10 @@ public final class RegionLookupIndex {
         if (regions.isEmpty()) {
             index.remove(key);
         }
+    }
+
+    private boolean isClan(Region region) {
+        return region.getType() == RegionType.CLAN;
     }
 
     private List<Region> values(Map<String, Region> regions) {

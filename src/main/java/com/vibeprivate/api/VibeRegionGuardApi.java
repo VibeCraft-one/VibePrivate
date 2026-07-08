@@ -1,5 +1,6 @@
 package com.vibeprivate.api;
 
+import com.vibeprivate.model.ClanRegionRole;
 import com.vibeprivate.model.Region;
 import com.vibeprivate.model.RegionBounds;
 import com.vibeprivate.model.RegionStatus;
@@ -107,6 +108,10 @@ public final class VibeRegionGuardApi {
         return api.createClanRegion(clanId, location, name);
     }
 
+    public RegionCreationResult createClanRegion(String clanId, UUID firstLeaderId, Location location, String name) {
+        return api.createClanRegion(clanId, firstLeaderId, location, name);
+    }
+
     public Optional<Region> getClanRegion(String clanId) {
         return api.getClanRegion(clanId);
     }
@@ -125,6 +130,14 @@ public final class VibeRegionGuardApi {
 
     public boolean canManageClanRegion(String regionId, UUID playerId) {
         return api.canManageClanRegion(regionId, playerId);
+    }
+
+    public Optional<ClanRegionRole> getClanRegionRole(String regionId, UUID playerId) {
+        return api.getClanRegionRole(regionId, playerId);
+    }
+
+    public void setClanRegionRole(String regionId, UUID playerId, ClanRegionRole role) {
+        api.setClanRegionRole(regionId, playerId, role);
     }
 
     public AdminRegionService adminRegions() {

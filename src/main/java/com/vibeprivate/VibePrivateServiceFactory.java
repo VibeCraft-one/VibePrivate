@@ -36,6 +36,7 @@ import com.vibeprivate.service.RegionTeleportService;
 import com.vibeprivate.service.RegionUpgradeService;
 import com.vibeprivate.service.UpkeepService;
 import com.vibeprivate.storage.DatabaseService;
+import com.vibeprivate.storage.ClanRegionRoleRepository;
 import com.vibeprivate.storage.ProtectedChunkRepository;
 import com.vibeprivate.storage.RegionAccessRepository;
 import com.vibeprivate.storage.RegionDepositRepository;
@@ -83,6 +84,7 @@ final class VibePrivateServiceFactory {
         builder.regionDepositRepository = new RegionDepositRepository(builder.databaseService);
         builder.regionHomeRepository = new RegionHomeRepository(builder.databaseService);
         builder.regionLifecycleRepository = new RegionLifecycleRepository(builder.databaseService);
+        builder.clanRegionRoleRepository = new ClanRegionRoleRepository(builder.databaseService);
         builder.upkeepRepository = new UpkeepRepository(builder.databaseService);
         builder.protectedChunkRepository = new ProtectedChunkRepository(builder.databaseService);
     }
@@ -167,7 +169,11 @@ final class VibePrivateServiceFactory {
     }
 
     private static ClanRegionManagementService createClanRegionManagementService(VibePrivateServices.Builder builder) {
-        return new ClanRegionManagementService(new RegionManagerClanRegionManagementRegionStore(builder.regionManager));
+        ClanRegionManagementService service = new ClanRegionManagementService(
+                new RegionManagerClanRegionManagementRegionStore(builder.regionManager),
+                builder.clanRegionRoleRepository);
+        service.load();
+        return service;
     }
 
     private static void createPublicApis(VibePrivateServices.Builder builder,

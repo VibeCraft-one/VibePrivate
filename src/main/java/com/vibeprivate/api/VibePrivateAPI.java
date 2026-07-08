@@ -1,6 +1,7 @@
 package com.vibeprivate.api;
 
 import com.vibeprivate.manager.RegionManager;
+import com.vibeprivate.model.ClanRegionRole;
 import com.vibeprivate.model.Region;
 import com.vibeprivate.model.RegionBounds;
 import com.vibeprivate.model.RegionStatus;
@@ -10,6 +11,7 @@ import com.vibeprivate.service.AdminRegionService;
 import com.vibeprivate.service.ClanRegionManagementService;
 import com.vibeprivate.service.RegionAccessService;
 import com.vibeprivate.service.RegionCreationResult;
+import com.vibeprivate.service.RegionCreationStatus;
 import com.vibeprivate.service.RegionCreationService;
 import com.vibeprivate.service.RegionLifecycleService;
 import com.vibeprivate.service.RegionRelocationService;
@@ -132,6 +134,25 @@ public final class VibePrivateAPI {
         return regionCreationService.createClanRegion(clanId, location, name);
     }
 
+    public RegionCreationResult createClanRegion(String clanId, UUID firstLeaderId, Location location, String name) {
+        Objects.requireNonNull(firstLeaderId, "firstLeaderId");
+        RegionCreationResult result = regionCreationService.createClanRegion(clanId, location, name);
+        Optional<Region> createdRegion = result.getRegion();
+        if (createdRegion.isEmpty()) {
+            return result;
+        }
+
+        String regionId = createdRegion.get().getId();
+        try {
+            regionAccessService.addMember(regionId, firstLeaderId);
+            clanRegionManagementService.setClanRegionRole(regionId, firstLeaderId, ClanRegionRole.LEADER);
+            return result;
+        } catch (RuntimeException exception) {
+            cleanupFailedClanLeaderBootstrap(regionId, firstLeaderId);
+            return RegionCreationResult.fail(RegionCreationStatus.FAILED);
+        }
+    }
+
     /**
      * Returns the clan region owned by the provided clan id, if it exists.
      *
@@ -185,6 +206,38 @@ public final class VibePrivateAPI {
         return clanRegionManagementService.canManageClanRegion(regionId, playerId);
     }
 
+    public Optional<ClanRegionRole> getClanRegionRole(String regionId, UUID playerId) {
+        if (!clanRegionManagementService.isClanRegion(regionId)) {
+            return Optional.empty();
+        }
+
+        Optional<ClanRegionRole> elevatedRole = clanRegionManagementService.getElevatedRole(regionId, playerId);
+        if (elevatedRole.isPresent()) {
+            return elevatedRole;
+        }
+
+        return regionAccessService.isMember(regionId, playerId)
+                ? Optional.of(ClanRegionRole.MEMBER)
+                : Optional.empty();
+    }
+
+    public void setClanRegionRole(String regionId, UUID playerId, ClanRegionRole role) {
+        Objects.requireNonNull(role, "role");
+        if (role == ClanRegionRole.MEMBER) {
+            clanRegionManagementService.setClanRegionRole(regionId, playerId, ClanRegionRole.MEMBER);
+            regionAccessService.addMember(regionId, playerId);
+            return;
+        }
+
+        clanRegionManagementService.setClanRegionRole(regionId, playerId, role);
+        try {
+            regionAccessService.addMember(regionId, playerId);
+        } catch (RuntimeException exception) {
+            clanRegionManagementService.setClanRegionRole(regionId, playerId, ClanRegionRole.MEMBER);
+            throw exception;
+        }
+    }
+
     public AdminRegionService adminRegions() {
         return adminRegionService;
     }
@@ -199,5 +252,21 @@ public final class VibePrivateAPI {
 
     public boolean isMember(String regionId, UUID playerId) {
         return regionAccessService.isMember(regionId, playerId);
+    }
+
+    private void cleanupFailedClanLeaderBootstrap(String regionId, UUID playerId) {
+        try {
+            clanRegionManagementService.setClanRegionRole(regionId, playerId, ClanRegionRole.MEMBER);
+        } catch (RuntimeException ignored) {
+            // Best-effort cleanup before removing the just-created region.
+        }
+
+        try {
+            regionAccessService.removeMember(regionId, playerId);
+        } catch (RuntimeException ignored) {
+            // Best-effort cleanup before removing the just-created region.
+        }
+
+        regionManager.removeRegion(regionId);
     }
 }

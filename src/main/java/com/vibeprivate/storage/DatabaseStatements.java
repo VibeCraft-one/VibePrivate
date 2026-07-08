@@ -155,6 +155,24 @@ final class DatabaseStatements {
                 """;
     }
 
+    String upsertClanRegionRoleSql() {
+        return databaseService.isMySql()
+                ? """
+                INSERT INTO clan_region_roles(region_id, player_id, role, updated_at)
+                VALUES(?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE
+                    role = VALUES(role),
+                    updated_at = VALUES(updated_at)
+                """
+                : """
+                INSERT INTO clan_region_roles(region_id, player_id, role, updated_at)
+                VALUES(?, ?, ?, ?)
+                ON CONFLICT(region_id, player_id) DO UPDATE SET
+                    role = excluded.role,
+                    updated_at = excluded.updated_at
+                """;
+    }
+
     String upsertRegionHomeSql() {
         return databaseService.isMySql()
                 ? """

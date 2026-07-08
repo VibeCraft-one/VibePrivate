@@ -20,10 +20,12 @@ final class DatabaseSchema {
         execute(createRegionDepositsSql());
         execute(createRegionHomesSql());
         execute(createRegionFuelSlotsSql());
+        execute(createClanRegionRolesSql());
         execute(createOwnerUpkeepSql());
         execute(createRegionLifecycleSql());
         execute(createPendingConfirmationsSql());
         execute(createProtectedChunksSql());
+        createIndex("idx_clan_region_roles_player", "clan_region_roles", "player_id");
         createIndex("idx_region_lifecycle_status", "region_lifecycle", "status");
         createIndex("idx_protected_chunks_region", "protected_chunks", "region_id");
         createIndex("idx_protected_chunks_owner", "protected_chunks", "owner_id");
@@ -217,6 +219,23 @@ final class DatabaseSchema {
                     FOREIGN KEY (region_id) REFERENCES regions(id) ON DELETE CASCADE
                 )
                 """.formatted(regionIdType, worldType, doubleType, doubleType, doubleType, doubleType, doubleType);
+    }
+
+    private String createClanRegionRolesSql() {
+        String regionIdType = isMySql() ? "VARCHAR(64)" : "TEXT";
+        String playerIdType = isMySql() ? "VARCHAR(36)" : "TEXT";
+        String roleType = isMySql() ? "VARCHAR(32)" : "TEXT";
+        String longType = isMySql() ? "BIGINT" : "INTEGER";
+        return """
+                CREATE TABLE IF NOT EXISTS clan_region_roles (
+                    region_id %s NOT NULL,
+                    player_id %s NOT NULL,
+                    role %s NOT NULL,
+                    updated_at %s NOT NULL,
+                    PRIMARY KEY (region_id, player_id),
+                    FOREIGN KEY (region_id) REFERENCES regions(id) ON DELETE CASCADE
+                )
+                """.formatted(regionIdType, playerIdType, roleType, longType);
     }
 
     private String createOwnerUpkeepSql() {
