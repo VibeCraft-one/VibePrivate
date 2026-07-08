@@ -9,7 +9,7 @@ This is a compact validation summary. Detailed pass history lives in git commits
 - Java compatibility namespace: `com.vibeprivate`.
 - Public integration surface: `VibePrivateAPI` plus thin `VibeRegionGuardApi` facade.
 - Latest verified build: `.\gradlew.bat clean build --no-daemon`.
-- Latest verified result: passed on 2026-07-08 with 47 tests found, 47 started, 47 successful, 0 failed.
+- Latest verified result: passed on 2026-07-08 with 50 tests found, 50 started, 50 successful, 0 failed.
 - Latest verified server bootstrap: Paper 1.21.11 build 132 loaded and enabled `VibeRegionGuard` v0.1.1 on 2026-07-08 without startup errors.
 
 ## Implemented Foundation
@@ -29,6 +29,7 @@ This is a compact validation summary. Detailed pass history lives in git commits
 - Direct repository and database getters from the plugin are deprecated for external integrations.
 - `VibePrivateServiceFactory` is split into focused construction phases.
 - Admin/player region GUI reads use indexed `RegionManager` methods instead of grouping all regions in GUI code.
+- Admin/player region GUI lists have 45-item pages with previous/next navigation.
 - `FuelService` iterates indexed player regions instead of broad all-region reads.
 - `UpkeepService` uses indexed owner/player-region reads.
 
@@ -44,7 +45,7 @@ This is a compact validation summary. Detailed pass history lives in git commits
 ## Remaining Risks
 
 - Manual player smoke is still required; the Paper bootstrap passed, but unit tests and headless boot do not verify player commands, Bukkit inventories, GUI clicks, protection behavior or restart persistence after writes.
-- Admin GUI list pages still show only the first 45 entries until pagination is added.
+- Admin GUI pagination still needs live Bukkit click smoke with many regions.
 - CLAN identity/roles are still a compatibility surface, not a finished region-backed clan module.
 - Fuel maintenance is now narrower but still linear over player regions; add an expiry queue only if scale testing proves it is needed.
 - `CommandMapOverrideService` uses reflection for command compatibility; keep it isolated and add config opt-out later.
@@ -52,6 +53,6 @@ This is a compact validation summary. Detailed pass history lives in git commits
 ## Next Useful Checks
 
 1. Run manual player smoke on Paper/Purpur: `/vp`, `/privat`, `/privatadmin`, region create, member add, flags, fuel, restart persistence.
-2. Add admin/player region pagination before large tester use.
+2. Run live admin GUI pagination smoke with 46+ admin regions, 46+ owners and 46+ regions for one owner.
 3. Finish CLAN identity and roles as a small region-backed module.
 4. Run synthetic region-count smoke before claiming 100+ online readiness.

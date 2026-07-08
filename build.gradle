@@ -45,6 +45,7 @@ tasks.register("lifecycleSmokeTest", JavaExec) {
             "--select-class", "com.vibeprivate.index.RegionLookupIndexTest",
             "--select-class", "com.vibeprivate.api.VibeRegionGuardApiTest",
             "--select-class", "com.vibeprivate.service.RegionRelocationServiceEventTest",
+            "--select-class", "com.vibeprivate.gui.AdminGuiPageTest",
             "--details", "tree"
 }
 
