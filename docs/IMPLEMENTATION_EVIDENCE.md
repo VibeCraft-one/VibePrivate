@@ -58,7 +58,7 @@ This is a compact validation summary. Detailed pass history lives in git commits
 
 ## Next Useful Checks
 
-1. Run manual player smoke on Paper/Purpur: `/vp`, `/privat`, `/privatadmin`, region create, member add, flags, fuel, restart persistence.
+1. Run `docs/MANUAL_PLAYER_SMOKE_RUNBOOK.md` on Paper/Purpur: `/vp`, `/privat`, `/privatadmin`, region create, member add, flags, fuel, restart persistence.
 2. Run live admin GUI pagination smoke with 46+ admin regions, 46+ owners and 46+ regions for one owner.
 3. Finish CLAN identity and roles as a small region-backed module.
 4. Run synthetic region-count smoke before claiming 100+ online readiness.
