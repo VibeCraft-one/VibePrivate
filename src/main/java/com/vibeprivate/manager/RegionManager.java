@@ -64,15 +64,16 @@ public final class RegionManager {
 
     public Optional<Region> removeRegion(String regionId) {
         Objects.requireNonNull(regionId, "regionId");
-        Region removed = regionsById.remove(regionId);
+        Region removed = regionsById.get(regionId);
         if (removed == null) {
             return Optional.empty();
         }
 
+        regionRepository.delete(regionId);
+        regionsById.remove(regionId);
         chunkIndex.remove(removed);
         lookupIndex.remove(removed);
         unprotectChunks(removed);
-        regionRepository.delete(regionId);
         return Optional.of(removed);
     }
 

@@ -9,7 +9,7 @@ This is a compact validation summary. Detailed pass history lives in git commits
 - Java compatibility namespace: `com.vibeprivate`.
 - Public integration surface: `VibePrivateAPI` plus thin `VibeRegionGuardApi` facade.
 - Latest verified build: `.\gradlew.bat clean build --no-daemon`.
-- Latest verified result: passed on 2026-07-08 with 50 tests found, 50 started, 50 successful, 0 failed.
+- Latest verified result: passed on 2026-07-09 with 60 tests found, 60 started, 60 successful, 0 failed.
 - Latest verified server bootstrap: Paper 1.21.11 build 132 loaded and enabled `VibeRegionGuard` v0.1.1 on 2026-07-08 without startup errors.
 
 ## Implemented Foundation
@@ -32,6 +32,7 @@ This is a compact validation summary. Detailed pass history lives in git commits
 - Admin/player region GUI lists have 45-item pages with previous/next navigation.
 - `FuelService` iterates indexed player regions instead of broad all-region reads.
 - `UpkeepService` uses indexed owner/player-region reads.
+- Fuel, upgrade deposit withdrawal and region deletion resource paths now fail closed around persistence before item grant/drop.
 
 ## Current Guardrails
 
@@ -44,7 +45,7 @@ This is a compact validation summary. Detailed pass history lives in git commits
 
 ## Remaining Risks
 
-- Manual player smoke is still required; the Paper bootstrap passed, but unit tests and headless boot do not verify player commands, Bukkit inventories, GUI clicks, protection behavior or restart persistence after writes.
+- Manual player smoke is still required; the Paper bootstrap passed, but unit tests and headless boot do not verify player commands, live Bukkit inventories, GUI clicks, protection behavior or restart persistence after writes.
 - Admin GUI pagination still needs live Bukkit click smoke with many regions.
 - CLAN identity/roles are still a compatibility surface, not a finished region-backed clan module.
 - Fuel maintenance is now narrower but still linear over player regions; add an expiry queue only if scale testing proves it is needed.

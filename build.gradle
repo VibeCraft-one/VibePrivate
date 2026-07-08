@@ -16,6 +16,7 @@ dependencies {
     testImplementation "io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT"
     testImplementation platform("org.junit:junit-bom:5.10.2")
     testImplementation "org.junit.jupiter:junit-jupiter"
+    testImplementation "org.mockito:mockito-core:5.12.0"
     testRuntimeOnly "org.junit.platform:junit-platform-launcher"
     testRuntimeOnly "org.junit.platform:junit-platform-console-standalone:1.10.2"
 }
@@ -46,6 +47,7 @@ tasks.register("lifecycleSmokeTest", JavaExec) {
             "--select-class", "com.vibeprivate.api.VibeRegionGuardApiTest",
             "--select-class", "com.vibeprivate.service.RegionRelocationServiceEventTest",
             "--select-class", "com.vibeprivate.gui.AdminGuiPageTest",
+            "--select-class", "com.vibeprivate.service.ResourceAntiDupeServiceTest",
             "--details", "tree"
 }
 

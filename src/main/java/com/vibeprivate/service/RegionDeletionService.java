@@ -12,6 +12,9 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.function.ToIntFunction;
 
 public final class RegionDeletionService {
     private static final String BYPASS_PERMISSION = "vibeprivate.admin";
@@ -20,13 +23,34 @@ public final class RegionDeletionService {
     private final RegionUpgradeService upgradeService;
     private final PlayerRegionCache playerRegionCache;
     private final ConfirmationService confirmationService;
+    private final Function<Region, Location> dropLocationResolver;
+    private final BiFunction<Material, Integer, ItemStack> itemFactory;
+    private final ToIntFunction<Material> maxStackSizeProvider;
 
     public RegionDeletionService(RegionManager regionManager, RegionUpgradeService upgradeService,
                                  PlayerRegionCache playerRegionCache, ConfirmationService confirmationService) {
+        this(regionManager, upgradeService, playerRegionCache, confirmationService, null);
+    }
+
+    RegionDeletionService(RegionManager regionManager, RegionUpgradeService upgradeService,
+                          PlayerRegionCache playerRegionCache, ConfirmationService confirmationService,
+                          Function<Region, Location> dropLocationResolver) {
+        this(regionManager, upgradeService, playerRegionCache, confirmationService, dropLocationResolver,
+                ItemStack::new, Material::getMaxStackSize);
+    }
+
+    RegionDeletionService(RegionManager regionManager, RegionUpgradeService upgradeService,
+                          PlayerRegionCache playerRegionCache, ConfirmationService confirmationService,
+                          Function<Region, Location> dropLocationResolver,
+                          BiFunction<Material, Integer, ItemStack> itemFactory,
+                          ToIntFunction<Material> maxStackSizeProvider) {
         this.regionManager = Objects.requireNonNull(regionManager, "regionManager");
         this.upgradeService = Objects.requireNonNull(upgradeService, "upgradeService");
         this.playerRegionCache = Objects.requireNonNull(playerRegionCache, "playerRegionCache");
         this.confirmationService = Objects.requireNonNull(confirmationService, "confirmationService");
+        this.dropLocationResolver = dropLocationResolver == null ? this::getDropLocation : dropLocationResolver;
+        this.itemFactory = Objects.requireNonNull(itemFactory, "itemFactory");
+        this.maxStackSizeProvider = Objects.requireNonNull(maxStackSizeProvider, "maxStackSizeProvider");
     }
 
     public DeletionResult deleteOwned(Player player, Region region) {
@@ -61,33 +85,36 @@ public final class RegionDeletionService {
                 return DeletionResult.status(DeletionStatus.NOT_FOUND);
             }
 
-            dropDeposits(current);
-            upgradeService.clearDeposits(current.getId());
+            Map<Material, Integer> deposits = upgradeService.getDeposits(current.getId());
+            Location dropLocation = null;
+            if (!deposits.isEmpty()) {
+                dropLocation = dropLocationResolver.apply(current);
+                if (dropLocation == null || dropLocation.getWorld() == null) {
+                    return DeletionResult.status(DeletionStatus.FAILED);
+                }
+            }
+
             regionManager.removeRegion(current.getId());
+            upgradeService.forgetLoadedDeposits(current.getId());
             playerRegionCache.clear();
+            dropDeposits(deposits, dropLocation);
             return DeletionResult.status(DeletionStatus.DELETED);
         } catch (RuntimeException exception) {
             return DeletionResult.status(DeletionStatus.FAILED);
         }
     }
 
-    private void dropDeposits(Region region) {
-        Map<Material, Integer> deposits = upgradeService.getDeposits(region.getId());
-        if (deposits.isEmpty()) {
-            return;
-        }
-
-        Location location = getDropLocation(region);
+    private void dropDeposits(Map<Material, Integer> deposits, Location location) {
         if (location == null || location.getWorld() == null) {
             return;
         }
 
         for (Map.Entry<Material, Integer> entry : deposits.entrySet()) {
             int remaining = entry.getValue();
-            int maxStackSize = entry.getKey().getMaxStackSize();
+            int maxStackSize = maxStackSizeProvider.applyAsInt(entry.getKey());
             while (remaining > 0) {
                 int amount = Math.min(maxStackSize, remaining);
-                location.getWorld().dropItemNaturally(location, new ItemStack(entry.getKey(), amount));
+                location.getWorld().dropItemNaturally(location, itemFactory.apply(entry.getKey(), amount));
                 remaining -= amount;
             }
         }
