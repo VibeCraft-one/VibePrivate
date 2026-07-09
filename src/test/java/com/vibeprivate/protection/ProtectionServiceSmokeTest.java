@@ -76,6 +76,30 @@ public class ProtectionServiceSmokeTest {
     }
 
     @Test
+    void cachedHomeRegionDoesNotBypassLaterAdminOverlap() {
+        ProtectionFixture fixture = openFixture();
+        try {
+            UUID ownerId = UUID.randomUUID();
+            Player owner = player(ownerId);
+            Location location = location("world", 0, 80, 0);
+            Region home = homeRegion("home-cached-overlap", ownerId, 0, 0);
+            fixture.regionManager.addRegion(home);
+
+            assertTrue(fixture.protectionService.canUse(owner, location, RegionFlag.BUILD));
+
+            Region admin = Region.adminRegion("admin-cached-overlap", "admin-cached-overlap", "server", "world")
+                    .cuboid(-5, 60, -5, 5, 120, 5)
+                    .state(true, 0L, 0L, 0L, 0, VisualizationMode.ALL, 100L)
+                    .build();
+            fixture.regionManager.addRegion(admin);
+
+            assertFalse(fixture.protectionService.canUse(owner, location, RegionFlag.BUILD));
+        } finally {
+            fixture.close();
+        }
+    }
+
+    @Test
     void opAndBypassPermissionCanUseProtectedHomeRegion() {
         ProtectionFixture fixture = openFixture();
         try {
