@@ -9,7 +9,7 @@ This is a compact validation summary. Detailed pass history lives in git commits
 - Java compatibility namespace: `com.vibeprivate`.
 - Public integration surface: `VibePrivateAPI` plus thin `VibeRegionGuardApi` facade.
 - Latest verified build: `.\gradlew.bat clean build --no-daemon`.
-- Latest verified result: passed on 2026-07-09 with 68 tests found, 68 started, 68 successful, 0 failed.
+- Latest verified result: passed on 2026-07-09 with 73 tests found, 73 started, 73 successful, 0 failed.
 - Latest focused smoke runner: `.\gradlew.bat lifecycleSmokeTest --no-daemon` passed on 2026-07-09 with 73 tests found, 73 started, 73 successful, 0 failed.
 - Latest verified server bootstrap: Paper 1.21.11 build 132 loaded and enabled `VibeRegionGuard` v0.1.1 on 2026-07-09 without startup errors.
 - Latest verified restart smoke: Paper 1.21.11 build 132 restarted from the same plugin data folder and re-enabled `VibeRegionGuard` v0.1.1 on 2026-07-09.
@@ -69,4 +69,4 @@ This is a compact validation summary. Detailed pass history lives in git commits
 
 1. Run `docs/MANUAL_PLAYER_SMOKE_RUNBOOK.md` on Paper/Purpur: `/vp`, `/privat`, `/privatadmin`, region create, member add, flags, fuel, restart persistence.
 2. Record actual pass/fail evidence from `logs/latest.log` into the coordination task.
-3. Re-run `.\gradlew.bat clean build --no-daemon` once before the final RC tag.
+3. Re-run `.\gradlew.bat clean build --no-daemon` only after another code/resource change or immediately before tagging RC.
