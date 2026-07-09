@@ -12,8 +12,8 @@ Status legend:
 
 | Requirement | Status | Evidence | Next check |
 | --- | --- | --- | --- |
-| Server starts without plugin errors | `PROVEN` | Paper 1.21.11 build 132 and Purpur 1.21.11 build 2568 boot/restart evidence recorded in `docs/IMPLEMENTATION_EVIDENCE.md`; current jar bootstrap refresh passed on both after the latest code change. | Re-run during final manual smoke with a real player. |
-| `plugin.yml` loads `VibeRegionGuard` | `PROVEN` | Headless Paper/Purpur startup enabled `VibeRegionGuard` v0.1.1. | Confirm `/plugins` on live smoke server. |
+| Server starts without plugin errors | `PROVEN` | Paper 1.21.11 build 132 and Purpur 1.21.11 build 2568 boot/restart evidence recorded in `docs/IMPLEMENTATION_EVIDENCE.md` for v0.1.1; v0.1.2 build and descriptor smoke pass. | Re-run during final manual smoke with a real player. |
+| `plugin.yml` loads `VibeRegionGuard` | `PROVEN` | Headless Paper/Purpur startup enabled `VibeRegionGuard` v0.1.1 before the patch-version bump; descriptor smoke covers the current packaged identity. | Confirm `/plugins` and `VibeRegionGuard` v0.1.2 on live smoke server. |
 | `/vp`, `/privat`, `/privatadmin`, `/home`, `/sethome` are registered | `PARTIAL` | Bootstrap command probes passed; latest Paper/Purpur bootstrap claimed `/home` and `/sethome`; `PluginDescriptorSmokeTest` locks `plugin.yml` command declarations. | Run commands as real player/admin in `docs/MANUAL_PLAYER_SMOKE_RUNBOOK.md`. |
 | Player can create a HOME region | `OPEN` | Core region services exist; no live player creation proof yet. | Manual HOME create, `/sethome`, `/home`, restart persistence. |
 | Player can create a FARM region when allowed | `OPEN` | Region type exists; no live FARM command/UI proof yet. | Manual FARM create and limit rejection smoke. |
@@ -24,7 +24,7 @@ Status legend:
 | Admin can inspect player regions with pagination | `PARTIAL` | Admin GUI pagination is implemented, reviewed and committed. | Live 46+ region/owner pagination smoke. |
 | API lets external transfer plugin read/move/relocate without DB/reflection | `PROVEN` | `VibePrivateAPI` and thin `VibeRegionGuardApi` facade expose reads, validation, move/relocate primitives and events. `VibeRegionGuardApiTest` locks the external transfer/read method surface and behaviorally verifies delegated world reads, bounds validation and same-bounds world move. Architecture docs ban SQL/reflection for integrations. | Keep transfer orchestration outside this plugin; add integration helper only if manual smoke needs it. |
 | Packaged config/messages are loadable and aligned | `PROVEN` | `ResourceYamlSmokeTest` verifies config runtime keys, required message keys and RU/EN message key parity. | Live smoke still verifies readability in real commands/GUI. |
-| `.\gradlew.bat clean build --no-daemon` passes | `PROVEN` | Latest recorded full build passed on 2026-07-09 with 77/77 tests. | Re-run only after another code/resource change or immediately before tagging RC. |
+| `.\gradlew.bat build --no-daemon` passes | `PROVEN` | Latest build passed on 2026-07-09 with 78/78 tests. | Re-run full `clean build` only after critical code/resource changes or immediately before tagging RC. |
 | Manual Paper/Purpur smoke passes | `OPEN` | Runbook and evidence template exist. Live player execution is not recorded yet. | Execute `docs/MANUAL_PLAYER_SMOKE_RUNBOOK.md` and record pass/fail evidence in `docs/LIVE_SMOKE_EVIDENCE_TEMPLATE.md`. |
 
 ## Storage Notes

@@ -1,5 +1,5 @@
 name: VibeRegionGuard
-version: 0.1.1
+version: 0.1.2
 main: com.vibeprivate.VibePrivatePlugin
 api-version: '1.21'
 authors:

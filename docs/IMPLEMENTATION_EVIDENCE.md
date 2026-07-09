@@ -6,15 +6,17 @@ This is a compact validation summary. Detailed pass history lives in git commits
 
 - Branch used for cleanup: `pr-1-amethyst`.
 - Plugin name: `VibeRegionGuard`.
+- Current package version: `0.1.2`.
 - Java compatibility namespace: `com.vibeprivate`.
 - Public integration surface: `VibePrivateAPI` plus thin `VibeRegionGuardApi` facade.
-- Latest verified build: `.\gradlew.bat clean build --no-daemon`.
-- Latest verified result: passed on 2026-07-09 with 77 tests found, 77 started, 77 successful, 0 failed.
+- Latest verified build: `.\gradlew.bat build --no-daemon`.
+- Latest verified result: passed on 2026-07-09 with 78 tests found, 78 started, 78 successful, 0 failed.
 - Latest focused smoke runner: `.\gradlew.bat lifecycleSmokeTest --no-daemon` passed on 2026-07-09 with 78 tests found, 78 started, 78 successful, 0 failed.
 - Latest verified server bootstrap: Paper 1.21.11 build 132 loaded and enabled `VibeRegionGuard` v0.1.1 on 2026-07-09 without startup errors.
 - Latest verified restart smoke: Paper 1.21.11 build 132 restarted from the same plugin data folder and re-enabled `VibeRegionGuard` v0.1.1 on 2026-07-09.
 - Latest verified Purpur bootstrap/restart: Purpur 1.21.11 build 2568 loaded, restarted and re-enabled `VibeRegionGuard` v0.1.1 on 2026-07-09.
-- Latest current-jar bootstrap refresh: current `build/libs/VibeRegionGuard-0.1.1.jar` loaded on Paper 1.21.11 build 132 and Purpur 1.21.11 build 2568 on 2026-07-09 after the deposit-deletion rollback hardening; logs reached `Done`, `/home` and `/sethome` were claimed, plugin data was created and logs had no plugin startup failure patterns.
+- Previous current-jar bootstrap refresh: `build/libs/VibeRegionGuard-0.1.1.jar` loaded on Paper 1.21.11 build 132 and Purpur 1.21.11 build 2568 on 2026-07-09 after the deposit-deletion rollback hardening; logs reached `Done`, `/home` and `/sethome` were claimed, plugin data was created and logs had no plugin startup failure patterns.
+- Current `build/libs/VibeRegionGuard-0.1.2.jar` is prepared for tester live smoke; manual Paper/Purpur evidence is still pending.
 
 ## Implemented Foundation
 

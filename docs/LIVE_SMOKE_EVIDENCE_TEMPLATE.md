@@ -29,7 +29,7 @@ Copy this file to a dated note or fill it in-place during a disposable test-serv
 
 | Area | Result | Evidence note |
 | --- | --- | --- |
-| Server starts and enables `VibeRegionGuard v0.1.1` | PASS / FAIL | |
+| Server starts and enables `VibeRegionGuard v0.1.2` | PASS / FAIL | |
 | `/plugins` lists `VibeRegionGuard` | PASS / FAIL | |
 | `/vp` works for `PlayerA` | PASS / FAIL | |
 | `/privat` works for `PlayerA` | PASS / FAIL | |

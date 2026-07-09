@@ -6,7 +6,7 @@ Record pass/fail facts in `docs/LIVE_SMOKE_EVIDENCE_TEMPLATE.md` while running t
 
 ## Scope
 
-Run this on a disposable Paper or Purpur test server with the current `VibeRegionGuard-0.1.1.jar`.
+Run this on a disposable Paper or Purpur test server with the current `VibeRegionGuard-0.1.2.jar`.
 
 Required testers:
 
@@ -17,7 +17,7 @@ Required testers:
 ## Preflight
 
 1. Start the server with a clean test world and this plugin installed.
-2. Confirm console shows `Enabling VibeRegionGuard v0.1.1`.
+2. Confirm console shows `Enabling VibeRegionGuard v0.1.2`.
 3. Confirm `/plugins` lists `VibeRegionGuard`.
 4. Confirm `plugins/VibeRegionGuard/config.yml` and `vibeprivate.db` exist.
 5. Do not run this on production data.
