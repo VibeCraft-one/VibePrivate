@@ -37,3 +37,4 @@ Note: the standard Gradle `test` task is intentionally disabled in this repo. `b
 3. Verify protection flags: blocks, containers, damage and teleport.
 4. Restart the server and verify regions, home and fuel/deposit persistence.
 5. Use `docs/MANUAL_PLAYER_SMOKE_RUNBOOK.md` for the full RC smoke.
+6. Record the result in `docs/LIVE_SMOKE_EVIDENCE_TEMPLATE.md`.

@@ -2,6 +2,8 @@
 
 Purpose: verify the parts that unit tests and headless Paper/Purpur boot cannot prove.
 
+Record pass/fail facts in `docs/LIVE_SMOKE_EVIDENCE_TEMPLATE.md` while running this checklist.
+
 ## Scope
 
 Run this on a disposable Paper or Purpur test server with the current `VibeRegionGuard-0.1.1.jar`.
@@ -169,6 +171,7 @@ After the run:
 1. Stop the server cleanly.
 2. Open `logs/latest.log`.
 3. Search for `ERROR`, `SEVERE`, `Exception`, `Failed`, `Unknown command`.
+4. Paste matches or `no matches` into `docs/LIVE_SMOKE_EVIDENCE_TEMPLATE.md`.
 
 Expected:
 
