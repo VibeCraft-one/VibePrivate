@@ -7,9 +7,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiFunction;
@@ -79,6 +82,7 @@ public final class RegionDeletionService {
             return DeletionResult.confirmRequired(remaining);
         }
 
+        List<Item> droppedDeposits = List.of();
         try {
             Region current = regionManager.getRegion(region.getId()).orElse(null);
             if (current == null) {
@@ -94,28 +98,53 @@ public final class RegionDeletionService {
                 }
             }
 
-            regionManager.removeRegion(current.getId());
+            droppedDeposits = dropDeposits(deposits, dropLocation);
+            if (regionManager.removeRegion(current.getId()).isEmpty()) {
+                removeDroppedDeposits(droppedDeposits);
+                return DeletionResult.status(DeletionStatus.NOT_FOUND);
+            }
+
             upgradeService.forgetLoadedDeposits(current.getId());
             playerRegionCache.clear();
-            dropDeposits(deposits, dropLocation);
             return DeletionResult.status(DeletionStatus.DELETED);
         } catch (RuntimeException exception) {
+            removeDroppedDeposits(droppedDeposits);
             return DeletionResult.status(DeletionStatus.FAILED);
         }
     }
 
-    private void dropDeposits(Map<Material, Integer> deposits, Location location) {
+    private List<Item> dropDeposits(Map<Material, Integer> deposits, Location location) {
+        List<Item> droppedItems = new ArrayList<>();
         if (location == null || location.getWorld() == null) {
-            return;
+            return droppedItems;
         }
 
-        for (Map.Entry<Material, Integer> entry : deposits.entrySet()) {
-            int remaining = entry.getValue();
-            int maxStackSize = maxStackSizeProvider.applyAsInt(entry.getKey());
-            while (remaining > 0) {
-                int amount = Math.min(maxStackSize, remaining);
-                location.getWorld().dropItemNaturally(location, itemFactory.apply(entry.getKey(), amount));
-                remaining -= amount;
+        try {
+            for (Map.Entry<Material, Integer> entry : deposits.entrySet()) {
+                int remaining = entry.getValue();
+                int maxStackSize = maxStackSizeProvider.applyAsInt(entry.getKey());
+                while (remaining > 0) {
+                    int amount = Math.min(maxStackSize, remaining);
+                    Item dropped = location.getWorld().dropItemNaturally(location, itemFactory.apply(entry.getKey(), amount));
+                    if (dropped != null) {
+                        droppedItems.add(dropped);
+                    }
+                    remaining -= amount;
+                }
+            }
+            return droppedItems;
+        } catch (RuntimeException exception) {
+            removeDroppedDeposits(droppedItems);
+            throw exception;
+        }
+    }
+
+    private void removeDroppedDeposits(List<Item> droppedDeposits) {
+        for (Item item : droppedDeposits) {
+            try {
+                item.remove();
+            } catch (RuntimeException ignored) {
+                // Best-effort rollback after a failed region deletion path.
             }
         }
     }

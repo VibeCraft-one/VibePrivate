@@ -10,6 +10,7 @@ import com.vibeprivate.storage.RegionDepositRepository;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -219,7 +220,7 @@ public class ResourceAntiDupeServiceTest {
     }
 
     @Test
-    void deleteDropsDepositsOnlyAfterRegionRemoval() {
+    void deleteDropsDepositsBeforeRegionRemovalAndThenForgetsLoadedState() {
         RegionManager regionManager = mock(RegionManager.class);
         RegionUpgradeService upgradeService = mock(RegionUpgradeService.class);
         PlayerRegionCache playerRegionCache = mock(PlayerRegionCache.class);
@@ -231,6 +232,7 @@ public class ResourceAntiDupeServiceTest {
 
         when(player.getUniqueId()).thenReturn(ownerId);
         when(regionManager.getRegion(region.getId())).thenReturn(Optional.of(region));
+        when(regionManager.removeRegion(region.getId())).thenReturn(Optional.of(region));
         when(upgradeService.getDeposits(region.getId())).thenReturn(Map.of(Material.DIAMOND, 1));
 
         RegionDeletionService service = new RegionDeletionService(regionManager, upgradeService, playerRegionCache,
@@ -243,10 +245,76 @@ public class ResourceAntiDupeServiceTest {
 
         assertEquals(DeletionStatus.DELETED, result.getStatus());
         InOrder order = inOrder(regionManager, upgradeService, playerRegionCache, world);
+        order.verify(world).dropItemNaturally(any(Location.class), any(ItemStack.class));
         order.verify(regionManager).removeRegion(region.getId());
         order.verify(upgradeService).forgetLoadedDeposits(region.getId());
         order.verify(playerRegionCache).clear();
-        order.verify(world).dropItemNaturally(any(Location.class), any(ItemStack.class));
+    }
+
+    @Test
+    void deleteRollsBackSpawnedDepositsWhenLaterDropFails() {
+        RegionManager regionManager = mock(RegionManager.class);
+        RegionUpgradeService upgradeService = mock(RegionUpgradeService.class);
+        PlayerRegionCache playerRegionCache = mock(PlayerRegionCache.class);
+        Player player = mock(Player.class);
+        World world = mock(World.class);
+        Item firstDroppedItem = mock(Item.class);
+        UUID ownerId = UUID.randomUUID();
+        Region region = testRegion("r-delete-drop-failure", ownerId.toString(), 8);
+        Location location = new Location(world, 0.5D, 65.0D, 0.5D);
+
+        when(player.getUniqueId()).thenReturn(ownerId);
+        when(regionManager.getRegion(region.getId())).thenReturn(Optional.of(region));
+        when(upgradeService.getDeposits(region.getId())).thenReturn(Map.of(Material.DIAMOND, 65));
+        when(world.dropItemNaturally(any(Location.class), any(ItemStack.class)))
+                .thenReturn(firstDroppedItem)
+                .thenThrow(new IllegalStateException("drop failed"));
+
+        RegionDeletionService service = new RegionDeletionService(regionManager, upgradeService, playerRegionCache,
+                new ConfirmationService(), ignored -> location, ResourceAntiDupeServiceTest::mockItemStack,
+                ignored -> 64);
+
+        service.deleteOwned(player, region);
+        service.deleteOwned(player, region);
+        DeletionResult result = service.deleteOwned(player, region);
+
+        assertEquals(DeletionStatus.FAILED, result.getStatus());
+        verify(firstDroppedItem).remove();
+        verify(regionManager, never()).removeRegion(region.getId());
+        verify(upgradeService, never()).forgetLoadedDeposits(region.getId());
+        verify(playerRegionCache, never()).clear();
+    }
+
+    @Test
+    void deleteRollsBackSpawnedDepositsWhenRegionRemovalFails() {
+        RegionManager regionManager = mock(RegionManager.class);
+        RegionUpgradeService upgradeService = mock(RegionUpgradeService.class);
+        PlayerRegionCache playerRegionCache = mock(PlayerRegionCache.class);
+        Player player = mock(Player.class);
+        World world = mock(World.class);
+        Item droppedItem = mock(Item.class);
+        UUID ownerId = UUID.randomUUID();
+        Region region = testRegion("r-delete-remove-failure", ownerId.toString(), 8);
+        Location location = new Location(world, 0.5D, 65.0D, 0.5D);
+
+        when(player.getUniqueId()).thenReturn(ownerId);
+        when(regionManager.getRegion(region.getId())).thenReturn(Optional.of(region));
+        when(regionManager.removeRegion(region.getId())).thenReturn(Optional.empty());
+        when(upgradeService.getDeposits(region.getId())).thenReturn(Map.of(Material.DIAMOND, 1));
+        when(world.dropItemNaturally(any(Location.class), any(ItemStack.class))).thenReturn(droppedItem);
+
+        RegionDeletionService service = new RegionDeletionService(regionManager, upgradeService, playerRegionCache,
+                new ConfirmationService(), ignored -> location, ResourceAntiDupeServiceTest::mockItemStack,
+                ignored -> 64);
+
+        service.deleteOwned(player, region);
+        service.deleteOwned(player, region);
+        DeletionResult result = service.deleteOwned(player, region);
+
+        assertEquals(DeletionStatus.NOT_FOUND, result.getStatus());
+        verify(droppedItem).remove();
+        verify(upgradeService, never()).forgetLoadedDeposits(region.getId());
+        verify(playerRegionCache, never()).clear();
     }
 
     private static Region testRegion(String id, String ownerId, int radius) {

@@ -9,8 +9,8 @@ This is a compact validation summary. Detailed pass history lives in git commits
 - Java compatibility namespace: `com.vibeprivate`.
 - Public integration surface: `VibePrivateAPI` plus thin `VibeRegionGuardApi` facade.
 - Latest verified build: `.\gradlew.bat clean build --no-daemon`.
-- Latest verified result: passed on 2026-07-09 with 75 tests found, 75 started, 75 successful, 0 failed.
-- Latest focused smoke runner: `.\gradlew.bat lifecycleSmokeTest --no-daemon` passed on 2026-07-09 with 75 tests found, 75 started, 75 successful, 0 failed.
+- Latest verified result: passed on 2026-07-09 with 77 tests found, 77 started, 77 successful, 0 failed.
+- Latest focused smoke runner: `.\gradlew.bat lifecycleSmokeTest --no-daemon` passed on 2026-07-09 with 77 tests found, 77 started, 77 successful, 0 failed.
 - Latest verified server bootstrap: Paper 1.21.11 build 132 loaded and enabled `VibeRegionGuard` v0.1.1 on 2026-07-09 without startup errors.
 - Latest verified restart smoke: Paper 1.21.11 build 132 restarted from the same plugin data folder and re-enabled `VibeRegionGuard` v0.1.1 on 2026-07-09.
 - Latest verified Purpur bootstrap/restart: Purpur 1.21.11 build 2568 loaded, restarted and re-enabled `VibeRegionGuard` v0.1.1 on 2026-07-09.
@@ -39,6 +39,7 @@ This is a compact validation summary. Detailed pass history lives in git commits
 - `FuelService` iterates indexed player regions instead of broad all-region reads.
 - `UpkeepService` uses indexed owner/player-region reads.
 - Fuel, upgrade deposit withdrawal and region deletion resource paths now fail closed around persistence before item grant/drop.
+- Region deletion with stored deposits now rolls back spawned deposit item entities if a later drop or region removal step fails.
 - Region deletion storage cascade is covered for persisted upgrade deposits.
 - SQLite migration has smoke coverage for required tables, required indexes, foreign-key enforcement and legacy `regions` table column upgrades.
 - Region lookup index has deterministic 120-player-owner synthetic coverage with ADMIN/CLAN noise.
