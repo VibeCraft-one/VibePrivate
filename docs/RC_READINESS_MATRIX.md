@@ -12,7 +12,7 @@ Status legend:
 
 | Requirement | Status | Evidence | Next check |
 | --- | --- | --- | --- |
-| Server starts without plugin errors | `PROVEN` | Paper 1.21.11 build 132 and Purpur 1.21.11 build 2568 boot/restart evidence recorded in `docs/IMPLEMENTATION_EVIDENCE.md`. | Re-run during final manual smoke with current jar. |
+| Server starts without plugin errors | `PROVEN` | Paper 1.21.11 build 132 and Purpur 1.21.11 build 2568 boot/restart evidence recorded in `docs/IMPLEMENTATION_EVIDENCE.md`; current jar bootstrap refresh passed on both. | Re-run during final manual smoke with a real player. |
 | `plugin.yml` loads `VibeRegionGuard` | `PROVEN` | Headless Paper/Purpur startup enabled `VibeRegionGuard` v0.1.1. | Confirm `/plugins` on live smoke server. |
 | `/vp`, `/privat`, `/privatadmin`, `/home`, `/sethome` are registered | `PARTIAL` | Bootstrap command probes passed; `PluginDescriptorSmokeTest` locks `plugin.yml` command declarations. | Run commands as real player/admin in `docs/MANUAL_PLAYER_SMOKE_RUNBOOK.md`. |
 | Player can create a HOME region | `OPEN` | Core region services exist; no live player creation proof yet. | Manual HOME create, `/sethome`, `/home`, restart persistence. |
