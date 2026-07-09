@@ -53,6 +53,7 @@ tasks.register("lifecycleSmokeTest", JavaExec) {
             "--select-class", "com.vibeprivate.storage.DatabaseSchemaSmokeTest",
             "--select-class", "com.vibeprivate.protection.ProtectionServiceSmokeTest",
             "--select-class", "com.vibeprivate.PluginDescriptorSmokeTest",
+            "--select-class", "com.vibeprivate.ResourceYamlSmokeTest",
             "--details", "tree"
 }
 

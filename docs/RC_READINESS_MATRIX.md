@@ -23,6 +23,7 @@ Status legend:
 | GUI does not corrupt data or write directly to SQL | `PARTIAL` | GUI code uses services/API boundaries; admin pagination is implemented and reviewed. | Manual GUI click smoke for region detail, members, fuel/deposit and admin pagination. |
 | Admin can inspect player regions with pagination | `PARTIAL` | Admin GUI pagination is implemented, reviewed and committed. | Live 46+ region/owner pagination smoke. |
 | API lets external transfer plugin read/move/relocate without DB/reflection | `PROVEN` | `VibePrivateAPI` and thin `VibeRegionGuardApi` facade expose reads, validation, move/relocate primitives and events. `VibeRegionGuardApiTest` locks the external transfer/read method surface. Architecture docs ban SQL/reflection for integrations. | Keep transfer orchestration outside this plugin; add integration helper only if manual smoke needs it. |
+| Packaged config/messages are loadable and aligned | `PROVEN` | `ResourceYamlSmokeTest` verifies config runtime keys, required message keys and RU/EN message key parity. | Live smoke still verifies readability in real commands/GUI. |
 | `.\gradlew.bat clean build --no-daemon` passes | `PROVEN` | Latest recorded full build passed on 2026-07-09 with 68/68 tests. | Re-run before final RC tag, not after every docs-only pass. |
 | Manual Paper/Purpur smoke passes | `OPEN` | Runbook exists. Live player execution is not recorded yet. | Execute `docs/MANUAL_PLAYER_SMOKE_RUNBOOK.md` and record pass/fail evidence. |
 
