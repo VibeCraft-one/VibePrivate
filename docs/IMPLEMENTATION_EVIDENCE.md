@@ -10,6 +10,7 @@ This is a compact validation summary. Detailed pass history lives in git commits
 - Public integration surface: `VibePrivateAPI` plus thin `VibeRegionGuardApi` facade.
 - Latest verified build: `.\gradlew.bat clean build --no-daemon`.
 - Latest verified result: passed on 2026-07-09 with 68 tests found, 68 started, 68 successful, 0 failed.
+- Latest focused smoke runner: `.\gradlew.bat lifecycleSmokeTest --no-daemon` passed on 2026-07-09 with 69 tests found, 69 started, 69 successful, 0 failed.
 - Latest verified server bootstrap: Paper 1.21.11 build 132 loaded and enabled `VibeRegionGuard` v0.1.1 on 2026-07-09 without startup errors.
 - Latest verified restart smoke: Paper 1.21.11 build 132 restarted from the same plugin data folder and re-enabled `VibeRegionGuard` v0.1.1 on 2026-07-09.
 - Latest verified Purpur bootstrap/restart: Purpur 1.21.11 build 2568 loaded, restarted and re-enabled `VibeRegionGuard` v0.1.1 on 2026-07-09.
