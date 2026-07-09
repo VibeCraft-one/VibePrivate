@@ -10,7 +10,7 @@ This is a compact validation summary. Detailed pass history lives in git commits
 - Public integration surface: `VibePrivateAPI` plus thin `VibeRegionGuardApi` facade.
 - Latest verified build: `.\gradlew.bat clean build --no-daemon`.
 - Latest verified result: passed on 2026-07-09 with 77 tests found, 77 started, 77 successful, 0 failed.
-- Latest focused smoke runner: `.\gradlew.bat lifecycleSmokeTest --no-daemon` passed on 2026-07-09 with 77 tests found, 77 started, 77 successful, 0 failed.
+- Latest focused smoke runner: `.\gradlew.bat lifecycleSmokeTest --no-daemon` passed on 2026-07-09 with 78 tests found, 78 started, 78 successful, 0 failed.
 - Latest verified server bootstrap: Paper 1.21.11 build 132 loaded and enabled `VibeRegionGuard` v0.1.1 on 2026-07-09 without startup errors.
 - Latest verified restart smoke: Paper 1.21.11 build 132 restarted from the same plugin data folder and re-enabled `VibeRegionGuard` v0.1.1 on 2026-07-09.
 - Latest verified Purpur bootstrap/restart: Purpur 1.21.11 build 2568 loaded, restarted and re-enabled `VibeRegionGuard` v0.1.1 on 2026-07-09.
@@ -25,6 +25,7 @@ This is a compact validation summary. Detailed pass history lives in git commits
 - HOME remap support during same-bounds world move with local rollback attempt if home remap fails.
 - Conservative CLAN management reads for compatibility.
 - Branded `VibeRegionGuardApi` facade over the existing `VibePrivateAPI`.
+- `VibeRegionGuardApi` has behavioral smoke coverage for delegated world reads, bounds validation and same-bounds world move.
 - Indexed region lookups for world, owner, player/admin regions and upkeep/fuel maintenance paths.
 
 ## Architecture Cleanup
