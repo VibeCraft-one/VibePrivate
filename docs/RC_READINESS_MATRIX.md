@@ -12,9 +12,9 @@ Status legend:
 
 | Requirement | Status | Evidence | Next check |
 | --- | --- | --- | --- |
-| Server starts without plugin errors | `PROVEN` | Paper 1.21.11 build 132 and Purpur 1.21.11 build 2568 boot/restart evidence recorded in `docs/IMPLEMENTATION_EVIDENCE.md`; current jar bootstrap refresh passed on both. | Re-run during final manual smoke with a real player. |
+| Server starts without plugin errors | `PROVEN` | Paper 1.21.11 build 132 and Purpur 1.21.11 build 2568 boot/restart evidence recorded in `docs/IMPLEMENTATION_EVIDENCE.md`; current jar bootstrap refresh passed on both after the latest code change. | Re-run during final manual smoke with a real player. |
 | `plugin.yml` loads `VibeRegionGuard` | `PROVEN` | Headless Paper/Purpur startup enabled `VibeRegionGuard` v0.1.1. | Confirm `/plugins` on live smoke server. |
-| `/vp`, `/privat`, `/privatadmin`, `/home`, `/sethome` are registered | `PARTIAL` | Bootstrap command probes passed; `PluginDescriptorSmokeTest` locks `plugin.yml` command declarations. | Run commands as real player/admin in `docs/MANUAL_PLAYER_SMOKE_RUNBOOK.md`. |
+| `/vp`, `/privat`, `/privatadmin`, `/home`, `/sethome` are registered | `PARTIAL` | Bootstrap command probes passed; latest Paper/Purpur bootstrap claimed `/home` and `/sethome`; `PluginDescriptorSmokeTest` locks `plugin.yml` command declarations. | Run commands as real player/admin in `docs/MANUAL_PLAYER_SMOKE_RUNBOOK.md`. |
 | Player can create a HOME region | `OPEN` | Core region services exist; no live player creation proof yet. | Manual HOME create, `/sethome`, `/home`, restart persistence. |
 | Player can create a FARM region when allowed | `OPEN` | Region type exists; no live FARM command/UI proof yet. | Manual FARM create and limit rejection smoke. |
 | CLAN region has clear identity/roles model | `PARTIAL` | CLAN role foundation and stale role access fix are committed and tested. | Live/API helper smoke for leader/officer/member management and role removal. |

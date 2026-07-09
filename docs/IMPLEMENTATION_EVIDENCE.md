@@ -14,7 +14,7 @@ This is a compact validation summary. Detailed pass history lives in git commits
 - Latest verified server bootstrap: Paper 1.21.11 build 132 loaded and enabled `VibeRegionGuard` v0.1.1 on 2026-07-09 without startup errors.
 - Latest verified restart smoke: Paper 1.21.11 build 132 restarted from the same plugin data folder and re-enabled `VibeRegionGuard` v0.1.1 on 2026-07-09.
 - Latest verified Purpur bootstrap/restart: Purpur 1.21.11 build 2568 loaded, restarted and re-enabled `VibeRegionGuard` v0.1.1 on 2026-07-09.
-- Latest current-jar bootstrap refresh: current `build/libs/VibeRegionGuard-0.1.1.jar` loaded on Paper 1.21.11 build 132 and Purpur 1.21.11 build 2568 on 2026-07-09; logs reached `Done`, plugin data was created and logs had no plugin startup failure patterns.
+- Latest current-jar bootstrap refresh: current `build/libs/VibeRegionGuard-0.1.1.jar` loaded on Paper 1.21.11 build 132 and Purpur 1.21.11 build 2568 on 2026-07-09 after the deposit-deletion rollback hardening; logs reached `Done`, `/home` and `/sethome` were claimed, plugin data was created and logs had no plugin startup failure patterns.
 
 ## Implemented Foundation
 
