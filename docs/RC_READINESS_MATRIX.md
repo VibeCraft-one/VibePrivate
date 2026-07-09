@@ -19,12 +19,17 @@ Status legend:
 | Player can create a FARM region when allowed | `OPEN` | Region type exists; no live FARM command/UI proof yet. | Manual FARM create and limit rejection smoke. |
 | CLAN region has clear identity/roles model | `PARTIAL` | CLAN role foundation and stale role access fix are committed and tested. | Live/API helper smoke for leader/officer/member management and role removal. |
 | Block/container/damage/teleport protection work | `PARTIAL` | SQLite-backed protection service smoke covers HOME owner/member/guest, bypass, environment flags and ADMIN priority. | Manual Bukkit event smoke for blocks, containers, entities, damage, liquids and teleport. |
-| Fuel/deposit flows do not duplicate items | `PARTIAL` | Persistence hardening and storage cascade tests cover fail-closed paths and delete cascade. | Manual inventory click/restart/reconnect smoke. |
+| Fuel/deposit flows do not duplicate items | `PARTIAL` | Persistence hardening and storage cascade tests cover fail-closed paths and delete cascade. SQLite schema smoke verifies required tables, indexes and foreign-key enforcement. | Manual inventory click/restart/reconnect smoke. |
 | GUI does not corrupt data or write directly to SQL | `PARTIAL` | GUI code uses services/API boundaries; admin pagination is implemented and reviewed. | Manual GUI click smoke for region detail, members, fuel/deposit and admin pagination. |
 | Admin can inspect player regions with pagination | `PARTIAL` | Admin GUI pagination is implemented, reviewed and committed. | Live 46+ region/owner pagination smoke. |
 | API lets external transfer plugin read/move/relocate without DB/reflection | `PROVEN` | `VibePrivateAPI` and thin `VibeRegionGuardApi` facade expose reads, validation, move/relocate primitives and events. `VibeRegionGuardApiTest` locks the external transfer/read method surface. Architecture docs ban SQL/reflection for integrations. | Keep transfer orchestration outside this plugin; add integration helper only if manual smoke needs it. |
 | `.\gradlew.bat clean build --no-daemon` passes | `PROVEN` | Latest recorded full build passed on 2026-07-09 with 68/68 tests. | Re-run before final RC tag, not after every docs-only pass. |
 | Manual Paper/Purpur smoke passes | `OPEN` | Runbook exists. Live player execution is not recorded yet. | Execute `docs/MANUAL_PLAYER_SMOKE_RUNBOOK.md` and record pass/fail evidence. |
+
+## Storage Notes
+
+- SQLite migration is covered by an automated smoke test.
+- MySQL migration still requires a disposable MySQL database before public release; do not use production credentials or production data for this check.
 
 ## Current Release Gate
 
