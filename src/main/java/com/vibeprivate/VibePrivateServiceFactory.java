@@ -182,7 +182,7 @@ final class VibePrivateServiceFactory {
         builder.guiIconRegistry = GuiIconRegistry.defaults();
         builder.api = new VibePrivateAPI(builder.regionManager, builder.regionCreationService,
                 builder.adminRegionService, clanRegionManagementService, builder.regionAccessService,
-                builder.regionLifecycleService, builder.regionRelocationService,
+                builder.regionHomeService, builder.regionLifecycleService, builder.regionRelocationService,
                 builder.regionSelectionValidator);
         builder.vibeRegionGuardApi = new VibeRegionGuardApi(builder.api);
     }

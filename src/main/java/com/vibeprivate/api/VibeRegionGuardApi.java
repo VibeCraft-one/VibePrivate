@@ -3,6 +3,7 @@ package com.vibeprivate.api;
 import com.vibeprivate.model.ClanRegionRole;
 import com.vibeprivate.model.Region;
 import com.vibeprivate.model.RegionBounds;
+import com.vibeprivate.model.RegionHome;
 import com.vibeprivate.model.RegionStatus;
 import com.vibeprivate.model.RegionType;
 import com.vibeprivate.model.SelectionBounds;
@@ -58,6 +59,14 @@ public final class VibeRegionGuardApi {
 
     public RegionBounds getRegionBounds(String regionId) {
         return api.getRegionBounds(regionId);
+    }
+
+    public Optional<RegionHome> getRegionHome(String regionId) {
+        return api.getRegionHome(regionId);
+    }
+
+    public boolean setRegionHome(RegionHome home) {
+        return api.setRegionHome(home);
     }
 
     public boolean isTargetBoundsValid(SelectionBounds bounds) {

@@ -4,6 +4,7 @@ import com.vibeprivate.manager.RegionManager;
 import com.vibeprivate.model.ClanRegionRole;
 import com.vibeprivate.model.Region;
 import com.vibeprivate.model.RegionBounds;
+import com.vibeprivate.model.RegionHome;
 import com.vibeprivate.model.RegionStatus;
 import com.vibeprivate.model.RegionType;
 import com.vibeprivate.model.SelectionBounds;
@@ -14,6 +15,7 @@ import com.vibeprivate.service.RegionCreationResult;
 import com.vibeprivate.service.RegionCreationStatus;
 import com.vibeprivate.service.RegionCreationService;
 import com.vibeprivate.service.RegionLifecycleService;
+import com.vibeprivate.service.RegionHomeService;
 import com.vibeprivate.service.RegionRelocationService;
 import com.vibeprivate.service.RegionSelectionValidator;
 import org.bukkit.Location;
@@ -33,20 +35,23 @@ public final class VibePrivateAPI {
     private final AdminRegionService adminRegionService;
     private final ClanRegionManagementService clanRegionManagementService;
     private final RegionAccessService regionAccessService;
+    private final RegionHomeService regionHomeService;
     private final RegionLifecycleService regionLifecycleService;
     private final RegionRelocationService regionRelocationService;
     private final RegionSelectionValidator regionSelectionValidator;
 
     public VibePrivateAPI(RegionManager regionManager, RegionCreationService regionCreationService,
                           AdminRegionService adminRegionService, ClanRegionManagementService clanRegionManagementService,
-                          RegionAccessService regionAccessService, RegionLifecycleService regionLifecycleService,
-                          RegionRelocationService regionRelocationService, RegionSelectionValidator regionSelectionValidator) {
+                          RegionAccessService regionAccessService, RegionHomeService regionHomeService,
+                          RegionLifecycleService regionLifecycleService, RegionRelocationService regionRelocationService,
+                          RegionSelectionValidator regionSelectionValidator) {
         this.regionManager = Objects.requireNonNull(regionManager, "regionManager");
         this.regionCreationService = Objects.requireNonNull(regionCreationService, "regionCreationService");
         this.adminRegionService = Objects.requireNonNull(adminRegionService, "adminRegionService");
         this.clanRegionManagementService = Objects.requireNonNull(clanRegionManagementService,
                 "clanRegionManagementService");
         this.regionAccessService = Objects.requireNonNull(regionAccessService, "regionAccessService");
+        this.regionHomeService = Objects.requireNonNull(regionHomeService, "regionHomeService");
         this.regionLifecycleService = Objects.requireNonNull(regionLifecycleService, "regionLifecycleService");
         this.regionRelocationService = Objects.requireNonNull(regionRelocationService, "regionRelocationService");
         this.regionSelectionValidator = Objects.requireNonNull(regionSelectionValidator, "regionSelectionValidator");
@@ -86,6 +91,14 @@ public final class VibePrivateAPI {
 
     public RegionBounds getRegionBounds(String regionId) {
         return regionSelectionValidator.getRegionBounds(regionId);
+    }
+
+    public Optional<RegionHome> getRegionHome(String regionId) {
+        return regionHomeService.getHome(regionId);
+    }
+
+    public boolean setRegionHome(RegionHome home) {
+        return regionHomeService.setHome(home);
     }
 
     public boolean isTargetBoundsValid(SelectionBounds bounds) {
