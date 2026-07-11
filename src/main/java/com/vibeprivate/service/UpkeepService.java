@@ -114,6 +114,7 @@ public final class UpkeepService {
             return;
         }
 
+        economyService.hook();
         long now = System.currentTimeMillis();
         for (String ownerId : owners()) {
             UpkeepState current = state(ownerId);
@@ -128,20 +129,27 @@ public final class UpkeepService {
             }
 
             double cost = getDailyCost(ownerId);
-            if (pay(ownerId, cost)) {
-                saveState(new UpkeepState(ownerId, 0, now));
-                enableOwnerRegions(ownerId);
-                notifyOwner(ownerId, "upkeep.paid", Map.of("cost", formatCost(cost)));
-                log(ownerId + " burned " + cost + " for private upkeep at " + Instant.now());
-            } else {
-                int debtDays = current.debtDays() + 1;
-                saveState(new UpkeepState(ownerId, debtDays, now));
-                if (debtDays >= configService.getUpkeepGraceDays()) {
-                    disableOwnerRegions(ownerId);
+            switch (pay(ownerId, cost)) {
+                case PAID -> {
+                    saveState(new UpkeepState(ownerId, 0, now));
+                    enableOwnerRegions(ownerId);
+                    notifyOwner(ownerId, "upkeep.paid", Map.of("cost", formatCost(cost)));
+                    log(ownerId + " burned " + cost + " for private upkeep at " + Instant.now());
                 }
-                notifyOwner(ownerId, "upkeep.failed", Map.of("days", Integer.toString(debtDays)));
-                if (debtDays >= configService.getUpkeepRemoveAfterDays()) {
-                    removeOwnerRegions(ownerId);
+                case INSUFFICIENT_FUNDS -> {
+                    int debtDays = current.debtDays() + 1;
+                    saveState(new UpkeepState(ownerId, debtDays, now));
+                    if (debtDays >= configService.getUpkeepGraceDays()) {
+                        disableOwnerRegions(ownerId);
+                    }
+                    notifyOwner(ownerId, "upkeep.failed", Map.of("days", Integer.toString(debtDays)));
+                    if (debtDays >= configService.getUpkeepRemoveAfterDays()) {
+                        removeOwnerRegions(ownerId);
+                    }
+                }
+                case ECONOMY_UNAVAILABLE -> {
+                    log("Skipped private upkeep for " + ownerId + ": economy provider is unavailable.");
+                    notifyOwner(ownerId, "upkeep.economy-unavailable", Map.of());
                 }
             }
         }
@@ -149,15 +157,22 @@ public final class UpkeepService {
         cleanupStaleOwners();
     }
 
-    private boolean pay(String ownerId, double cost) {
+    private UpkeepPaymentStatus pay(String ownerId, double cost) {
         if (cost <= 0.0D) {
-            return true;
+            return UpkeepPaymentStatus.PAID;
+        }
+        if (!economyService.isAvailable()) {
+            return UpkeepPaymentStatus.ECONOMY_UNAVAILABLE;
         }
 
         OfflinePlayer owner = Bukkit.getOfflinePlayer(java.util.UUID.fromString(ownerId));
-        return economyService.isAvailable()
-                && economyService.getBalance(owner) + 0.0001D >= cost
-                && economyService.withdraw(owner, cost);
+        if (economyService.getBalance(owner) + 0.0001D < cost) {
+            return UpkeepPaymentStatus.INSUFFICIENT_FUNDS;
+        }
+
+        return economyService.withdraw(owner, cost)
+                ? UpkeepPaymentStatus.PAID
+                : UpkeepPaymentStatus.ECONOMY_UNAVAILABLE;
     }
 
     private void enableOwnerRegions(String ownerId) {

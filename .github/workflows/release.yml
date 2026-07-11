@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
+      - main
       - pr-1-amethyst
     paths:
       - src/main/resources/plugin.yml

@@ -55,6 +55,7 @@ final class RegionMenuActionHandler {
         messageService.send(player, switch (result.getStatus()) {
             case MAX_REACHED -> "fuel.add.max";
             case FAILED -> "fuel.add.failed";
+            case DISABLED_BY_MONEY_UPKEEP -> "fuel.add.money-mode-disabled";
             case INVALID_ITEM -> "fuel.add.invalid";
             case SUCCESS -> "fuel.add.success";
         });

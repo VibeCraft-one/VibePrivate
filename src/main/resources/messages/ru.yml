@@ -212,6 +212,7 @@ fuel.add.success: "{prefix}&aДобавлено топлива: &f{amount} шт.
 fuel.add.invalid: "{prefix}&cВозьми в руку уголь, древесный уголь, блок угля или брёвна."
 fuel.add.max: "{prefix}&eЛимит топлива уже достигнут."
 fuel.add.failed: "{prefix}&cНе удалось безопасно добавить топливо."
+fuel.add.money-mode-disabled: "{prefix}&cТопливо отключено, пока содержание приватов работает в режиме денег."
 upgrade.deposit.success: "{prefix}&aЗалог внесён: &f{amount} шт. &7(радиус {old} -> {new})"
 upgrade.deposit.invalid: "{prefix}&cВозьми в руку блок алмаза, изумруда или незерита."
 upgrade.deposit.max: "{prefix}&eМаксимальный радиус уже достигнут."
@@ -426,3 +427,4 @@ command.help.upkeep: "&7/vp upkeep &8- &fпоказать стоимость с�
 upkeep.status: "{prefix}&eСодержание: &f{cost}&7/день, режим &f{mode}&7, чанков &f{chunks}&7, долг &f{debt}&7 дн."
 upkeep.paid: "{prefix}&7Содержание приватов списано и сожжено: &f{cost}&7."
 upkeep.failed: "{prefix}&cНе удалось оплатить содержание приватов. Долг: &f{days}&c дн."
+upkeep.economy-unavailable: "{prefix}&eСодержание приватов пропущено: провайдер экономики недоступен."

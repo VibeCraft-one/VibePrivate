@@ -4,5 +4,6 @@ public enum FuelAddStatus {
     SUCCESS,
     INVALID_ITEM,
     MAX_REACHED,
-    FAILED
+    FAILED,
+    DISABLED_BY_MONEY_UPKEEP
 }
