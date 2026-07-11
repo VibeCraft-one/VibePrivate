@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "com.vibeprivate"
-version = "0.1.1"
+version = "0.1.3"
 
 java {
     toolchain {
@@ -13,8 +13,50 @@ java {
 
 dependencies {
     compileOnly "io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT"
+    testImplementation "io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT"
+    testImplementation platform("org.junit:junit-bom:5.10.2")
+    testImplementation "org.junit.jupiter:junit-jupiter"
+    testImplementation "org.mockito:mockito-core:5.12.0"
+    testRuntimeOnly "org.xerial:sqlite-jdbc:3.49.1.0"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+    testRuntimeOnly "org.junit.platform:junit-platform-console-standalone:1.10.2"
 }
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = "UTF-8"
+}
+
+tasks.test {
+    enabled = false
+}
+
+tasks.register("lifecycleSmokeTest", JavaExec) {
+    dependsOn tasks.testClasses
+    group = "verification"
+    description = "Runs focused API/lifecycle JUnit smoke without Gradle test worker."
+    javaLauncher = javaToolchains.launcherFor {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+    classpath = sourceSets.test.runtimeClasspath
+    mainClass = "org.junit.platform.console.ConsoleLauncher"
+    args "--select-class", "com.vibeprivate.service.RegionLifecycleServiceTest",
+            "--select-class", "com.vibeprivate.service.RegionLifecycleServiceEventTest",
+            "--select-class", "com.vibeprivate.service.ClanRegionManagementServiceTest",
+            "--select-class", "com.vibeprivate.service.RegionSelectionValidatorTest",
+            "--select-class", "com.vibeprivate.service.RegionRelocationServiceTest",
+            "--select-class", "com.vibeprivate.index.RegionLookupIndexTest",
+            "--select-class", "com.vibeprivate.api.VibeRegionGuardApiTest",
+            "--select-class", "com.vibeprivate.service.RegionRelocationServiceEventTest",
+            "--select-class", "com.vibeprivate.gui.AdminGuiPageTest",
+            "--select-class", "com.vibeprivate.service.ResourceAntiDupeServiceTest",
+            "--select-class", "com.vibeprivate.storage.RegionDepositCascadeTest",
+            "--select-class", "com.vibeprivate.storage.DatabaseSchemaSmokeTest",
+            "--select-class", "com.vibeprivate.protection.ProtectionServiceSmokeTest",
+            "--select-class", "com.vibeprivate.PluginDescriptorSmokeTest",
+            "--select-class", "com.vibeprivate.ResourceYamlSmokeTest",
+            "--details", "tree"
+}
+
+tasks.check {
+    dependsOn tasks.named("lifecycleSmokeTest")
 }

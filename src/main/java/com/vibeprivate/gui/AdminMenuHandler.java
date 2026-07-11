@@ -90,6 +90,16 @@ final class AdminMenuHandler {
             return;
         }
 
+        if (event.getRawSlot() == AdminRegionListMenu.PREVIOUS_PAGE_SLOT && menu.hasPreviousPage()) {
+            navigator.openAdminRegionList(player, menu.getPage() - 1);
+            return;
+        }
+
+        if (event.getRawSlot() == AdminRegionListMenu.NEXT_PAGE_SLOT && menu.hasNextPage()) {
+            navigator.openAdminRegionList(player, menu.getPage() + 1);
+            return;
+        }
+
         String regionId = menu.getRegionId(event.getRawSlot());
         if (regionId == null) {
             return;
@@ -117,9 +127,19 @@ final class AdminMenuHandler {
             return;
         }
 
+        if (event.getRawSlot() == AdminPlayerListMenu.PREVIOUS_PAGE_SLOT && menu.hasPreviousPage()) {
+            navigator.openAdminPlayerList(player, menu.getPage() - 1);
+            return;
+        }
+
+        if (event.getRawSlot() == AdminPlayerListMenu.NEXT_PAGE_SLOT && menu.hasNextPage()) {
+            navigator.openAdminPlayerList(player, menu.getPage() + 1);
+            return;
+        }
+
         String ownerId = menu.getOwnerId(event.getRawSlot());
         if (ownerId != null) {
-            navigator.openAdminPlayerRegionList(player, ownerId);
+            navigator.openAdminPlayerRegionList(player, ownerId, 0, menu.getPage());
         }
     }
 
@@ -130,7 +150,19 @@ final class AdminMenuHandler {
         }
 
         if (event.getRawSlot() == AdminPlayerRegionListMenu.BACK_SLOT) {
-            navigator.openAdminPlayerList((Player) event.getWhoClicked());
+            navigator.openAdminPlayerList((Player) event.getWhoClicked(), menu.getParentPage());
+            return;
+        }
+
+        if (event.getRawSlot() == AdminPlayerRegionListMenu.PREVIOUS_PAGE_SLOT && menu.hasPreviousPage()) {
+            navigator.openAdminPlayerRegionList((Player) event.getWhoClicked(), menu.getOwnerId(),
+                    menu.getPage() - 1, menu.getParentPage());
+            return;
+        }
+
+        if (event.getRawSlot() == AdminPlayerRegionListMenu.NEXT_PAGE_SLOT && menu.hasNextPage()) {
+            navigator.openAdminPlayerRegionList((Player) event.getWhoClicked(), menu.getOwnerId(),
+                    menu.getPage() + 1, menu.getParentPage());
         }
     }
 

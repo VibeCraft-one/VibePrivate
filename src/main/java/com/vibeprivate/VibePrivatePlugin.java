@@ -1,6 +1,7 @@
 package com.vibeprivate;
 
 import com.vibeprivate.api.VibePrivateAPI;
+import com.vibeprivate.api.VibeRegionGuardApi;
 import com.vibeprivate.cache.PlayerRegionCache;
 import com.vibeprivate.config.ConfigService;
 import com.vibeprivate.gui.GuiIconRegistry;
@@ -58,22 +59,47 @@ public final class VibePrivatePlugin extends JavaPlugin {
         return services.messageService();
     }
 
+    /**
+     * Direct storage access is kept only for legacy internal integrations.
+     * External plugins should use {@link #getApi()} or {@link #getVibeRegionGuardApi()}.
+     */
+    @Deprecated(forRemoval = true)
     public DatabaseService getDatabaseService() {
         return services.databaseService();
     }
 
+    /**
+     * Direct repository access is kept only for legacy internal integrations.
+     * External plugins should use {@link #getApi()} or {@link #getVibeRegionGuardApi()}.
+     */
+    @Deprecated(forRemoval = true)
     public RegionRepository getRegionRepository() {
         return services.regionRepository();
     }
 
+    /**
+     * Direct repository access is kept only for legacy internal integrations.
+     * External plugins should use {@link #getApi()} or {@link #getVibeRegionGuardApi()}.
+     */
+    @Deprecated(forRemoval = true)
     public RegionAccessRepository getRegionAccessRepository() {
         return services.regionAccessRepository();
     }
 
+    /**
+     * Direct repository access is kept only for legacy internal integrations.
+     * External plugins should use {@link #getApi()} or {@link #getVibeRegionGuardApi()}.
+     */
+    @Deprecated(forRemoval = true)
     public RegionDepositRepository getRegionDepositRepository() {
         return services.regionDepositRepository();
     }
 
+    /**
+     * Direct repository access is kept only for legacy internal integrations.
+     * External plugins should use {@link #getApi()} or {@link #getVibeRegionGuardApi()}.
+     */
+    @Deprecated(forRemoval = true)
     public RegionHomeRepository getRegionHomeRepository() {
         return services.regionHomeRepository();
     }
@@ -140,6 +166,10 @@ public final class VibePrivatePlugin extends JavaPlugin {
 
     public VibePrivateAPI getApi() {
         return services.api();
+    }
+
+    public VibeRegionGuardApi getVibeRegionGuardApi() {
+        return services.vibeRegionGuardApi();
     }
 
     public GuiIconRegistry getGuiIconRegistry() {

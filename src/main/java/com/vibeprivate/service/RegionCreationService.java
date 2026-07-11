@@ -110,8 +110,7 @@ public final class RegionCreationService {
     }
 
     private boolean isClaimBlocked(Region region) {
-        return regionManager.getRegions().stream()
-                .filter(Region::isAdmin)
+        return regionManager.getAdminRegions().stream()
                 .filter(admin -> admin.getBounds().intersects(region.getBounds()))
                 .anyMatch(admin -> regionAccessService.hasDefaultFlag(admin.getId(), RegionFlag.NO_CLAIM)
                         && regionAccessService.getDefaultFlag(admin.getId(), RegionFlag.NO_CLAIM));

@@ -2,6 +2,7 @@ package com.vibeprivate.manager;
 
 import com.vibeprivate.config.ConfigService;
 import com.vibeprivate.index.ChunkRegionIndex;
+import com.vibeprivate.index.RegionLookupIndex;
 import com.vibeprivate.model.Region;
 import com.vibeprivate.model.RegionType;
 import com.vibeprivate.service.ChunkProtectionService;
@@ -21,6 +22,7 @@ public final class RegionManager {
     private final RegionRepository regionRepository;
     private final ConfigService configService;
     private final ChunkRegionIndex chunkIndex = new ChunkRegionIndex();
+    private final RegionLookupIndex lookupIndex = new RegionLookupIndex();
     private final Map<String, Region> regionsById = new HashMap<>();
     private ChunkProtectionService chunkProtectionService;
 
@@ -37,6 +39,7 @@ public final class RegionManager {
         }
 
         chunkIndex.rebuild(regionsById.values());
+        lookupIndex.rebuild(regionsById.values());
     }
 
     public void setChunkProtectionService(ChunkProtectionService chunkProtectionService) {
@@ -55,19 +58,22 @@ public final class RegionManager {
         regionRepository.save(region);
         regionsById.put(region.getId(), region);
         chunkIndex.add(region);
+        lookupIndex.add(region);
         protectChunks(region);
     }
 
     public Optional<Region> removeRegion(String regionId) {
         Objects.requireNonNull(regionId, "regionId");
-        Region removed = regionsById.remove(regionId);
+        Region removed = regionsById.get(regionId);
         if (removed == null) {
             return Optional.empty();
         }
 
-        chunkIndex.remove(removed);
-        unprotectChunks(removed);
         regionRepository.delete(regionId);
+        regionsById.remove(regionId);
+        chunkIndex.remove(removed);
+        lookupIndex.remove(removed);
+        unprotectChunks(removed);
         return Optional.of(removed);
     }
 
@@ -93,13 +99,16 @@ public final class RegionManager {
             validateWorld(region);
             validateChunkOverlap(region);
             regionRepository.save(region);
-            regionsById.put(region.getId(), region);
-            chunkIndex.add(region);
-            protectChunks(region);
         } catch (RuntimeException exception) {
             chunkIndex.add(oldRegion);
             throw exception;
         }
+
+        regionsById.put(region.getId(), region);
+        chunkIndex.add(region);
+        lookupIndex.remove(oldRegion);
+        lookupIndex.add(region);
+        protectChunks(region);
     }
 
     public Optional<Region> getRegion(String regionId) {
@@ -173,8 +182,7 @@ public final class RegionManager {
 
     public List<Region> getRegionsByOwner(String ownerId) {
         Objects.requireNonNull(ownerId, "ownerId");
-        return regionsById.values().stream()
-                .filter(region -> region.getOwnerId().equals(ownerId))
+        return lookupIndex.getByOwner(ownerId).stream()
                 .sorted(Comparator.comparing(Region::getType).thenComparing(Region::getName))
                 .toList();
     }
@@ -182,11 +190,44 @@ public final class RegionManager {
     public List<Region> getRegionsByOwnerAndType(String ownerId, RegionType type) {
         Objects.requireNonNull(ownerId, "ownerId");
         Objects.requireNonNull(type, "type");
-        return regionsById.values().stream()
-                .filter(region -> region.getOwnerId().equals(ownerId))
+        return lookupIndex.getByOwner(ownerId).stream()
                 .filter(region -> region.getType() == type)
                 .sorted(Comparator.comparing(Region::getName))
                 .toList();
+    }
+
+    public List<Region> getAdminRegions() {
+        return lookupIndex.getAdminRegions().stream()
+                .sorted(Comparator.comparing(Region::getName))
+                .toList();
+    }
+
+    public int getAdminRegionCount() {
+        return lookupIndex.getAdminRegionCount();
+    }
+
+    public int getPlayerRegionCount() {
+        return lookupIndex.getPlayerRegionCount();
+    }
+
+    public List<Region> getPlayerRegions() {
+        return lookupIndex.getPlayerRegions();
+    }
+
+    public List<String> getPlayerOwnerIds() {
+        return lookupIndex.getPlayerOwnerIds();
+    }
+
+    public List<Region> getPlayerRegionsByOwner(String ownerId) {
+        Objects.requireNonNull(ownerId, "ownerId");
+        return lookupIndex.getPlayerRegionsByOwner(ownerId).stream()
+                .sorted(Comparator.comparing(Region::getType).thenComparing(Region::getName))
+                .toList();
+    }
+
+    public List<Region> getRegionsInWorld(String worldName) {
+        Objects.requireNonNull(worldName, "worldName");
+        return lookupIndex.getInWorld(worldName);
     }
 
     public Collection<Region> getRegions() {

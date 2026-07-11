@@ -34,6 +34,23 @@ public final class RegionHomeService {
         return homeRepository.getHome(region.getId());
     }
 
+    public Optional<RegionHome> getHome(String regionId) {
+        Objects.requireNonNull(regionId, "regionId");
+        return homeRepository.getHome(regionId);
+    }
+
+    public boolean setHome(RegionHome home) {
+        Objects.requireNonNull(home, "home");
+        Region region = regionManager.getRegion(home.regionId()).orElse(null);
+        if (region == null || !region.getBounds().contains(home.worldName(),
+                (int) Math.floor(home.x()), (int) Math.floor(home.y()), (int) Math.floor(home.z()))) {
+            return false;
+        }
+
+        homeRepository.saveHome(home);
+        return true;
+    }
+
     public boolean setHome(Player player) {
         Objects.requireNonNull(player, "player");
         Region region = regionManager.getRegionIncludingDisabledAtOrNull(player.getLocation());

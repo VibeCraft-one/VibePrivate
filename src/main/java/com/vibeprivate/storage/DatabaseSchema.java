@@ -1,6 +1,8 @@
 package com.vibeprivate.storage;
 
+import java.sql.DatabaseMetaData;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Objects;
@@ -20,9 +22,14 @@ final class DatabaseSchema {
         execute(createRegionDepositsSql());
         execute(createRegionHomesSql());
         execute(createRegionFuelSlotsSql());
+        execute(createClanRegionRolesSql());
         execute(createOwnerUpkeepSql());
+        execute(createRegionLifecycleSql());
         execute(createPendingConfirmationsSql());
         execute(createProtectedChunksSql());
+        ensureLegacyRegionColumns();
+        createIndex("idx_clan_region_roles_player", "clan_region_roles", "player_id");
+        createIndex("idx_region_lifecycle_status", "region_lifecycle", "status");
         createIndex("idx_protected_chunks_region", "protected_chunks", "region_id");
         createIndex("idx_protected_chunks_owner", "protected_chunks", "owner_id");
     }
@@ -61,6 +68,47 @@ final class DatabaseSchema {
 
     private boolean isDuplicateIndex(SQLException exception) {
         return exception.getErrorCode() == 1061;
+    }
+
+    private void ensureLegacyRegionColumns() {
+        ensureColumn("regions", "fuel_expires_at", longType() + " NOT NULL DEFAULT 0");
+        ensureColumn("regions", "fuel_empty_since", longType() + " NOT NULL DEFAULT 0");
+        ensureColumn("regions", "last_fuel_drain_at", longType() + " NOT NULL DEFAULT 0");
+        ensureColumn("regions", "upgrade_level", "INTEGER NOT NULL DEFAULT 0");
+        ensureColumn("regions", "visualization_mode", stringType(32) + " NOT NULL DEFAULT 'ALL'");
+    }
+
+    private void ensureColumn(String table, String column, String definition) {
+        if (columnExists(table, column)) {
+            return;
+        }
+
+        execute("ALTER TABLE " + table + " ADD COLUMN " + column + " " + definition);
+    }
+
+    private boolean columnExists(String table, String column) {
+        try {
+            DatabaseMetaData metadata = connection().getMetaData();
+            try (ResultSet columns = metadata.getColumns(connection().getCatalog(), null, table, null)) {
+                while (columns.next()) {
+                    if (column.equalsIgnoreCase(columns.getString("COLUMN_NAME"))) {
+                        return true;
+                    }
+                }
+            }
+        } catch (SQLException exception) {
+            throw new IllegalStateException("Failed to inspect database schema.", exception);
+        }
+
+        return false;
+    }
+
+    private String longType() {
+        return isMySql() ? "BIGINT" : "INTEGER";
+    }
+
+    private String stringType(int length) {
+        return isMySql() ? "VARCHAR(" + length + ")" : "TEXT";
     }
 
     private String createRegionsSql() {
@@ -217,6 +265,23 @@ final class DatabaseSchema {
                 """.formatted(regionIdType, worldType, doubleType, doubleType, doubleType, doubleType, doubleType);
     }
 
+    private String createClanRegionRolesSql() {
+        String regionIdType = isMySql() ? "VARCHAR(64)" : "TEXT";
+        String playerIdType = isMySql() ? "VARCHAR(36)" : "TEXT";
+        String roleType = isMySql() ? "VARCHAR(32)" : "TEXT";
+        String longType = isMySql() ? "BIGINT" : "INTEGER";
+        return """
+                CREATE TABLE IF NOT EXISTS clan_region_roles (
+                    region_id %s NOT NULL,
+                    player_id %s NOT NULL,
+                    role %s NOT NULL,
+                    updated_at %s NOT NULL,
+                    PRIMARY KEY (region_id, player_id),
+                    FOREIGN KEY (region_id) REFERENCES regions(id) ON DELETE CASCADE
+                )
+                """.formatted(regionIdType, playerIdType, roleType, longType);
+    }
+
     private String createOwnerUpkeepSql() {
         String ownerType = isMySql() ? "VARCHAR(128)" : "TEXT";
         String longType = isMySql() ? "BIGINT" : "INTEGER";
@@ -245,6 +310,23 @@ final class DatabaseSchema {
                     expires_at %s NOT NULL
                 )
                 """.formatted(idType, actorType, actionType, targetType, longType);
+    }
+
+    private String createRegionLifecycleSql() {
+        String regionIdType = isMySql() ? "VARCHAR(64)" : "TEXT";
+        String statusType = isMySql() ? "VARCHAR(32)" : "TEXT";
+        String longType = isMySql() ? "BIGINT" : "INTEGER";
+        return """
+                CREATE TABLE IF NOT EXISTS region_lifecycle (
+                    region_id %s PRIMARY KEY,
+                    status %s NOT NULL,
+                    status_reason TEXT,
+                    status_changed_at %s NOT NULL,
+                    upkeep_paused_until %s,
+                    upkeep_pause_reason TEXT,
+                    FOREIGN KEY (region_id) REFERENCES regions(id) ON DELETE CASCADE
+                )
+                """.formatted(regionIdType, statusType, longType, longType);
     }
 
     private String createProtectedChunksSql() {

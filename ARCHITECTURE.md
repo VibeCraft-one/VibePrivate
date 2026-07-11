@@ -1,29 +1,34 @@
 # VibePrivate Architecture
 
-VibePrivate is the public plugin identity and the forward path for the project.
+This file is the short architecture entrypoint. For the current file map and first files to open, use `docs/ARCHITECTURE_MAP.md`.
 
-The old `com.viberegion` package is kept temporarily as prototype code while the
-new implementation is built in small, compile-safe passes. It is not the active
-plugin entrypoint.
+## Current Identity
 
-Active plugin entrypoint:
+- External plugin name: `VibeRegionGuard`.
+- Bukkit entrypoint: `com.vibeprivate.VibePrivatePlugin`.
+- Java package/API compatibility stays under `com.vibeprivate`.
+- Preferred external facade: `VibePrivatePlugin#getVibeRegionGuardApi()`.
+- Legacy compatibility facade: `VibePrivatePlugin#getApi()`.
 
-- `com.vibeprivate.VibePrivatePlugin`
+Do not mass-rename packages just for branding. Keep compatibility stable until a dedicated migration checkpoint exists.
 
-Active resources:
+## Boundaries
 
-- `plugin.yml`
-- `config.yml`
-- `messages/ru.yml`
-- `messages/en.yml`
+- `api`: public integration surface and Bukkit events.
+- `model`: region, bounds, flags and lifecycle state.
+- `manager`: in-memory region registry and lookup indexes.
+- `service`: business rules for lifecycle, selection, relocation, homes, fuel, upkeep and invites.
+- `storage`: SQL schema and repositories.
+- `protection` / `index`: hot-path protection lookup and region indexes.
+- `gui` / `command` / `listener`: player/admin interaction adapters.
+- `config` / `message`: configuration and localized text.
 
-Current pass responsibilities:
+## Transfer Rule
 
-- `config` loads stable configuration values.
-- `message` loads visible text from language files.
-- `storage` owns SQLite connection and schema migration.
-- `command` routes `/vp`, `/privat`, and help.
+Cross-world or season base transfer orchestration stays in a separate plugin. `VibeRegionGuard` only owns region truth, validation, move/relocate primitives, lifecycle state, home remap and typed events.
 
-Next passes should add new production code under `com.vibeprivate.*`.
-Old `com.viberegion.*` classes should only be copied from deliberately, then
-removed once replacement systems are complete.
+Other plugins must use the public API. They must not read SQL tables directly and must not use reflection against internals.
+
+## Development Rule
+
+One pass changes one layer. Do not mix GUI, storage, protection, transfer orchestration and language work in one commit.

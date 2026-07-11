@@ -1,22 +1,40 @@
-# VibePrivate
+# VibeRegionGuard
 
-## Кратко
+## Summary
 
-- Зачем создан: приватные регионы для игроков VibeCraft без тяжелой внешней системы.
-- Что делает: регионы, участники, флаги, GUI, `/vp`, `/privat`, `/privatadmin`, `/home`, `/sethome`, SQLite/MySQL.
-- Риски: ошибки защиты могут дать гриферство или заблокировать игроков; миграции БД и CMI-команды надо тестировать отдельно.
-- Проблемы/баги: проект в активной перестройке; старый прототип `com.viberegion` еще упомянут в архитектуре; нужен полный серверный smoke.
-- Статус: MVP+ примерно 65/100.
+- Purpose: private regions for VibeCraft players without a heavy external region system.
+- Features: regions, members, flags, GUI, `/vp`, `/privat`, `/privatadmin`, `/home`, `/sethome`, SQLite/MySQL.
+- Compatibility: internal Java package/API stay as `com.vibeprivate` and `VibePrivateAPI`; external integrations should prefer the thin `VibeRegionGuardApi` facade.
+- Risks: protection bugs can allow griefing or block players; DB migrations and command compatibility need separate smoke checks.
+- Current state: API/lifecycle/transfer foundation, admin GUI pagination, CLAN role foundation, fuel/deposit hardening, lookup smoke and protection smoke are implemented and covered by focused checks.
+- RC gate: live manual Paper/Purpur player smoke is still required before calling this tester-ready.
 
-## Сборка
+## Build
 
 ```bash
 ./gradlew build
 ```
 
-## Мини-проверка
+Focused smoke runner:
 
-1. Поставить jar на Paper 1.21.x.
-2. Проверить `/vp`, создание региона, добавление участника.
-3. Проверить флаги защиты: блоки, контейнеры, урон, телепорт.
-4. Проверить перезапуск сервера и сохранение регионов.
+```bash
+./gradlew lifecycleSmokeTest
+```
+
+Note: the standard Gradle `test` task is intentionally disabled in this repo. `build` runs `check`, and `check` depends on `lifecycleSmokeTest`.
+
+## Development Start
+
+1. Open `docs/ARCHITECTURE_MAP.md`.
+2. Check `git status --short --branch`.
+3. Work on one layer per pass: API, lifecycle, storage, GUI, commands or protection.
+4. For external integrations, use `getVibeRegionGuardApi()` or `getApi()`, not repositories, SQL or reflection.
+
+## Minimal Manual Check
+
+1. Install the jar on Paper/Purpur 1.21.x.
+2. Verify `/vp`, region creation and member add/remove.
+3. Verify protection flags: blocks, containers, damage and teleport.
+4. Restart the server and verify regions, home and fuel/deposit persistence.
+5. Use `docs/MANUAL_PLAYER_SMOKE_RUNBOOK.md` for the full RC smoke.
+6. Record the result in `docs/LIVE_SMOKE_EVIDENCE_TEMPLATE.md`.

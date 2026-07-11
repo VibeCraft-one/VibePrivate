@@ -78,14 +78,32 @@ public final class FuelService {
         long addedMillis = consumed * effectiveMillisPerItem;
         long newExpiresAt = Math.min(maxExpiresAt, base + addedMillis);
 
-        region.setFuelExpiresAt(newExpiresAt);
-        region.setFuelEmptySince(0);
-        region.setLastFuelDrainAt(now);
-        region.setEnabled(true);
-        regionManager.saveRegion(region);
+        ItemStack originalItem = item.clone();
+        boolean wasEnabled = region.isEnabled();
+        long oldFuelExpiresAt = region.getFuelExpiresAt();
+        long oldFuelEmptySince = region.getFuelEmptySince();
+        long oldLastFuelDrainAt = region.getLastFuelDrainAt();
 
-        item.setAmount(item.getAmount() - consumed);
-        player.getInventory().setItemInMainHand(item.getAmount() <= 0 ? null : item);
+        try {
+            setMainHandAfterConsuming(player, originalItem, consumed);
+        } catch (RuntimeException exception) {
+            return FuelAddResult.fail(FuelAddStatus.FAILED, getRemainingMillis(region));
+        }
+
+        try {
+            region.setFuelExpiresAt(newExpiresAt);
+            region.setFuelEmptySince(0);
+            region.setLastFuelDrainAt(now);
+            region.setEnabled(true);
+            regionManager.saveRegion(region);
+        } catch (RuntimeException exception) {
+            region.setFuelExpiresAt(oldFuelExpiresAt);
+            region.setFuelEmptySince(oldFuelEmptySince);
+            region.setLastFuelDrainAt(oldLastFuelDrainAt);
+            region.setEnabled(wasEnabled);
+            restoreMainHand(player, originalItem);
+            return FuelAddResult.fail(FuelAddStatus.FAILED, getRemainingMillis(region));
+        }
 
         return FuelAddResult.success(consumed, Math.max(1L, (newExpiresAt - base) / MINUTE_MILLIS),
                 getRemainingMillis(region));
@@ -139,11 +157,7 @@ public final class FuelService {
         }
 
         long now = System.currentTimeMillis();
-        for (Region region : regionManager.getRegions()) {
-            if (region.isAdmin()) {
-                continue;
-            }
-
+        for (Region region : regionManager.getPlayerRegions()) {
             if (region.isEnabled() && region.getFuelExpiresAt() <= now) {
                 region.setEnabled(false);
                 region.setFuelEmptySince(now);
@@ -155,5 +169,25 @@ public final class FuelService {
 
     private long getMaxFuelMillis() {
         return configService.getFuelMaxDays() * DAY_MILLIS;
+    }
+
+    private void setMainHandAfterConsuming(Player player, ItemStack originalItem, int consumed) {
+        int remainingAmount = originalItem.getAmount() - consumed;
+        if (remainingAmount <= 0) {
+            player.getInventory().setItemInMainHand(null);
+            return;
+        }
+
+        ItemStack remaining = originalItem.clone();
+        remaining.setAmount(remainingAmount);
+        player.getInventory().setItemInMainHand(remaining);
+    }
+
+    private void restoreMainHand(Player player, ItemStack originalItem) {
+        try {
+            player.getInventory().setItemInMainHand(originalItem.clone());
+        } catch (RuntimeException ignored) {
+            // Best-effort rollback after a failed persistent save.
+        }
     }
 }

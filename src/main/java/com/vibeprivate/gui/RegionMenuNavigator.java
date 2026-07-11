@@ -60,15 +60,27 @@ final class RegionMenuNavigator {
     }
 
     void openAdminRegionList(Player player) {
-        player.openInventory(new AdminRegionListMenu(messageService, regionManager, regionAccessService, player).getInventory());
+        openAdminRegionList(player, 0);
+    }
+
+    void openAdminRegionList(Player player, int page) {
+        player.openInventory(new AdminRegionListMenu(messageService, regionManager, regionAccessService, player, page).getInventory());
     }
 
     void openAdminPlayerList(Player player) {
-        player.openInventory(new AdminPlayerListMenu(messageService, regionManager, player).getInventory());
+        openAdminPlayerList(player, 0);
+    }
+
+    void openAdminPlayerList(Player player, int page) {
+        player.openInventory(new AdminPlayerListMenu(messageService, regionManager, player, page).getInventory());
     }
 
     void openAdminPlayerRegionList(Player player, String ownerId) {
-        player.openInventory(new AdminPlayerRegionListMenu(messageService, regionManager, player, ownerId).getInventory());
+        openAdminPlayerRegionList(player, ownerId, 0, 0);
+    }
+
+    void openAdminPlayerRegionList(Player player, String ownerId, int page, int parentPage) {
+        player.openInventory(new AdminPlayerRegionListMenu(messageService, regionManager, player, ownerId, page, parentPage).getInventory());
     }
 
     void openRegionDetail(Player player, Region region) {

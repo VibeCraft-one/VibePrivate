@@ -155,6 +155,24 @@ final class DatabaseStatements {
                 """;
     }
 
+    String upsertClanRegionRoleSql() {
+        return databaseService.isMySql()
+                ? """
+                INSERT INTO clan_region_roles(region_id, player_id, role, updated_at)
+                VALUES(?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE
+                    role = VALUES(role),
+                    updated_at = VALUES(updated_at)
+                """
+                : """
+                INSERT INTO clan_region_roles(region_id, player_id, role, updated_at)
+                VALUES(?, ?, ?, ?)
+                ON CONFLICT(region_id, player_id) DO UPDATE SET
+                    role = excluded.role,
+                    updated_at = excluded.updated_at
+                """;
+    }
+
     String upsertRegionHomeSql() {
         return databaseService.isMySql()
                 ? """
@@ -196,6 +214,32 @@ final class DatabaseStatements {
                 ON CONFLICT(owner_id) DO UPDATE SET
                     debt_days = excluded.debt_days,
                     last_charged_at = excluded.last_charged_at
+                """;
+    }
+
+    String upsertRegionLifecycleSql() {
+        return databaseService.isMySql()
+                ? """
+                INSERT INTO region_lifecycle(
+                    region_id, status, status_reason, status_changed_at, upkeep_paused_until, upkeep_pause_reason
+                ) VALUES(?, ?, ?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE
+                    status = VALUES(status),
+                    status_reason = VALUES(status_reason),
+                    status_changed_at = VALUES(status_changed_at),
+                    upkeep_paused_until = VALUES(upkeep_paused_until),
+                    upkeep_pause_reason = VALUES(upkeep_pause_reason)
+                """
+                : """
+                INSERT INTO region_lifecycle(
+                    region_id, status, status_reason, status_changed_at, upkeep_paused_until, upkeep_pause_reason
+                ) VALUES(?, ?, ?, ?, ?, ?)
+                ON CONFLICT(region_id) DO UPDATE SET
+                    status = excluded.status,
+                    status_reason = excluded.status_reason,
+                    status_changed_at = excluded.status_changed_at,
+                    upkeep_paused_until = excluded.upkeep_paused_until,
+                    upkeep_pause_reason = excluded.upkeep_pause_reason
                 """;
     }
 }

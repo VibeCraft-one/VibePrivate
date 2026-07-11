@@ -17,22 +17,32 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public final class AdminPlayerListMenu implements InventoryHolder {
     public static final int BACK_SLOT = 53;
+    public static final int PREVIOUS_PAGE_SLOT = 45;
+    public static final int PAGE_INFO_SLOT = 49;
+    public static final int NEXT_PAGE_SLOT = 52;
 
     private final MessageService messageService;
     private final RegionManager regionManager;
     private final Player player;
+    private int page;
     private final Inventory inventory;
     private final GuiItemFactory itemFactory;
     private final Map<Integer, String> ownerIdsBySlot = new HashMap<>();
+    private boolean hasPreviousPage;
+    private boolean hasNextPage;
 
     public AdminPlayerListMenu(MessageService messageService, RegionManager regionManager, Player player) {
+        this(messageService, regionManager, player, 0);
+    }
+
+    public AdminPlayerListMenu(MessageService messageService, RegionManager regionManager, Player player, int page) {
         this.messageService = Objects.requireNonNull(messageService, "messageService");
         this.regionManager = Objects.requireNonNull(regionManager, "regionManager");
         this.player = Objects.requireNonNull(player, "player");
+        this.page = Math.max(0, page);
         this.itemFactory = new GuiItemFactory(messageService);
         this.inventory = Bukkit.createInventory(this, 54, messageService.get("gui.admin.players.title"));
         render();
@@ -47,26 +57,34 @@ public final class AdminPlayerListMenu implements InventoryHolder {
         return player;
     }
 
+    public int getPage() {
+        return page;
+    }
+
+    public boolean hasPreviousPage() {
+        return hasPreviousPage;
+    }
+
+    public boolean hasNextPage() {
+        return hasNextPage;
+    }
+
     public String getOwnerId(int slot) {
         return ownerIdsBySlot.get(slot);
     }
 
     private void render() {
-        Map<String, List<Region>> regionsByOwner = regionManager.getRegions().stream()
-                .filter(region -> !region.isAdmin())
-                .collect(Collectors.groupingBy(Region::getOwnerId));
-
-        List<String> ownerIds = regionsByOwner.keySet().stream()
+        List<String> ownerIds = regionManager.getPlayerOwnerIds().stream()
                 .sorted(Comparator.comparing(this::displayOwner))
                 .toList();
+        AdminGuiPage guiPage = new AdminGuiPage(page, ownerIds.size());
+        page = guiPage.page();
+        hasPreviousPage = guiPage.hasPrevious();
+        hasNextPage = guiPage.hasNext();
 
         int slot = 0;
-        for (String ownerId : ownerIds) {
-            if (slot >= 45) {
-                break;
-            }
-
-            inventory.setItem(slot, ownerItem(ownerId, regionsByOwner.get(ownerId)));
+        for (String ownerId : guiPage.slice(ownerIds)) {
+            inventory.setItem(slot, ownerItem(ownerId, regionManager.getPlayerRegionsByOwner(ownerId)));
             ownerIdsBySlot.put(slot, ownerId);
             slot++;
         }
@@ -76,7 +94,25 @@ public final class AdminPlayerListMenu implements InventoryHolder {
                     List.of("gui.admin.players.empty.lore")));
         }
 
+        renderPagination(guiPage);
         inventory.setItem(BACK_SLOT, itemFactory.item(GuiIcon.BACK, "gui.back.name", List.of("gui.back.lore")));
+    }
+
+    private void renderPagination(AdminGuiPage guiPage) {
+        Map<String, String> placeholders = Map.of(
+                "page", Integer.toString(guiPage.displayPage()),
+                "pages", Integer.toString(guiPage.totalPages())
+        );
+        if (guiPage.hasPrevious()) {
+            inventory.setItem(PREVIOUS_PAGE_SLOT, itemFactory.item(Material.ARROW, "gui.page.previous.name",
+                    placeholders, List.of("gui.page.previous.lore"), placeholders));
+        }
+        inventory.setItem(PAGE_INFO_SLOT, itemFactory.item(Material.PAPER, "gui.page.info.name",
+                placeholders, List.of("gui.page.info.lore"), placeholders));
+        if (guiPage.hasNext()) {
+            inventory.setItem(NEXT_PAGE_SLOT, itemFactory.item(Material.ARROW, "gui.page.next.name",
+                    placeholders, List.of("gui.page.next.lore"), placeholders));
+        }
     }
 
     private ItemStack ownerItem(String ownerId, List<Region> regions) {

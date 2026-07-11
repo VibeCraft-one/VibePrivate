@@ -55,13 +55,16 @@ public final class ProtectionService {
         Objects.requireNonNull(player, "player");
         Objects.requireNonNull(location, "location");
 
-        Region cachedRegion = playerRegionCache.get(player.getUniqueId());
+        UUID playerId = player.getUniqueId();
+        Region cachedRegion = playerRegionCache.get(playerId);
         if (cachedRegion != null && contains(cachedRegion, location) && !cachedRegion.isAdmin()) {
-            return cachedRegion;
+            Region currentRegion = regionManager.getRegionAtOrNull(location);
+            playerRegionCache.set(playerId, currentRegion);
+            return currentRegion;
         }
 
         Region region = regionManager.getRegionAtOrNull(location);
-        playerRegionCache.set(player.getUniqueId(), region);
+        playerRegionCache.set(playerId, region);
         return region;
     }
 

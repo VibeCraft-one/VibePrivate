@@ -14,7 +14,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
-public final class RegionAccessService {
+public final class RegionAccessService implements ClanRegionMembershipStore {
     private final RegionAccessRepository accessRepository;
     private Map<String, Set<UUID>> membersByRegion = new HashMap<>();
     private Map<String, Map<UUID, Map<RegionFlag, Boolean>>> flagsByRegion = new HashMap<>();
@@ -165,6 +165,7 @@ public final class RegionAccessService {
         }
     }
 
+    @Override
     public boolean isMember(String regionId, UUID playerId) {
         Objects.requireNonNull(regionId, "regionId");
         Objects.requireNonNull(playerId, "playerId");

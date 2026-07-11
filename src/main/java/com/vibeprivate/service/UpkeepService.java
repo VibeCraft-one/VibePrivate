@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public final class UpkeepService {
     private static final long DAY_MILLIS = 86_400_000L;
@@ -30,18 +29,20 @@ public final class UpkeepService {
     private final MessageService messageService;
     private final EconomyService economyService;
     private final UpkeepRepository upkeepRepository;
+    private final RegionLifecycleService regionLifecycleService;
     private final Map<String, UpkeepState> states = new HashMap<>();
     private BukkitTask task;
 
     public UpkeepService(JavaPlugin plugin, RegionManager regionManager, ConfigService configService,
                          MessageService messageService, EconomyService economyService,
-                         UpkeepRepository upkeepRepository) {
+                         UpkeepRepository upkeepRepository, RegionLifecycleService regionLifecycleService) {
         this.plugin = Objects.requireNonNull(plugin, "plugin");
         this.regionManager = Objects.requireNonNull(regionManager, "regionManager");
         this.configService = Objects.requireNonNull(configService, "configService");
         this.messageService = Objects.requireNonNull(messageService, "messageService");
         this.economyService = Objects.requireNonNull(economyService, "economyService");
         this.upkeepRepository = Objects.requireNonNull(upkeepRepository, "upkeepRepository");
+        this.regionLifecycleService = Objects.requireNonNull(regionLifecycleService, "regionLifecycleService");
     }
 
     public void load() {
@@ -245,16 +246,13 @@ public final class UpkeepService {
     }
 
     private List<Region> playerRegions(String ownerId) {
-        return regionManager.getRegionsByOwner(ownerId).stream()
-                .filter(region -> !region.isAdmin())
+        return regionManager.getPlayerRegionsByOwner(ownerId).stream()
+                .filter(region -> !regionLifecycleService.isUpkeepPaused(region.getId()))
                 .toList();
     }
 
     private Set<String> owners() {
-        return regionManager.getRegions().stream()
-                .filter(region -> !region.isAdmin())
-                .map(Region::getOwnerId)
-                .collect(Collectors.toSet());
+        return Set.copyOf(regionManager.getPlayerOwnerIds());
     }
 
     private UpkeepState state(String ownerId) {
